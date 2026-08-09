@@ -11,6 +11,7 @@
     <!-- FIREBASE SDK (Compatibilidad para Vanilla JS) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
     <style>
         body { 
@@ -20,6 +21,108 @@
             margin: 0; 
             padding-bottom: 40px;
         }
+
+        /* BARRA SUPERIOR DE AUTENTICACIÓN */
+        .auth-bar {
+            background: #242526;
+            border-bottom: 1px solid #3e4042;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .auth-container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .auth-forms-toggle {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .auth-toggle-btn {
+            background: transparent;
+            border: none;
+            color: #b0b3b8;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-bottom: 2px solid transparent;
+        }
+        .auth-toggle-btn.active {
+            color: #2d88ff;
+            border-bottom: 2px solid #2d88ff;
+        }
+        .auth-form-inline {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .auth-input-top {
+            background: #3a3b3c;
+            border: 1px solid #3e4042;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .auth-btn-top {
+            background: #2d88ff;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .auth-btn-top:hover {
+            background: #1a73e8;
+        }
+        .user-logged-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .badge-role {
+            background: #e41e3f;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .badge-user {
+            background: #2d88ff;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .btn-logout {
+            background: #3a3b3c;
+            color: #e4e6eb;
+            border: 1px solid #3e4042;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-logout:hover {
+            background: #4e4f50;
+        }
+
         .container { 
             max-width: 800px; 
             margin: auto; 
@@ -261,6 +364,40 @@
             background: #b81430;
         }
 
+        /* TABLA DE USUARIOS Y MODERACIÓN */
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .users-table th, .users-table td {
+            border: 1px solid #3e4042;
+            padding: 8px;
+            text-align: left;
+        }
+        .users-table th {
+            background: #18191a;
+            color: #2d88ff;
+        }
+        .btn-action-block {
+            background: #e41e3f;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-action-unblock {
+            background: #00e676;
+            color: black;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         /* TARJETAS DE ESTADÍSTICAS */
         .stats-grid {
             display: grid;
@@ -355,6 +492,44 @@
 </head>
 <body>
 
+<!-- BARRA SUPERIOR DE AUTENTICACIÓN (REGISTRO Y LOGIN) -->
+<div class="auth-bar">
+    <div class="auth-container">
+        <!-- VISTA CUANDO NO HAY SESIÓN INICIADA -->
+        <div id="auth-guest-section" style="display: flex; width: 100%; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div class="auth-forms-toggle">
+                <button id="toggle-login-btn" class="auth-toggle-btn active" onclick="switchAuthMode('login')">Iniciar Sesión</button>
+                <button id="toggle-register-btn" class="auth-toggle-btn" onclick="switchAuthMode('register')">Registrarse</button>
+            </div>
+
+            <!-- Formulario Iniciar Sesión -->
+            <form id="form-login" class="auth-form-inline" onsubmit="handleLogin(event)">
+                <input type="email" id="login-email" class="auth-input-top" placeholder="Correo electrónico" required>
+                <input type="password" id="login-pass" class="auth-input-top" placeholder="Contraseña" required>
+                <button type="submit" class="auth-btn-top">Entrar</button>
+            </form>
+
+            <!-- Formulario Registro (Inicialmente oculto) -->
+            <form id="form-register" class="auth-form-inline" onsubmit="handleRegister(event)" style="display: none;">
+                <input type="text" id="reg-username" class="auth-input-top" placeholder="Usuario" required>
+                <input type="email" id="reg-email" class="auth-input-top" placeholder="Correo electrónico" required>
+                <input type="password" id="reg-pass" class="auth-input-top" placeholder="Contraseña" required>
+                <button type="submit" class="auth-btn-top" style="background: #00e676; color: black;">Crear Cuenta</button>
+            </form>
+        </div>
+
+        <!-- VISTA CUANDO HAY SESIÓN INICIADA -->
+        <div id="auth-user-section" class="user-logged-box" style="display: none; width: 100%; justify-content: space-between;">
+            <div>
+                <i class="fa-solid fa-user-check" style="color: #00e676;"></i>
+                <span id="current-user-name" style="font-weight: bold; margin-left: 5px;">Usuario</span>
+                <span id="current-user-role" class="badge-user">USER</span>
+            </div>
+            <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+        </div>
+    </div>
+</div>
+
 <div class="container">
     <!-- PORTADA -->
     <div class="cover-photo">
@@ -409,16 +584,16 @@
 
     <!-- SECCIÓN 2: PANEL DE ADMINISTRACIÓN -->
     <div id="admin-section" class="content-section">
-        <!-- Login de Seguridad -->
+        <!-- Login de PIN tradicional / Verificación de Administrador -->
         <div id="admin-login-box" class="admin-panel-card">
             <h3><i class="fa-solid fa-lock"></i> Acceso Restringido a Administradores</h3>
-            <p style="font-size: 13px; color: #b0b3b8;">Ingresa el PIN de administración para publicar noticias, encuestas y revisar las estadísticas.</p>
-            <input type="password" id="admin-pin" class="admin-input" placeholder="Introduce la clave de Admin">
-            <button class="admin-btn" onclick="verifyAdminPin()">Entrar al Panel</button>
-            <p id="admin-error" style="color: #ff4d4d; font-size: 13px; display: none; margin-top: 10px;">Clave incorrecta.</p>
+            <p style="font-size: 13px; color: #b0b3b8;">Inicia sesión arriba con una cuenta Admin o ingresa el PIN directo.</p>
+            <input type="password" id="admin-pin" class="admin-input" placeholder="Introduce el PIN de Admin">
+            <button class="admin-btn" onclick="verifyAdminPin()">Entrar al Panel con PIN</button>
+            <p id="admin-error" style="color: #ff4d4d; font-size: 13px; display: none; margin-top: 10px;">Clave incorrecta o tu cuenta no tiene permisos de Administrador.</p>
         </div>
 
-        <!-- Contenido del Panel (Solo visible tras login) -->
+        <!-- Contenido del Panel (Visible tras login o verificar Admin) -->
         <div id="admin-dashboard" style="display: none;">
             
             <!-- APARTADO DE ESTADÍSTICAS DE VISITAS -->
@@ -426,7 +601,6 @@
                 <h3 style="color: #2d88ff;"><i class="fa-solid fa-chart-line"></i> Estadísticas de Visitas del Sitio</h3>
                 <p style="font-size: 13px; color: #b0b3b8;">Resumen analítico de la actividad de los usuarios en la web.</p>
                 
-                <!-- Tarjetas de métricas -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h4>VISITAS TOTALES</h4>
@@ -442,11 +616,31 @@
                     </div>
                 </div>
 
-                <!-- Gráfico interactivo -->
                 <div class="chart-box">
                     <h4 style="margin-top:0; color:#e4e6eb;">Tendencia de Tráfico (Últimos 7 días)</h4>
                     <canvas id="visitsChart" height="140"></canvas>
                 </div>
+            </div>
+
+            <!-- APARTADO DE MODERACIÓN Y GESTIÓN DE USUARIOS (NUEVO) -->
+            <div class="admin-panel-card" style="border-color: #ff9200;">
+                <h3 style="color: #ff9200;"><i class="fa-solid fa-users-gear"></i> Moderación de Usuarios</h3>
+                <p style="font-size: 13px; color: #b0b3b8;">Lista de usuarios registrados. Puedes bloquear o desbloquear usuarios.</p>
+                
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th>Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- Carga dinámica de usuarios -->
+                    </tbody>
+                </table>
             </div>
 
             <!-- Creador de Noticias -->
@@ -506,7 +700,6 @@
     // ==========================================
     // 1. CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
     // ==========================================
-    // Remplaza los siguientes valores con las credenciales de tu consola de Firebase
     const firebaseConfig = {
         apiKey: "TU_API_KEY",
         authDomain: "TU_PROYECTO.firebaseapp.com",
@@ -517,13 +710,13 @@
         appId: "1:123456789:web:abcdef"
     };
 
-    // Inicializar Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    const auth = firebase.auth();
 
-    // PIN de Administrador
     const SECRET_PIN = "nyusu123";
     let chartInstance = null;
+    let currentUserData = null;
 
     // Registrar visitas en tiempo real al ingresar
     const todayKey = new Date().toISOString().split('T')[0];
@@ -531,10 +724,156 @@
     db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
 
     // ==========================================
-    // 2. SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
+    // 2. SISTEMA DE AUTENTICACIÓN Y ROLES
     // ==========================================
 
-    // Cargar Noticias y Encuestas
+    function switchAuthMode(mode) {
+        if(mode === 'login') {
+            document.getElementById('form-login').style.display = 'flex';
+            document.getElementById('form-register').style.display = 'none';
+            document.getElementById('toggle-login-btn').classList.add('active');
+            document.getElementById('toggle-register-btn').classList.remove('active');
+        } else {
+            document.getElementById('form-login').style.display = 'none';
+            document.getElementById('form-register').style.display = 'flex';
+            document.getElementById('toggle-login-btn').classList.remove('active');
+            document.getElementById('toggle-register-btn').classList.add('active');
+        }
+    }
+
+    function handleRegister(e) {
+        e.preventDefault();
+        const username = document.getElementById('reg-username').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
+
+        if(!username || !email || !pass) return alert('Completa todos los campos.');
+
+        auth.createUserWithEmailAndPassword(email, pass)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                // Guardar información extendida del usuario en Realtime Database
+                const userData = {
+                    uid: user.uid,
+                    username: username,
+                    email: email,
+                    role: 'user', // Por defecto 'user', más adelante puedes cambiar a 'admin'
+                    isBlocked: false,
+                    createdAt: firebase.database.ServerValue.TIMESTAMP
+                };
+                return db.ref(`users/${user.uid}`).set(userData);
+            })
+            .then(() => {
+                alert('¡Registro exitoso! Bienvenido.');
+                document.getElementById('form-register').reset();
+            })
+            .catch((error) => {
+                alert('Error en el registro: ' + error.message);
+            });
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const pass = document.getElementById('login-pass').value.trim();
+
+        auth.signInWithEmailAndPassword(email, pass)
+            .then(() => {
+                document.getElementById('form-login').reset();
+            })
+            .catch((error) => {
+                alert('Error al iniciar sesión: ' + error.message);
+            });
+    }
+
+    function handleLogout() {
+        auth.signOut().then(() => {
+            alert('Sesión cerrada.');
+        });
+    }
+
+    // Escuchar cambios de estado de autenticación
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            // Usuario Autenticado: Obtener perfil de la BD
+            db.ref(`users/${user.uid}`).on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    if(data.isBlocked) {
+                        alert('Tu cuenta ha sido bloqueada por un administrador.');
+                        auth.signOut();
+                        return;
+                    }
+
+                    currentUserData = data;
+                    document.getElementById('auth-guest-section').style.display = 'none';
+                    document.getElementById('auth-user-section').style.display = 'flex';
+                    document.getElementById('current-user-name').innerText = data.username;
+                    
+                    const roleBadge = document.getElementById('current-user-role');
+                    roleBadge.innerText = data.role.toUpperCase();
+                    roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
+
+                    // Si es Admin, abrir auto el dashboard al tocar pestaña Admin
+                    if(data.role === 'admin') {
+                        document.getElementById('admin-login-box').style.display = 'none';
+                        document.getElementById('admin-dashboard').style.display = 'block';
+                        loadStats();
+                        loadUsersList();
+                    }
+                }
+            });
+        } else {
+            currentUserData = null;
+            document.getElementById('auth-guest-section').style.display = 'flex';
+            document.getElementById('auth-user-section').style.display = 'none';
+            document.getElementById('admin-login-box').style.display = 'block';
+            document.getElementById('admin-dashboard').style.display = 'none';
+        }
+    });
+
+    // ==========================================
+    // 3. MODERACIÓN DE USUARIOS (ADMIN)
+    // ==========================================
+
+    function loadUsersList() {
+        db.ref('users').on('value', (snapshot) => {
+            const tableBody = document.getElementById('users-table-body');
+            tableBody.innerHTML = '';
+            const users = snapshot.val();
+            
+            if(!users) return;
+
+            Object.values(users).forEach(u => {
+                const tr = document.createElement('tr');
+                const isBlocked = u.isBlocked || false;
+                
+                tr.innerHTML = `
+                    <td><strong>${u.username}</strong></td>
+                    <td>${u.email}</td>
+                    <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${u.role}</span></td>
+                    <td style="color: ${isBlocked ? '#e41e3f' : '#00e676'};">${isBlocked ? 'Bloqueado' : 'Activo'}</td>
+                    <td>
+                        ${u.role !== 'admin' ? `
+                            <button class="${isBlocked ? 'btn-action-unblock' : 'btn-action-block'}" onclick="toggleBlockUser('${u.uid}', ${isBlocked})">
+                                ${isBlocked ? 'Desbloquear' : 'Bloquear'}
+                            </button>
+                        ` : '<span style="color:#aaa;">N/A</span>'}
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        });
+    }
+
+    function toggleBlockUser(uid, currentStatus) {
+        db.ref(`users/${uid}/isBlocked`).set(!currentStatus);
+    }
+
+    // ==========================================
+    // 4. SINCRONIZACIÓN EN TIEMPO REAL (PUBLICACIONES)
+    // ==========================================
+
     db.ref('posts').on('value', (snapshot) => {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
@@ -551,14 +890,14 @@
                         </div>
                     </div>
                     <h3>¡Bienvenidos a NYŪSU NEWS!</h3>
-                    <p>Estrenamos el nuevo portal en tiempo real con panel de noticias, área comunitaria y encuestas interactivas.</p>
+                    <p>Estrenamos el nuevo portal con registro de usuarios, panel de control y encuestas.</p>
                 </div>
             `;
             return;
         }
 
         const postsArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-        postsArray.sort((a, b) => b.timestamp - a.timestamp); // Mostrar más reciente primero
+        postsArray.sort((a, b) => b.timestamp - a.timestamp);
 
         postsArray.forEach(post => {
             const div = document.createElement('div');
@@ -640,7 +979,7 @@
     });
 
     // ==========================================
-    // 3. FUNCIONES DE ADMINISTRACIÓN Y PUBLICACIÓN
+    // 5. FUNCIONES DE PUBLICACIÓN DE ADMIN
     // ==========================================
 
     function verifyAdminPin() {
@@ -650,6 +989,7 @@
             document.getElementById('admin-dashboard').style.display = 'block';
             document.getElementById('admin-error').style.display = 'none';
             loadStats();
+            loadUsersList();
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
@@ -657,13 +997,10 @@
 
     function publishNews() {
         const title = document.getElementById('news-title').value.trim();
-        const author = document.getElementById('admin-name').value.trim() || 'Admin Staff';
+        const author = document.getElementById('admin-name').value.trim() || (currentUserData ? currentUserData.username : 'Admin Staff');
         const content = document.getElementById('news-content').value.trim();
 
-        if(!title || !content) {
-            alert('Por favor escribe un título y contenido para la noticia.');
-            return;
-        }
+        if(!title || !content) return alert('Escribe un título y contenido para la noticia.');
 
         db.ref('posts').push({
             type: 'news',
@@ -673,7 +1010,7 @@
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
 
-        alert('¡Noticia publicada con éxito en Firebase!');
+        alert('¡Noticia publicada!');
         document.getElementById('news-title').value = '';
         document.getElementById('news-content').value = '';
         switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
@@ -685,10 +1022,7 @@
         const op2 = document.getElementById('poll-op2').value.trim();
         const op3 = document.getElementById('poll-op3').value.trim();
 
-        if(!question || !op1 || !op2) {
-            alert('Agrega al menos una pregunta y dos opciones de respuesta.');
-            return;
-        }
+        if(!question || !op1 || !op2) return alert('Agrega la pregunta y al menos dos opciones.');
 
         const options = [{ text: op1, votes: 0 }, { text: op2, votes: 0 }];
         if (op3) options.push({ text: op3, votes: 0 });
@@ -700,7 +1034,7 @@
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
 
-        alert('¡Encuesta enviada al Feed!');
+        alert('¡Encuesta lanzada!');
         document.getElementById('poll-title').value = '';
         document.getElementById('poll-op1').value = '';
         document.getElementById('poll-op2').value = '';
@@ -721,16 +1055,20 @@
     }
 
     // ==========================================
-    // 4. ENVÍO DE CHAT Y FORO
+    // 6. CHAT Y FORO (CON VALIDACIÓN DE SESIÓN/BLOQUEO)
     // ==========================================
 
     function sendForo() {
+        if(!currentUserData) return alert('Debes registrarte o iniciar sesión arriba para comentar.');
+        if(currentUserData.isBlocked) return alert('Tu cuenta está bloqueada.');
+
         const input = document.getElementById('foro-input');
         const text = input.value.trim();
         if(!text) return;
 
         db.ref('foro').push({
-            user: 'Miembro',
+            uid: currentUserData.uid,
+            user: currentUserData.username,
             text: text,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
@@ -738,12 +1076,16 @@
     }
 
     function sendChat() {
+        if(!currentUserData) return alert('Debes registrarte o iniciar sesión arriba para participar.');
+        if(currentUserData.isBlocked) return alert('Tu cuenta está bloqueada.');
+
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
         if(!text) return;
 
         db.ref('chat').push({
-            user: 'Usuario',
+            uid: currentUserData.uid,
+            user: currentUserData.username,
             text: text,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
@@ -751,7 +1093,7 @@
     }
 
     // ==========================================
-    // 5. ESTADÍSTICAS Y NAVEGACIÓN
+    // 7. ESTADÍSTICAS Y NAVEGACIÓN
     // ==========================================
 
     function loadStats() {
@@ -774,10 +1116,9 @@
 
     function renderVisitsChart(dailyData) {
         const ctx = document.getElementById('visitsChart').getContext('2d');
-        
-        // Generar etiquetas de los últimos 7 días
         const labels = [];
         const chartValues = [];
+        
         for (let i = 6; i >= 0; i--) {
             const d = new Date();
             d.setDate(d.getDate() - i);
@@ -787,9 +1128,7 @@
             chartValues.push(dailyData[dateStr] || 0);
         }
 
-        if(chartInstance) {
-            chartInstance.destroy();
-        }
+        if(chartInstance) chartInstance.destroy();
 
         chartInstance = new Chart(ctx, {
             type: 'line',
@@ -807,9 +1146,7 @@
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: { labels: { color: '#e4e6eb' } }
-                },
+                plugins: { legend: { labels: { color: '#e4e6eb' } } },
                 scales: {
                     x: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } },
                     y: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } }
