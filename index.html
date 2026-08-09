@@ -299,32 +299,6 @@
             gap: 10px;
             margin-bottom: 12px;
         }
-        
-        /* ESTILOS DE ENCUESTAS */
-        .poll-box {
-            background: #18191a;
-            border: 1px solid #3e4042;
-            border-radius: 8px;
-            padding: 12px;
-            margin-top: 10px;
-        }
-        .poll-option-btn {
-            width: 100%;
-            background: #3a3b3c;
-            color: white;
-            border: 1px solid #4e4f50;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 6px;
-            text-align: left;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: flex;
-            justify-content: space-between;
-        }
-        .poll-option-btn:hover {
-            background: #4e4f50;
-        }
 
         /* ESTILOS DEL PANEL DE ADMINISTRACIÓN */
         .admin-panel-card {
@@ -408,7 +382,7 @@
         .stat-card h4 {
             margin: 0;
             color: #b0b3b8;
-            font-size: 13px;
+            font-size: 12px;
         }
         .stat-card .number {
             font-size: 22px;
@@ -595,8 +569,12 @@
                         <div class="number" style="color: #00e676;" id="stat-today">0</div>
                     </div>
                     <div class="stat-card">
-                        <h4>PROMEDIO DIARIO</h4>
-                        <div class="number" style="color: #ff9200;" id="stat-avg">0</div>
+                        <h4>USUARIOS REGISTRADOS</h4>
+                        <div class="number" style="color: #2d88ff;" id="stat-registered">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>VISITANTES ANÓNIMOS</h4>
+                        <div class="number" style="color: #ff9200;" id="stat-anonymous">0</div>
                     </div>
                 </div>
 
@@ -702,13 +680,8 @@
     let chartInstance = null;
     let currentUserData = null;
 
-    // Registrar visitas en tiempo real al ingresar
-    const todayKey = new Date().toISOString().split('T')[0];
-    db.ref('stats/total_visits').transaction(curr => (curr || 0) + 1);
-    db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
-
     // ==========================================
-    // 2. SISTEMA DE AUTENTICACIÓN (CORREO O USUARIO Y PERSISTENCIA DE PESTAÑA)
+    // 2. SISTEMA DE AUTENTICACIÓN Y REGISTRO DE VISITAS
     // ==========================================
 
     function switchAuthMode(mode) {
@@ -733,7 +706,6 @@
 
         if(!username || !email || !pass) return alert('Completa todos los campos.');
 
-        // Establecer la persistencia solo a la sesión de la pestaña actual
         auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
             .then(() => {
                 return auth.createUserWithEmailAndPassword(email, pass);
@@ -787,7 +759,6 @@
             }
         }
 
-        // Configurar la persistencia para mantener la sesión al refrescar pero cerrarla al cerrar la pestaña
         auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
             .then(() => {
                 return auth.signInWithEmailAndPassword(emailToAuth, pass);
@@ -806,7 +777,26 @@
         });
     }
 
+    // REGISTRO DE VISITAS Y CONTROL DE ROL
     auth.onAuthStateChanged((user) => {
+        // --- REGISTRO ÚNICO DE VISITA POR SESIÓN ---
+        if (!sessionStorage.getItem('visit_counted')) {
+            sessionStorage.setItem('visit_counted', 'true');
+            const todayKey = new Date().toISOString().split('T')[0];
+
+            db.ref('stats/total_visits').transaction(curr => (curr || 0) + 1);
+            db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
+
+            if (user) {
+                // Usuario registrado
+                db.ref('stats/visits/registered').transaction(curr => (curr || 0) + 1);
+            } else {
+                // Visitante anónimo
+                db.ref('stats/visits/anonymous').transaction(curr => (curr || 0) + 1);
+            }
+        }
+
+        // --- VERIFICACIÓN DE SESIÓN Y VISTAS ---
         if (user) {
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
                 const data = snapshot.val();
@@ -855,8 +845,72 @@
     });
 
     // ==========================================
-    // 3. MODERACIÓN DE USUARIOS (ADMIN)
+    // 3. CARGA DE ESTADÍSTICAS (SOLO ADMINS)
     // ==========================================
+
+    function loadStats() {
+        db.ref('stats').on('value', (snapshot) => {
+            const stats = snapshot.val() || {};
+            
+            // Visitas Totales
+            document.getElementById('stat-total').innerText = stats.total_visits || 0;
+            
+            // Visitas Hoy
+            const todayKey = new Date().toISOString().split('T')[0];
+            const todayVisits = (stats.daily_visits && stats.daily_visits[todayKey]) || 0;
+            document.getElementById('stat-today').innerText = todayVisits;
+
+            // Registrados vs Anónimos
+            const visitsType = stats.visits || {};
+            document.getElementById('stat-registered').innerText = visitsType.registered || 0;
+            document.getElementById('stat-anonymous').innerText = visitsType.anonymous || 0;
+
+            // Gráfico de los últimos 7 días
+            if (stats.daily_visits) {
+                updateVisitsChart(stats.daily_visits);
+            }
+        });
+    }
+
+    function updateVisitsChart(dailyVisits) {
+        const dates = Object.keys(dailyVisits).sort().slice(-7);
+        const counts = dates.map(d => dailyVisits[d]);
+
+        const ctx = document.getElementById('visitsChart').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dates,
+                datasets: [{
+                    label: 'Visitas',
+                    data: counts,
+                    borderColor: '#2d88ff',
+                    backgroundColor: 'rgba(45, 136, 255, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    }
+
+    // ==========================================
+    // 4. MODERACIÓN Y GESTIÓN DE USUARIOS
+    // ==========================================
+
+    function toggleBlockUser(uid, blockStatus) {
+        db.ref(`users/${uid}/isBlocked`).set(blockStatus)
+            .then(() => alert(blockStatus ? 'Usuario bloqueado correctamente.' : 'Usuario desbloqueado.'))
+            .catch(err => alert('Error: ' + err.message));
+    }
 
     function loadUsersList() {
         db.ref('users').on('value', (snapshot) => {
@@ -872,15 +926,15 @@
 
                     const isBlocked = u.isBlocked || false;
                     const actionBtn = isBlocked
-                        ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', true)">Desbloquear</button>`
-                        : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', false)">Bloquear</button>`;
+                        ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>`
+                        : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`;
 
                     tr.innerHTML = `
-                        <td>${escapeHTML(u.username || 'Sin nombre')}</td>
-                        <td>${escapeHTML(u.email || '')}</td>
+                        <td>${u.username || 'Sin Nombre'}</td>
+                        <td>${u.email || 'N/A'}</td>
                         <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
-                        <td style="color: ${isBlocked ? '#e41e3f' : '#00e676'}; font-weight: bold;">${isBlocked ? 'Bloqueado' : 'Activo'}</td>
-                        <td>${u.role === 'admin' ? '-' : actionBtn}</td>
+                        <td>${isBlocked ? '<span style="color:#e41e3f;">Bloqueado</span>' : '<span style="color:#00e676;">Activo</span>'}</td>
+                        <td>${actionBtn}</td>
                     `;
                     tableBody.appendChild(tr);
                 });
@@ -888,75 +942,53 @@
         });
     }
 
-    function toggleBlockUser(uid, currentlyBlocked) {
-        db.ref(`users/${uid}`).update({
-            isBlocked: !currentlyBlocked
-        }).then(() => {
-            alert(`Usuario ${currentlyBlocked ? 'desbloqueado' : 'bloqueado'} con éxito.`);
-        }).catch(err => alert('Error: ' + err.message));
-    }
-
     // ==========================================
-    // 4. NAVEGACIÓN Y MENÚS
-    // ==========================================
-
-    function toggleMenu() {
-        const menu = document.getElementById('dropdownMenu');
-        menu.classList.toggle('show');
-    }
-
-    window.onclick = function(event) {
-        if (!event.target.matches('.menu-btn') && !event.target.parentElement.matches('.menu-btn')) {
-            const dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                const openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-    function switchTab(tabId, element) {
-        const sections = document.querySelectorAll('.content-section');
-        sections.forEach(sec => sec.classList.remove('active'));
-
-        const targetSection = document.getElementById(`${tabId}-section`);
-        if (targetSection) targetSection.classList.add('active');
-
-        if (element) {
-            const tabs = document.querySelectorAll('.nav-tab');
-            tabs.forEach(t => t.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        const menu = document.getElementById('dropdownMenu');
-        if (menu) menu.classList.remove('show');
-    }
-
-    // ==========================================
-    // 5. PUBLICACIÓN DE NOTICIAS Y ENCUESTAS
+    // 5. PUBLICACIONES, CHAT Y FORO
     // ==========================================
 
     function publishNews() {
         const title = document.getElementById('news-title').value.trim();
-        const author = document.getElementById('admin-name').value.trim() || (currentUserData ? currentUserData.username : 'Admin');
+        const admin = document.getElementById('admin-name').value.trim() || 'Administrador';
         const content = document.getElementById('news-content').value.trim();
 
-        if (!title || !content) return alert('Completa el título y el contenido de la noticia.');
+        if (!title || !content) return alert('Ingresa título y contenido.');
 
-        const newPostRef = db.ref('posts').push();
-        newPostRef.set({
-            type: 'news',
+        db.ref('news').push({
             title: title,
-            author: author,
+            author: admin,
             content: content,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            alert('Noticia publicada con éxito.');
+            alert('Noticia publicada');
             document.getElementById('news-title').value = '';
             document.getElementById('news-content').value = '';
-        }).catch(err => alert('Error: ' + err.message));
+        });
+    }
+
+    function loadNews() {
+        db.ref('news').on('value', (snapshot) => {
+            const news = snapshot.val();
+            const container = document.getElementById('news-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (news) {
+                Object.keys(news).reverse().forEach(key => {
+                    const n = news[key];
+                    const div = document.createElement('div');
+                    div.className = 'post';
+                    div.innerHTML = `
+                        <div class="post-author">
+                            <i class="fa-solid fa-user-shield" style="color: #e41e3f;"></i>
+                            <strong>${n.author || 'Admin'}</strong>
+                        </div>
+                        <h2>${n.title}</h2>
+                        <p>${n.content}</p>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+        });
     }
 
     function publishPoll() {
@@ -965,246 +997,119 @@
         const op2 = document.getElementById('poll-op2').value.trim();
         const op3 = document.getElementById('poll-op3').value.trim();
 
-        if (!title || !op1 || !op2) return alert('La encuesta debe tener un título y al menos dos opciones.');
+        if (!title || !op1 || !op2) return alert('Ingresa la pregunta y al menos dos opciones.');
 
-        const options = [
-            { text: op1, votes: 0 },
-            { text: op2, votes: 0 }
-        ];
-        if (op3) options.push({ text: op3, votes: 0 });
+        const options = [op1, op2];
+        if (op3) options.push(op3);
 
-        const newPollRef = db.ref('posts').push();
-        newPollRef.set({
-            type: 'poll',
+        db.ref('polls').push({
             title: title,
-            author: currentUserData ? currentUserData.username : 'Admin',
             options: options,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
-            alert('Encuesta creada con éxito.');
+            alert('Encuesta lanzada');
             document.getElementById('poll-title').value = '';
             document.getElementById('poll-op1').value = '';
             document.getElementById('poll-op2').value = '';
             document.getElementById('poll-op3').value = '';
-        }).catch(err => alert('Error: ' + err.message));
-    }
-
-    function votePoll(postId, optionIndex) {
-        if (!currentUserData) return alert('Debes iniciar sesión para votar.');
-        const voteRef = db.ref(`posts/${postId}/options/${optionIndex}/votes`);
-        voteRef.transaction(currentVotes => (currentVotes || 0) + 1)
-            .then(() => alert('¡Voto registrado!'))
-            .catch(err => alert('Error al votar: ' + err.message));
-    }
-
-    // CARGA DE NOTICIAS Y ENCUESTAS EN EL FEED
-    db.ref('posts').on('value', (snapshot) => {
-        const container = document.getElementById('news-container');
-        if (!container) return;
-        container.innerHTML = '';
-        const posts = snapshot.val();
-
-        if (!posts) {
-            container.innerHTML = '<p style="text-align:center; color:#b0b3b8;">No hay publicaciones disponibles.</p>';
-            return;
-        }
-
-        const keys = Object.keys(posts).reverse();
-        keys.forEach(key => {
-            const p = posts[key];
-            const div = document.createElement('div');
-            div.className = 'post';
-
-            const dateStr = p.timestamp ? new Date(p.timestamp).toLocaleString() : '';
-
-            if (p.type === 'news') {
-                div.innerHTML = `
-                    <div class="post-author">
-                        <i class="fa-solid fa-newspaper" style="color: #2d88ff; font-size: 18px;"></i>
-                        <div>
-                            <strong>${escapeHTML(p.author || 'Admin')}</strong>
-                            <span style="font-size: 11px; color: #b0b3b8; display: block;">${dateStr}</span>
-                        </div>
-                    </div>
-                    <h2 style="margin: 5px 0 10px 0; color: #2d88ff; font-size: 20px;">${escapeHTML(p.title)}</h2>
-                    <p style="line-height: 1.5; white-space: pre-wrap;">${escapeHTML(p.content)}</p>
-                `;
-            } else if (p.type === 'poll') {
-                let optionsHTML = '';
-                const totalVotes = p.options ? p.options.reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0;
-
-                if (p.options) {
-                    p.options.forEach((opt, idx) => {
-                        const pct = totalVotes > 0 ? Math.round(((opt.votes || 0) / totalVotes) * 100) : 0;
-                        optionsHTML += `
-                            <button class="poll-option-btn" onclick="votePoll('${key}', ${idx})">
-                                <span>${escapeHTML(opt.text)}</span>
-                                <strong>${opt.votes || 0} votos (${pct}%)</strong>
-                            </button>
-                        `;
-                    });
-                }
-
-                div.innerHTML = `
-                    <div class="post-author">
-                        <i class="fa-solid fa-poll" style="color: #ff9200; font-size: 18px;"></i>
-                        <div>
-                            <strong>${escapeHTML(p.author || 'Admin')}</strong>
-                            <span style="font-size: 11px; color: #b0b3b8; display: block;">${dateStr}</span>
-                        </div>
-                    </div>
-                    <h3 style="margin: 5px 0 10px 0;">${escapeHTML(p.title)}</h3>
-                    <div class="poll-box">
-                        ${optionsHTML}
-                        <p style="font-size: 12px; color: #b0b3b8; margin-top: 8px; margin-bottom: 0;">Total de votos: ${totalVotes}</p>
-                    </div>
-                `;
-            }
-
-            container.appendChild(div);
-        });
-    });
-
-    // ==========================================
-    // 6. FORO Y CHAT EN VIVO
-    // ==========================================
-
-    function sendForo() {
-        if (!currentUserData) return alert('Debes iniciar sesión para comentar en el foro.');
-        const input = document.getElementById('foro-input');
-        const text = input.value.trim();
-        if (!text) return;
-
-        db.ref('foro').push({
-            author: currentUserData.username,
-            role: currentUserData.role,
-            text: text,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            input.value = '';
         });
     }
-
-    db.ref('foro').on('value', (snapshot) => {
-        const box = document.getElementById('foro-box');
-        if (!box) return;
-        box.innerHTML = '';
-        const data = snapshot.val();
-        if (data) {
-            Object.values(data).forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'chat-msg';
-                msgDiv.innerHTML = `
-                    <strong>${escapeHTML(msg.author)} ${msg.role === 'admin' ? '<span class="badge-role">ADMIN</span>' : ''}</strong>
-                    <span>${escapeHTML(msg.text)}</span>
-                `;
-                box.appendChild(msgDiv);
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-    });
 
     function sendChat() {
-        if (!currentUserData) return alert('Debes iniciar sesión para chatear.');
+        if (!currentUserData) return alert('Debes iniciar sesión para participar.');
         const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if (!text) return;
+        const msg = input.value.trim();
+        if (!msg) return;
 
         db.ref('chat').push({
-            author: currentUserData.username,
-            role: currentUserData.role,
-            text: text,
+            user: currentUserData.username,
+            text: msg,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
             input.value = '';
         });
     }
 
-    db.ref('chat').on('value', (snapshot) => {
-        const box = document.getElementById('chat-box');
-        if (!box) return;
-        box.innerHTML = '';
-        const data = snapshot.val();
-        if (data) {
-            Object.values(data).forEach(msg => {
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'chat-msg';
-                msgDiv.innerHTML = `
-                    <strong>${escapeHTML(msg.author)} ${msg.role === 'admin' ? '<span class="badge-role">ADMIN</span>' : ''}</strong>
-                    <span>${escapeHTML(msg.text)}</span>
-                `;
-                box.appendChild(msgDiv);
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-    });
-
-    // ==========================================
-    // 7. ESTADÍSTICAS Y GRÁFICO (CHART.JS)
-    // ==========================================
-
-    function loadStats() {
-        db.ref('stats').on('value', (snapshot) => {
-            const stats = snapshot.val() || {};
-            const total = stats.total_visits || 0;
-            const daily = stats.daily_visits || {};
-
-            const todayVisits = daily[todayKey] || 0;
-            const daysCount = Object.keys(daily).length || 1;
-            const avgVisits = Math.round(total / daysCount);
-
-            document.getElementById('stat-total').innerText = total;
-            document.getElementById('stat-today').innerText = todayVisits;
-            document.getElementById('stat-avg').innerText = avgVisits;
-
-            const labels = [];
-            const dataVisits = [];
-            for (let i = 6; i >= 0; i--) {
-                const d = new Date();
-                d.setDate(d.getDate() - i);
-                const k = d.toISOString().split('T')[0];
-                labels.push(k.slice(5));
-                dataVisits.push(daily[k] || 0);
+    function loadChat() {
+        db.ref('chat').limitToLast(50).on('value', (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('chat-box');
+            if (!box) return;
+            box.innerHTML = '';
+            if (data) {
+                Object.keys(data).forEach(k => {
+                    const m = data[k];
+                    const div = document.createElement('div');
+                    div.className = 'chat-msg';
+                    div.innerHTML = `<strong>${m.user}</strong>${m.text}`;
+                    box.appendChild(div);
+                });
+                box.scrollTop = box.scrollHeight;
             }
-
-            const ctx = document.getElementById('visitsChart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
-
-            chartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Visitas',
-                        data: dataVisits,
-                        borderColor: '#2d88ff',
-                        backgroundColor: 'rgba(45, 136, 255, 0.2)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#3e4042' }, ticks: { color: '#b0b3b8' } },
-                        x: { grid: { color: '#3e4042' }, ticks: { color: '#b0b3b8' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
         });
     }
 
-    // FUNCIÓN AUXILIAR DE SEGURIDAD XSS
-    function escapeHTML(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#039;');
+    function sendForo() {
+        if (!currentUserData) return alert('Debes iniciar sesión para publicar en el foro.');
+        const input = document.getElementById('foro-input');
+        const msg = input.value.trim();
+        if (!msg) return;
+
+        db.ref('foro').push({
+            user: currentUserData.username,
+            text: msg,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            input.value = '';
+        });
     }
+
+    function loadForo() {
+        db.ref('foro').limitToLast(50).on('value', (snapshot) => {
+            const data = snapshot.val();
+            const box = document.getElementById('foro-box');
+            if (!box) return;
+            box.innerHTML = '';
+            if (data) {
+                Object.keys(data).forEach(k => {
+                    const m = data[k];
+                    const div = document.createElement('div');
+                    div.className = 'chat-msg';
+                    div.innerHTML = `<strong>${m.user}</strong>${m.text}`;
+                    box.appendChild(div);
+                });
+                box.scrollTop = box.scrollHeight;
+            }
+        });
+    }
+
+    // ==========================================
+    // 6. NAVEGACIÓN DE PESTAÑAS Y MENÚ
+    // ==========================================
+
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+
+        const targetSection = document.getElementById(`${tabId}-section`);
+        if (targetSection) targetSection.classList.add('active');
+
+        if (element) {
+            element.classList.add('active');
+        }
+
+        const dropdown = document.getElementById('dropdownMenu');
+        if (dropdown) dropdown.classList.remove('show');
+    }
+
+    function toggleMenu() {
+        document.getElementById('dropdownMenu').classList.toggle('show');
+    }
+
+    // Inicializar cargas de datos al entrar
+    loadNews();
+    loadChat();
+    loadForo();
 </script>
 
 </body>
