@@ -22,7 +22,7 @@
             padding-bottom: 40px;
         }
 
-        /* BARRA SUPERIOR DE AUTENTICACIÓN */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN Y PERFIL */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
@@ -63,12 +63,70 @@
         }
         .auth-open-btn.secondary:hover { background: #4e4f50; }
 
+        /* PERFIL EN BARRA SUPERIOR Y DESPLEGABLE */
+        .user-menu-container {
+            position: relative;
+            display: inline-block;
+        }
         .user-logged-box {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-size: 14px;
+            background: #3a3b3c;
+            padding: 5px 12px 5px 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            border: 1px solid #3e4042;
         }
+        .user-logged-box:hover { background: #4e4f50; }
+        .top-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #2d88ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        .user-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 45px;
+            background-color: #242526;
+            min-width: 220px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
+            z-index: 100;
+            border-radius: 8px;
+            border: 1px solid #3e4042;
+            overflow: hidden;
+        }
+        .user-dropdown-content a, .user-dropdown-content div.dropdown-item {
+            color: #e4e6eb;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .user-dropdown-content a:hover, .user-dropdown-content div.dropdown-item:hover {
+            background-color: #3a3b3c;
+        }
+        .user-dropdown-content .dropdown-divider {
+            height: 1px;
+            background: #3e4042;
+            margin: 0;
+        }
+        .show-user-menu { display: block; }
+
         .badge-role {
             background: #e41e3f;
             color: white;
@@ -85,18 +143,8 @@
             border-radius: 4px;
             font-weight: bold;
         }
-        .btn-logout {
-            background: #3a3b3c;
-            color: #e4e6eb;
-            border: 1px solid #3e4042;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .btn-logout:hover { background: #e41e3f; color: white; }
 
-        /* VENTANA MODAL */
+        /* VENTANA MODAL GENERAL */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -119,6 +167,8 @@
             box-shadow: 0px 10px 25px rgba(0,0,0,0.6);
             position: relative;
             animation: fadeIn 0.3s ease-out;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-20px); }
@@ -223,7 +273,7 @@
         .content-section { display: none; }
         .content-section.active { display: block; }
 
-        /* ESTILOS DE PUBLICACIONES / NOTICIAS */
+        /* ESTILOS DE PUBLICACIONES / NOTICIAS CON SOPORTE JPG/MP4 */
         .post { 
             background: #242526; margin: 20px 0; padding: 15px; 
             border-radius: 8px; border: 1px solid #3e4042;
@@ -297,7 +347,7 @@
 </head>
 <body>
 
-<!-- BARRA SUPERIOR DE AUTENTICACIÓN -->
+<!-- BARRA SUPERIOR DE AUTENTICACIÓN Y PERFIL -->
 <div class="auth-bar">
     <div class="auth-container">
         <!-- CUANDO NO HAY SESIÓN -->
@@ -306,14 +356,23 @@
             <button class="auth-open-btn" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
         </div>
 
-        <!-- CUANDO HAY SESIÓN INICIADA -->
-        <div id="auth-user-section" class="user-logged-box" style="display: none;">
-            <div>
-                <i class="fa-solid fa-user-check" style="color: #00e676;"></i>
-                <span id="current-user-name" style="font-weight: bold; margin-left: 5px;">Usuario</span>
-                <span id="current-user-role" class="badge-user">USER</span>
+        <!-- CUANDO HAY SESIÓN INICIADA (CON ICONO/PERFIL Y DESPLEGABLE) -->
+        <div id="auth-user-section" class="user-menu-container" style="display: none;">
+            <div class="user-logged-box" onclick="toggleUserMenu()">
+                <div id="top-user-avatar" class="top-avatar">U</div>
+                <div>
+                    <span id="current-user-name" style="font-weight: bold;">Usuario</span>
+                    <span id="current-user-role" class="badge-user">USER</span>
+                </div>
+                <i class="fa-solid fa-chevron-down" style="font-size: 11px; color: #b0b3b8; margin-left: 4px;"></i>
             </div>
-            <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+            
+            <!-- MENÚ DESPLEGABLE DEL PERFIL -->
+            <div id="userDropdownMenu" class="user-dropdown-content">
+                <div class="dropdown-item" onclick="openProfileSettings()"><i class="fa-solid fa-gear" style="color: #2d88ff;"></i> Configuración de perfil</div>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" onclick="handleLogout()" style="color: #e41e3f;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</div>
+            </div>
         </div>
     </div>
 </div>
@@ -382,6 +441,41 @@
                 ¿Ya tienes una cuenta? <a href="#" onclick="switchModalTab('login')">Inicia sesión</a>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- VENTANA MODAL PARA CONFIGURACIÓN DE PERFIL -->
+<div id="profile-settings-modal" class="modal-overlay">
+    <div class="modal-card">
+        <button class="modal-close-btn" onclick="closeProfileSettings()"><i class="fa-solid fa-xmark"></i></button>
+        <h2 class="modal-title" style="color: #2d88ff;"><i class="fa-solid fa-user-gear"></i> Editar Perfil</h2>
+        <form onsubmit="handleUpdateProfile(event)">
+            <div class="form-group">
+                <label>Nombre de Usuario</label>
+                <input type="text" id="edit-username" class="modal-input" required>
+            </div>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" id="edit-email" class="modal-input" required>
+                <small style="color: #b0b3b8; font-size: 11px;">Nota: Cambiar el correo requiere reautenticación o sesión reciente si lo exige seguridad.</small>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Edad</label>
+                    <input type="number" id="edit-age" class="modal-input" min="10" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label>Género</label>
+                    <select id="edit-gender" class="modal-select" required>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Femenino">Femenino</option>
+                        <option value="Otro">Otro</option>
+                        <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" id="btn-update-profile" class="modal-submit-btn">Guardar Cambios</button>
+        </form>
     </div>
 </div>
 
@@ -481,7 +575,7 @@
                 </table>
             </div>
 
-            <!-- PUBLICAR NOTICIA CON MULTIMEDIA -->
+            <!-- PUBLICAR NOTICIA CON SOPORTE JPG Y MP4 -->
             <div class="admin-panel-card">
                 <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia o Artículo</h3>
                 <input type="text" id="news-title" class="admin-input" placeholder="Título de la noticia">
@@ -489,12 +583,12 @@
                 
                 <select id="news-media-type" class="admin-select" onchange="toggleMediaInput()">
                     <option value="none">Solo Texto</option>
-                    <option value="image">Imagen (URL)</option>
-                    <option value="video">Vídeo (Enlace o Archivo MP4/YouTube)</option>
+                    <option value="image">Imagen JPG (URL o Enlace)</option>
+                    <option value="video">Vídeo MP4 o YouTube (Enlace)</option>
                 </select>
 
                 <div id="media-url-container" style="display: none; margin-bottom: 12px;">
-                    <input type="text" id="news-media-url" class="admin-input" placeholder="Pega el enlace de la imagen o del vídeo (ej. YouTube embed o MP4)">
+                    <input type="text" id="news-media-url" class="admin-input" placeholder="Pega el enlace web del archivo .jpg, .mp4 o YouTube">
                 </div>
 
                 <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Escribe el contenido de la noticia..."></textarea>
@@ -546,7 +640,7 @@
     let chartInstance = null;
     let currentUserData = null;
 
-    // 2. CONTROL DE LA VENTANA MODAL
+    // 2. CONTROL DE LA VENTANA MODAL AUTH
     function openModal(type) {
         document.getElementById('auth-modal').classList.add('active');
         switchModalTab(type);
@@ -566,12 +660,83 @@
         }
     }
 
+    // 3. MENÚ DESPLEGABLE DEL PERFIL DE USUARIO
+    function toggleUserMenu() {
+        document.getElementById('userDropdownMenu').classList.toggle('show-user-menu');
+    }
+
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('auth-modal');
+        const profileModal = document.getElementById('profile-settings-modal');
         if (e.target === modal) closeModal();
+        if (e.target === profileModal) closeProfileSettings();
+
+        // Cerrar menú de perfil si se hace clic fuera
+        if (!e.target.closest('.user-menu-container')) {
+            const userMenu = document.getElementById('userDropdownMenu');
+            if (userMenu && userMenu.classList.contains('show-user-menu')) {
+                userMenu.classList.remove('show-user-menu');
+            }
+        }
     });
 
-    // 3. REGISTRO Y AUTENTICACIÓN
+    // 4. CONFIGURACIÓN DE PERFIL MODAL
+    function openProfileSettings() {
+        document.getElementById('userDropdownMenu').classList.remove('show-user-menu');
+        if (!currentUserData) return;
+        
+        document.getElementById('edit-username').value = currentUserData.username || '';
+        document.getElementById('edit-email').value = currentUserData.email || '';
+        document.getElementById('edit-age').value = currentUserData.age || '';
+        document.getElementById('edit-gender').value = currentUserData.gender || 'Masculino';
+        
+        document.getElementById('profile-settings-modal').classList.add('active');
+    }
+
+    function closeProfileSettings() {
+        document.getElementById('profile-settings-modal').classList.remove('active');
+    }
+
+    async function handleUpdateProfile(e) {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const newUsername = document.getElementById('edit-username').value.trim();
+        const newEmail = document.getElementById('edit-email').value.trim();
+        const newAge = parseInt(document.getElementById('edit-age').value, 10);
+        const newGender = document.getElementById('edit-gender').value;
+        const btn = document.getElementById('btn-update-profile');
+
+        try {
+            btn.innerText = 'Guardando...';
+            btn.disabled = true;
+
+            // Actualizar correo en Auth si cambió
+            if (newEmail !== user.email) {
+                await user.updateEmail(newEmail);
+            }
+
+            // Actualizar datos en Database
+            await db.ref(`users/${user.uid}`).update({
+                username: newUsername,
+                email: newEmail,
+                age: newAge,
+                gender: newGender
+            });
+
+            alert('¡Perfil actualizado con éxito!');
+            closeProfileSettings();
+        } catch (error) {
+            console.error("Error al actualizar perfil:", error);
+            alert('Error al actualizar: ' + error.message + '\n(Si cambiaste el correo, es posible que debas volver a iniciar sesión por seguridad).');
+        } finally {
+            btn.innerText = 'Guardar Cambios';
+            btn.disabled = false;
+        }
+    }
+
+    // 5. REGISTRO Y AUTENTICACIÓN
     async function handleRegister(e) {
         e.preventDefault();
         const username = document.getElementById('reg-username').value.trim();
@@ -658,7 +823,7 @@
         auth.signOut();
     }
 
-    // 4. CONTROL DE SESIÓN Y VISTAS
+    // 6. CONTROL DE SESIÓN Y VISTAS
     auth.onAuthStateChanged((user) => {
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
@@ -681,8 +846,13 @@
                     }
                     currentUserData = data;
                     document.getElementById('auth-guest-section').style.display = 'none';
-                    document.getElementById('auth-user-section').style.display = 'flex';
+                    document.getElementById('auth-user-section').style.display = 'inline-block';
+                    
                     document.getElementById('current-user-name').innerText = data.username;
+                    
+                    // Iniciales o primera letra para el Avatar superior
+                    const initial = data.username ? data.username.charAt(0).toUpperCase() : 'U';
+                    document.getElementById('top-user-avatar').innerText = initial;
 
                     const roleBadge = document.getElementById('current-user-role');
                     roleBadge.innerText = data.role.toUpperCase();
@@ -707,7 +877,7 @@
         }
     });
 
-    // 5. ESTADÍSTICAS Y MODERACIÓN
+    // 7. ESTADÍSTICAS Y MODERACIÓN
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
@@ -769,21 +939,9 @@
         }
     }
 
-    // 6. GESTIÓN DE INTERFAZ Y MULTIMEDIA EN NOTICIAS
+    // 8. GESTIÓN DE INTERFAZ Y MULTIMEDIA (JPG / MP4)
     function toggleMenu() {
         document.getElementById("dropdownMenu").classList.toggle("show");
-    }
-
-    window.onclick = function(event) {
-        if (!event.target.matches('.menu-btn') && !event.target.closest('.menu-btn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
     }
 
     function switchTab(tabId, element) {
@@ -806,7 +964,6 @@
         }
     }
 
-    // Función auxiliar para convertir enlaces comunes de YouTube en formato embed seguro
     function getEmbedUrl(url) {
         if (!url) return '';
         if (url.includes('youtube.com/watch?v=')) {
@@ -827,7 +984,7 @@
         const content = document.getElementById('news-content').value.trim();
 
         if (!title || !author || !content) return alert('Por favor llena el título, autor y contenido.');
-        if (mediaType !== 'none' && !mediaUrl) return alert('Por favor ingresa el enlace de la imagen o vídeo.');
+        if (mediaType !== 'none' && !mediaUrl) return alert('Por favor ingresa el enlace del archivo JPG o MP4.');
 
         db.ref('news').push({
             title: title,
@@ -852,7 +1009,7 @@
         });
     }
 
-    // Cargar Noticias con Renderizado Multimedia Dinámico
+    // Renderizado Dinámico de Noticias con JPG y MP4
     db.ref('news').on('value', (snapshot) => {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
@@ -865,7 +1022,7 @@
 
                 let mediaHTML = '';
                 if (item.mediaType === 'image' && item.mediaUrl) {
-                    mediaHTML = `<div class="post-media"><img src="${item.mediaUrl}" alt="Imagen de noticia"></div>`;
+                    mediaHTML = `<div class="post-media"><img src="${item.mediaUrl}" alt="Imagen JPG de noticia"></div>`;
                 } else if (item.mediaType === 'video' && item.mediaUrl) {
                     const formattedUrl = getEmbedUrl(item.mediaUrl);
                     if (formattedUrl.includes('youtube.com/embed/')) {
