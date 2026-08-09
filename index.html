@@ -22,13 +22,13 @@
             padding-bottom: 40px;
         }
 
-        /* BARRA SUPERIOR DE AUTENTICACIÓN (ALINEADA A LA DERECHA) */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
             padding: 10px 20px;
             display: flex;
-            justify-content: flex-end; /* Alinea todo a la derecha */
+            justify-content: flex-end;
             align-items: center;
             position: sticky;
             top: 0;
@@ -55,17 +55,13 @@
             font-size: 14px;
             transition: background 0.2s;
         }
-        .auth-open-btn:hover {
-            background: #1a73e8;
-        }
+        .auth-open-btn:hover { background: #1a73e8; }
         .auth-open-btn.secondary {
             background: #3a3b3c;
             color: #e4e6eb;
             border: 1px solid #3e4042;
         }
-        .auth-open-btn.secondary:hover {
-            background: #4e4f50;
-        }
+        .auth-open-btn.secondary:hover { background: #4e4f50; }
 
         .user-logged-box {
             display: flex;
@@ -98,20 +94,13 @@
             cursor: pointer;
             font-size: 13px;
         }
-        .btn-logout:hover {
-            background: #e41e3f;
-            color: white;
-        }
+        .btn-logout:hover { background: #e41e3f; color: white; }
 
-        /* ==========================================
-            ESTILOS DE LA VENTANA MODAL (POP-UP)
-            ========================================== */
+        /* VENTANA MODAL */
         .modal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.75);
             display: none;
             justify-content: center;
@@ -119,9 +108,7 @@
             z-index: 1000;
             backdrop-filter: blur(4px);
         }
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-overlay.active { display: flex; }
         .modal-card {
             background: #242526;
             border: 1px solid #3e4042;
@@ -139,194 +126,96 @@
         }
         .modal-close-btn {
             position: absolute;
-            top: 15px;
-            right: 15px;
+            top: 15px; right: 15px;
             background: transparent;
             border: none;
             color: #b0b3b8;
             font-size: 20px;
             cursor: pointer;
         }
-        .modal-close-btn:hover {
-            color: white;
-        }
+        .modal-close-btn:hover { color: white; }
         .modal-title {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 22px;
-            color: #2d88ff;
+            margin-top: 0; margin-bottom: 20px;
+            font-size: 22px; color: #2d88ff;
             text-align: center;
         }
-        .form-group {
-            margin-bottom: 14px;
-        }
+        .form-group { margin-bottom: 14px; }
         .form-group label {
-            display: block;
-            font-size: 13px;
-            color: #b0b3b8;
-            margin-bottom: 5px;
+            display: block; font-size: 13px;
+            color: #b0b3b8; margin-bottom: 5px;
         }
         .modal-input, .modal-select {
-            width: 100%;
-            background: #3a3b3c;
-            border: 1px solid #3e4042;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 14px;
+            width: 100%; background: #3a3b3c;
+            border: 1px solid #3e4042; color: white;
+            padding: 10px; border-radius: 6px; font-size: 14px;
             box-sizing: border-box;
         }
-        .modal-input:focus, .modal-select:focus {
-            border-color: #2d88ff;
-            outline: none;
-        }
-        .form-row {
-            display: flex;
-            gap: 10px;
-        }
-        .form-row .form-group {
-            flex: 1;
-        }
+        .modal-input:focus, .modal-select:focus { border-color: #2d88ff; outline: none; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row .form-group { flex: 1; }
         .modal-submit-btn {
-            width: 100%;
-            background: #2d88ff;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
+            width: 100%; background: #2d88ff; color: white;
+            border: none; padding: 12px; border-radius: 6px;
+            font-weight: bold; font-size: 15px; cursor: pointer;
             margin-top: 10px;
         }
-        .modal-submit-btn:hover {
-            background: #1a73e8;
-        }
+        .modal-submit-btn:hover { background: #1a73e8; }
         .modal-footer-text {
-            text-align: center;
-            font-size: 13px;
-            color: #b0b3b8;
-            margin-top: 15px;
+            text-align: center; font-size: 13px;
+            color: #b0b3b8; margin-top: 15px;
         }
-        .modal-footer-text a {
-            color: #2d88ff;
-            text-decoration: none;
-            font-weight: bold;
-        }
+        .modal-footer-text a { color: #2d88ff; text-decoration: none; font-weight: bold; }
 
         /* CONTENEDOR PRINCIPAL */
-        .container { 
-            max-width: 800px; 
-            margin: auto; 
-        }
+        .container { max-width: 800px; margin: auto; }
 
         /* PORTADA Y PERFIL */
         .cover-photo { 
-            width: 100%; 
-            height: 250px; 
-            background: #3e4042; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
+            width: 100%; height: 250px; 
+            background: #3e4042; display: flex; 
+            align-items: center; justify-content: center; 
         }
-        .cover-photo img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; 
-        }
-        .profile-section { 
-            padding: 0 20px; 
-            margin-top: -50px; 
-            text-align: center; 
-        }
+        .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-section { padding: 0 20px; margin-top: -50px; text-align: center; }
         .profile-pic { 
-            width: 160px; 
-            height: 160px; 
-            border-radius: 50%; 
-            border: 4px solid #18191a; 
-            background: #242526; 
-            object-fit: cover; 
+            width: 160px; height: 160px; border-radius: 50%; 
+            border: 4px solid #18191a; background: #242526; object-fit: cover; 
         }
-        .profile-info h1 { 
-            font-size: 28px; 
-            margin: 10px 0 0 0; 
-        }
-        .social-links { 
-            margin: 10px 0; 
-            display: flex; 
-            justify-content: center; 
-            gap: 15px; 
-        }
-        .social-links a { 
-            color: #aaa; 
-            font-size: 20px; 
-        }
+        .profile-info h1 { font-size: 28px; margin: 10px 0 0 0; }
+        .social-links { margin: 10px 0; display: flex; justify-content: center; gap: 15px; }
+        .social-links a { color: #aaa; font-size: 20px; }
 
         .visitor-counter {
-            margin-top: 10px;
-            display: inline-flex;
-            background: #242526;
-            padding: 6px 14px;
-            border-radius: 20px;
-            border: 1px solid #3e4042;
+            margin-top: 10px; display: inline-flex;
+            background: #242526; padding: 6px 14px;
+            border-radius: 20px; border: 1px solid #3e4042;
         }
 
         /* NAVEGACIÓN Y MENÚ */
         .nav-bar { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: #242526; 
-            padding: 10px 20px; 
-            margin-top: 15px; 
-            border-radius: 8px; 
-            border-top: 1px solid #3e4042; 
+            display: flex; justify-content: space-between; align-items: center; 
+            background: #242526; padding: 10px 20px; margin-top: 15px; 
+            border-radius: 8px; border-top: 1px solid #3e4042; 
         }
-        .nav-tabs { 
-            display: flex; 
-            gap: 15px; 
-        }
-        .nav-tab { 
-            color: #b0b3b8; 
-            font-weight: 600; 
-            cursor: pointer; 
-            padding: 5px 0; 
-        }
-        .nav-tab.active, .nav-tab:hover { 
-            color: #2d88ff; 
-            border-bottom: 3px solid #2d88ff; 
-        }
+        .nav-tabs { display: flex; gap: 15px; }
+        .nav-tab { color: #b0b3b8; font-weight: 600; cursor: pointer; padding: 5px 0; }
+        .nav-tab.active, .nav-tab:hover { color: #2d88ff; border-bottom: 3px solid #2d88ff; }
         .admin-tab { color: #e41e3f; }
         .admin-tab.active, .admin-tab:hover { color: #e41e3f; border-bottom-color: #e41e3f; }
 
         .menu-dropdown-container { position: relative; }
         .menu-btn { 
-            background: #3a3b3c; 
-            color: #e4e6eb; 
-            border: none; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            cursor: pointer; 
+            background: #3a3b3c; color: #e4e6eb; border: none; 
+            padding: 8px 12px; border-radius: 6px; cursor: pointer; 
         }
         .dropdown-content { 
-            display: none; 
-            position: absolute; 
-            left: 0; 
-            background-color: #242526; 
-            min-width: 180px; 
-            box-shadow: 0px 8px 16px rgba(0,0,0,0.4); 
-            z-index: 10; 
-            border-radius: 6px; 
-            border: 1px solid #3e4042; 
+            display: none; position: absolute; left: 0; background-color: #242526; 
+            min-width: 180px; box-shadow: 0px 8px 16px rgba(0,0,0,0.4); 
+            z-index: 10; border-radius: 6px; border: 1px solid #3e4042; 
         }
         .dropdown-content a { 
-            color: #e4e6eb; 
-            padding: 12px 16px; 
-            text-decoration: none; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-size: 14px; 
+            color: #e4e6eb; padding: 12px 16px; text-decoration: none; 
+            display: flex; align-items: center; gap: 10px; font-size: 14px; 
         }
         .dropdown-content a:hover { background-color: #3a3b3c; }
         .show { display: block; }
@@ -334,80 +223,70 @@
         .content-section { display: none; }
         .content-section.active { display: block; }
 
+        /* ESTILOS DE PUBLICACIONES / NOTICIAS */
         .post { 
-            background: #242526; 
-            margin: 20px 0; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border: 1px solid #3e4042;
+            background: #242526; margin: 20px 0; padding: 15px; 
+            border-radius: 8px; border: 1px solid #3e4042;
         }
+        .post h3 { margin-top: 5px; margin-bottom: 5px; }
+        .post-media {
+            margin-top: 12px;
+            width: 100%;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #18191a;
+        }
+        .post-media img, .post-media video {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            display: block;
+        }
+        .post-media iframe {
+            width: 100%;
+            height: 315px;
+            border: none;
+            display: block;
+        }
+
         .admin-panel-card {
-            background: #242526;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
+            background: #242526; padding: 20px;
+            border-radius: 8px; margin: 20px 0;
             border: 1px solid #e41e3f;
         }
-        .admin-input, .admin-textarea {
-            width: 100%;
-            background: #3a3b3c;
-            border: 1px solid #3e4042;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 12px;
-            box-sizing: border-box;
+        .admin-input, .admin-textarea, .admin-select {
+            width: 100%; background: #3a3b3c; border: 1px solid #3e4042;
+            color: white; padding: 10px; border-radius: 6px;
+            margin-bottom: 12px; box-sizing: border-box; font-size: 14px;
         }
         .admin-btn {
-            background: #e41e3f;
-            color: white;
-            border: none;
-            padding: 10px 18px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
+            background: #e41e3f; color: white; border: none;
+            padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold;
         }
 
         .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            font-size: 13px;
+            width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px;
         }
         .users-table th, .users-table td {
-            border: 1px solid #3e4042;
-            padding: 8px;
-            text-align: left;
+            border: 1px solid #3e4042; padding: 8px; text-align: left;
         }
         .users-table th { background: #18191a; color: #2d88ff; }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px; margin-bottom: 20px;
         }
         .stat-card {
-            background: #18191a;
-            border: 1px solid #3e4042;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
+            background: #18191a; border: 1px solid #3e4042;
+            padding: 15px; border-radius: 8px; text-align: center;
         }
         .stat-card .number { font-size: 22px; font-weight: bold; color: #2d88ff; }
 
         .community-box { background: #242526; margin: 20px 0; padding: 20px; border-radius: 8px; }
         .chat-messages { 
-            background: #18191a; 
-            height: 250px; 
-            border-radius: 8px; 
-            padding: 10px; 
-            overflow-y: auto; 
-            margin-bottom: 10px; 
-            border: 1px solid #3e4042; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 8px; 
+            background: #18191a; height: 250px; border-radius: 8px; 
+            padding: 10px; overflow-y: auto; margin-bottom: 10px; 
+            border: 1px solid #3e4042; display: flex; flex-direction: column; gap: 8px; 
         }
         .chat-msg { background: #3a3b3c; padding: 8px 12px; border-radius: 6px; font-size: 14px; }
         .chat-msg strong { color: #2d88ff; display: block; font-size: 12px; }
@@ -439,14 +318,11 @@
     </div>
 </div>
 
-<!-- ==========================================
-     VENTANA MODAL REUTILIZABLE (LOGIN / REGISTRO)
-     ========================================== -->
+<!-- VENTANA MODAL (LOGIN / REGISTRO) -->
 <div id="auth-modal" class="modal-overlay">
     <div class="modal-card">
         <button class="modal-close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
         
-        <!-- FORMULARIO DE INICIO DE SESIÓN -->
         <div id="modal-login-content">
             <h2 class="modal-title"><i class="fa-solid fa-user-lock"></i> Iniciar Sesión</h2>
             <form onsubmit="handleLogin(event)">
@@ -465,7 +341,6 @@
             </div>
         </div>
 
-        <!-- FORMULARIO DE REGISTRO COMPLETO CON EDAD Y GÉNERO -->
         <div id="modal-register-content" style="display: none;">
             <h2 class="modal-title" style="color: #00e676;"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</h2>
             <form onsubmit="handleRegister(event)">
@@ -479,7 +354,6 @@
                     <input type="email" id="reg-email" class="modal-input" placeholder="correo@ejemplo.com" required>
                 </div>
 
-                <!-- FILA CON EDAD Y GÉNERO -->
                 <div class="form-row">
                     <div class="form-group">
                         <label>Edad</label>
@@ -508,7 +382,6 @@
                 ¿Ya tienes una cuenta? <a href="#" onclick="switchModalTab('login')">Inicia sesión</a>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -589,7 +462,7 @@
                 </div>
             </div>
 
-            <!-- TABLA DE MODERACIÓN DE USUARIOS -->
+            <!-- MODERACIÓN DE USUARIOS -->
             <div class="admin-panel-card" style="border-color: #ff9200;">
                 <h3 style="color: #ff9200;"><i class="fa-solid fa-users-gear"></i> Moderación de Usuarios</h3>
                 <table class="users-table">
@@ -608,12 +481,24 @@
                 </table>
             </div>
 
+            <!-- PUBLICAR NOTICIA CON MULTIMEDIA -->
             <div class="admin-panel-card">
-                <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia</h3>
-                <input type="text" id="news-title" class="admin-input" placeholder="Título">
-                <input type="text" id="admin-name" class="admin-input" placeholder="Tu Nombre">
-                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Contenido..."></textarea>
-                <button class="admin-btn" onclick="publishNews()">Publicar</button>
+                <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia o Artículo</h3>
+                <input type="text" id="news-title" class="admin-input" placeholder="Título de la noticia">
+                <input type="text" id="admin-name" class="admin-input" placeholder="Tu Nombre o Autor">
+                
+                <select id="news-media-type" class="admin-select" onchange="toggleMediaInput()">
+                    <option value="none">Solo Texto</option>
+                    <option value="image">Imagen (URL)</option>
+                    <option value="video">Vídeo (Enlace o Archivo MP4/YouTube)</option>
+                </select>
+
+                <div id="media-url-container" style="display: none; margin-bottom: 12px;">
+                    <input type="text" id="news-media-url" class="admin-input" placeholder="Pega el enlace de la imagen o del vídeo (ej. YouTube embed o MP4)">
+                </div>
+
+                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Escribe el contenido de la noticia..."></textarea>
+                <button class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
             </div>
         </div>
     </div>
@@ -661,7 +546,7 @@
     let chartInstance = null;
     let currentUserData = null;
 
-    // 2. CONTROL DE LA VENTANA MODAL (POP-UP)
+    // 2. CONTROL DE LA VENTANA MODAL
     function openModal(type) {
         document.getElementById('auth-modal').classList.add('active');
         switchModalTab(type);
@@ -686,7 +571,7 @@
         if (e.target === modal) closeModal();
     });
 
-    // 3. REGISTRO MEJORADO CON EDAD Y GÉNERO
+    // 3. REGISTRO Y AUTENTICACIÓN
     async function handleRegister(e) {
         e.preventDefault();
         const username = document.getElementById('reg-username').value.trim();
@@ -731,7 +616,6 @@
         }
     }
 
-    // 4. INICIO DE SESIÓN
     async function handleLogin(e) {
         e.preventDefault();
         const identifier = document.getElementById('login-identifier').value.trim();
@@ -774,7 +658,7 @@
         auth.signOut();
     }
 
-    // 5. ESTADO DE SESIÓN Y ESTADÍSTICAS DE VISITA
+    // 4. CONTROL DE SESIÓN Y VISTAS
     auth.onAuthStateChanged((user) => {
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
@@ -823,7 +707,7 @@
         }
     });
 
-    // 6. ESTADÍSTICAS Y MODERACIÓN DE USUARIOS
+    // 5. ESTADÍSTICAS Y MODERACIÓN
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
@@ -885,7 +769,7 @@
         }
     }
 
-    // 7. FUNCIONES DE INTERFAZ, PESTAÑAS, MENÚ, NOTICIAS Y CHAT
+    // 6. GESTIÓN DE INTERFAZ Y MULTIMEDIA EN NOTICIAS
     function toggleMenu() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
@@ -912,16 +796,44 @@
         document.getElementById("dropdownMenu").classList.remove("show");
     }
 
+    function toggleMediaInput() {
+        const type = document.getElementById('news-media-type').value;
+        const container = document.getElementById('media-url-container');
+        if (type === 'none') {
+            container.style.display = 'none';
+        } else {
+            container.style.display = 'block';
+        }
+    }
+
+    // Función auxiliar para convertir enlaces comunes de YouTube en formato embed seguro
+    function getEmbedUrl(url) {
+        if (!url) return '';
+        if (url.includes('youtube.com/watch?v=')) {
+            const videoId = url.split('v=')[1].split('&')[0];
+            return `https://www.youtube.com/embed/${videoId}`;
+        } else if (url.includes('youtu.be/')) {
+            const videoId = url.split('youtu.be/')[1].split('?')[0];
+            return `https://www.youtube.com/embed/${videoId}`;
+        }
+        return url;
+    }
+
     function publishNews() {
         const title = document.getElementById('news-title').value.trim();
         const author = document.getElementById('admin-name').value.trim();
+        const mediaType = document.getElementById('news-media-type').value;
+        const mediaUrl = document.getElementById('news-media-url').value.trim();
         const content = document.getElementById('news-content').value.trim();
 
-        if (!title || !author || !content) return alert('Por favor llena todos los campos de la noticia.');
+        if (!title || !author || !content) return alert('Por favor llena el título, autor y contenido.');
+        if (mediaType !== 'none' && !mediaUrl) return alert('Por favor ingresa el enlace de la imagen o vídeo.');
 
         db.ref('news').push({
             title: title,
             author: author,
+            mediaType: mediaType,
+            mediaUrl: mediaUrl,
             content: content,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         }, (error) => {
@@ -931,13 +843,16 @@
                 alert('¡Noticia publicada con éxito!');
                 document.getElementById('news-title').value = '';
                 document.getElementById('admin-name').value = '';
+                document.getElementById('news-media-type').value = 'none';
+                document.getElementById('news-media-url').value = '';
+                document.getElementById('media-url-container').style.display = 'none';
                 document.getElementById('news-content').value = '';
                 switchTab('feed', document.querySelector('.nav-tab'));
             }
         });
     }
 
-    // Cargar Noticias en Tiempo Real
+    // Cargar Noticias con Renderizado Multimedia Dinámico
     db.ref('news').on('value', (snapshot) => {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
@@ -947,10 +862,24 @@
                 const item = data[key];
                 const div = document.createElement('div');
                 div.className = 'post';
+
+                let mediaHTML = '';
+                if (item.mediaType === 'image' && item.mediaUrl) {
+                    mediaHTML = `<div class="post-media"><img src="${item.mediaUrl}" alt="Imagen de noticia"></div>`;
+                } else if (item.mediaType === 'video' && item.mediaUrl) {
+                    const formattedUrl = getEmbedUrl(item.mediaUrl);
+                    if (formattedUrl.includes('youtube.com/embed/')) {
+                        mediaHTML = `<div class="post-media"><iframe src="${formattedUrl}" allowfullscreen></iframe></div>`;
+                    } else {
+                        mediaHTML = `<div class="post-media"><video controls src="${formattedUrl}"></video></div>`;
+                    }
+                }
+
                 div.innerHTML = `
                     <h3>${item.title}</h3>
                     <p><small style="color: #b0b3b8;">Por ${item.author}</small></p>
-                    <p>${item.content}</p>
+                    ${mediaHTML}
+                    <p style="margin-top: 12px; white-space: pre-line;">${item.content}</p>
                 `;
                 container.appendChild(div);
             });
