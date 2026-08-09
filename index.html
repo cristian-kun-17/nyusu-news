@@ -32,7 +32,7 @@
             padding: 0 15px; 
         }
 
-        /* BARRA SUPERIOR */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
@@ -119,7 +119,7 @@
         .dropdown-item:hover { background-color: #3a3b3c; }
         .dropdown-divider { height: 1px; background: #3e4042; }
 
-        /* PORTADA Y NAVEGACIÓN */
+        /* PORTADA PRINCIPAL DE LA PÁGINA */
         .cover-photo { 
             width: 100%; 
             height: 250px; 
@@ -128,7 +128,35 @@
             overflow: hidden; 
         }
         .cover-photo img { width: 100%; height: 100%; object-fit: cover; }
+
+        .profile-section { 
+            padding: 0 20px; 
+            margin-top: -50px; 
+            text-align: center; 
+        }
+        .profile-pic { 
+            width: 160px; 
+            height: 160px; 
+            border-radius: 50%; 
+            border: 4px solid #18191a; 
+            background: #242526; 
+            object-fit: cover; 
+        }
+        .profile-info h1 { font-size: 28px; margin: 10px 0 0 0; }
+        .social-links { margin: 10px 0; display: flex; justify-content: center; gap: 15px; }
+        .social-links a { color: #aaa; font-size: 20px; transition: color 0.2s; }
+        .social-links a:hover { color: #2d88ff; }
+
+        .visitor-counter {
+            margin-top: 10px; 
+            display: inline-flex;
+            background: #242526; 
+            padding: 6px 14px;
+            border-radius: 20px; 
+            border: 1px solid #3e4042;
+        }
         
+        /* BARRA DE NAVEGACIÓN Y PESTAÑAS */
         .nav-bar { 
             display: flex; 
             background: #242526; 
@@ -234,7 +262,7 @@
             cursor: pointer; 
         }
 
-        /* VISTA "MI PERFIL" */
+        /* VISTA "MI PERFIL" PERSONAL */
         .my-profile-header { position: relative; margin-bottom: 70px; }
         .my-cover { 
             width: 100%; 
@@ -268,6 +296,8 @@
         /* ADAPTACIÓN PARA MÓVILES */
         @media (max-width: 600px) {
             .cover-photo { height: 150px; }
+            .profile-pic { width: 120px; height: 120px; }
+            .profile-section { margin-top: -40px; }
             .my-cover { height: 120px; }
             .my-avatar { width: 100px; height: 100px; bottom: -50px; left: 15px; }
             .my-profile-header { margin-bottom: 60px; }
@@ -306,6 +336,29 @@
 </div>
 
 <div class="container">
+    <!-- PORTADA Y LOGO PRINCIPAL DEL SITIO -->
+    <div class="cover-photo">
+        <img src="portada.jpg" alt="Portada de NYŪSU NEWS">
+    </div>
+
+    <div class="profile-section">
+        <img src="perfil.jpg" class="profile-pic" alt="Perfil">
+        <div class="profile-info">
+            <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check" style="color: #0084ff;"></i></h1>
+            <p>Tu portal de noticias sobre Japón, Anime y más.</p>
+            
+            <div class="visitor-counter">
+                <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fnyusu-news.github.io&count_bg=%232D88FF&title_bg=%233A3B3C&icon=eye.svg&icon_color=%23E7E7E7&title=visitas&edge_flat=false" alt="Visitas"/>
+            </div>
+
+            <div class="social-links">
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-discord"></i></a>
+            </div>
+        </div>
+    </div>
+
     <!-- NAVEGACIÓN PRINCIPAL -->
     <div class="nav-bar">
         <div class="nav-tabs">
@@ -588,7 +641,6 @@
             
             alert('¡Registro exitoso!');
             closeModals();
-            // Mantenerse en la página de noticias al registrarse
             switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
 
         } catch (error) { 
@@ -627,7 +679,6 @@
             switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
             
         } catch (error) { 
-            // Mostrar error real de Firebase (Contraseña incorrecta, etc)
             alert('Error al iniciar sesión: ' + error.message); 
         } finally { 
             btn.disabled = false; 
