@@ -694,13 +694,14 @@
     // 1. CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
     // ==========================================
     const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "TU_PROYECTO.firebaseapp.com",
-        databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-        projectId: "TU_PROYECTO",
-        storageBucket: "TU_PROYECTO.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef"
+        apiKey: "AIzaSyCJmYRIdGd-v7uKIm9GT-D-WuE3wZX90-k",
+        authDomain: "nyusu-news.firebaseapp.com",
+        databaseURL: "https://nyusu-news-default-rtdb.firebaseio.com",
+        projectId: "nyusu-news",
+        storageBucket: "nyusu-news.firebasestorage.app",
+        messagingSenderId: "181233419800",
+        appId: "1:181233419800:web:24fded63707b136d49256d",
+        measurementId: "G-PEZX48HTJS"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -872,326 +873,55 @@
             const tableBody = document.getElementById('users-table-body');
             tableBody.innerHTML = '';
             const users = snapshot.val();
-            
-            if(!users) return;
+            if (!users) return;
 
-            Object.values(users).forEach(u => {
-                const tr = document.createElement('tr');
-                const isBlocked = u.isBlocked || false;
-                
-                tr.innerHTML = `
-                    <td><strong>${u.username}</strong></td>
+            Object.keys(users).forEach(uid => {
+                const u = users[uid];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${u.username || 'Sin nombre'}</td>
                     <td>${u.email}</td>
-                    <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${u.role}</span></td>
-                    <td style="color: ${isBlocked ? '#e41e3f' : '#00e676'};">${isBlocked ? 'Bloqueado' : 'Activo'}</td>
+                    <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
+                    <td>${u.isBlocked ? '<span style="color:#e41e3f;">Bloqueado</span>' : '<span style="color:#00e676;">Activo</span>'}</td>
                     <td>
-                        ${u.role !== 'admin' ? `
-                            <button class="${isBlocked ? 'btn-action-unblock' : 'btn-action-block'}" onclick="toggleBlockUser('${u.uid}', ${isBlocked})">
-                                ${isBlocked ? 'Desbloquear' : 'Bloquear'}
-                            </button>
-                        ` : '<span style="color:#aaa;">N/A</span>'}
+                        ${u.isBlocked 
+                            ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>` 
+                            : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`}
                     </td>
                 `;
-                tableBody.appendChild(tr);
+                tableBody.appendChild(row);
             });
         });
     }
 
-    function toggleBlockUser(uid, currentStatus) {
-        db.ref(`users/${uid}/isBlocked`).set(!currentStatus);
+    function toggleBlockUser(uid, blockState) {
+        db.ref(`users/${uid}/isBlocked`).set(blockState);
     }
 
     // ==========================================
-    // 4. SINCRONIZACIÓN EN TIEMPO REAL (PUBLICACIONES)
+    // 4. FUNCIONES DE NAVEGACIÓN Y MENÚ
     // ==========================================
-
-    db.ref('posts').on('value', (snapshot) => {
-        const container = document.getElementById('news-container');
-        container.innerHTML = '';
-        const data = snapshot.val();
-
-        if (!data) {
-            container.innerHTML = `
-                <div class="post">
-                    <div class="post-author">
-                        <i class="fa-solid fa-circle-user fa-2x" style="color: #2d88ff;"></i>
-                        <div>
-                            <strong>Admin Staff</strong> <badge>ADMIN</badge>
-                            <div style="font-size: 11px; color: #b0b3b8;">Oficial NYŪSU NEWS</div>
-                        </div>
-                    </div>
-                    <h3>¡Bienvenidos a NYŪSU NEWS!</h3>
-                    <p>Estrenamos el nuevo portal con registro de usuarios, panel de control y encuestas.</p>
-                </div>
-            `;
-            return;
-        }
-
-        const postsArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-        postsArray.sort((a, b) => b.timestamp - a.timestamp);
-
-        postsArray.forEach(post => {
-            const div = document.createElement('div');
-            div.className = 'post';
-
-            if (post.type === 'news') {
-                div.innerHTML = `
-                    <div class="post-author">
-                        <i class="fa-solid fa-user-check fa-2x" style="color: #2d88ff;"></i>
-                        <div>
-                            <strong>${post.author}</strong> <badge>ADMIN</badge>
-                            <div style="font-size: 11px; color: #b0b3b8;">${new Date(post.timestamp).toLocaleString()}</div>
-                        </div>
-                    </div>
-                    <h3>${post.title}</h3>
-                    <p>${post.content}</p>
-                `;
-            } else if (post.type === 'poll') {
-                let optionsHTML = '';
-                post.options.forEach((op, index) => {
-                    optionsHTML += `
-                        <button class="poll-option-btn" onclick="votePoll('${post.id}', ${index}, this)">
-                            <span>${op.text}</span> <strong><span>${op.votes || 0}</span> votos</strong>
-                        </button>
-                    `;
-                });
-
-                div.innerHTML = `
-                    <div class="post-author">
-                        <i class="fa-solid fa-square-poll-vertical fa-2x" style="color: #e41e3f;"></i>
-                        <div>
-                            <strong>Encuesta Oficial NYŪSU NEWS</strong> <badge style="background:#e41e3f;">ENCUESTA</badge>
-                        </div>
-                    </div>
-                    <h4>${post.question}</h4>
-                    <div class="poll-box">
-                        ${optionsHTML}
-                    </div>
-                `;
-            }
-            container.appendChild(div);
-        });
-    });
-
-    // Cargar Foro
-    db.ref('foro').limitToLast(50).on('value', (snapshot) => {
-        const box = document.getElementById('foro-box');
-        box.innerHTML = '';
-        const data = snapshot.val();
-        if(!data) {
-            box.innerHTML = `<div class="chat-msg"><strong>Carlos:</strong> ¿Cuál creen que sea el mejor anime de esta temporada?</div>`;
-            return;
-        }
-        Object.values(data).forEach(msg => {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
-            box.appendChild(div);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-
-    // Cargar Chat en Vivo
-    db.ref('chat').limitToLast(50).on('value', (snapshot) => {
-        const box = document.getElementById('chat-box');
-        box.innerHTML = '';
-        const data = snapshot.val();
-        if(!data) {
-            box.innerHTML = `<div class="chat-msg"><strong>Bot_Nyusu:</strong> ¡Bienvenidos al chat oficial de NYŪSU NEWS! ✨</div>`;
-            return;
-        }
-        Object.values(data).forEach(msg => {
-            const div = document.createElement('div');
-            div.className = 'chat-msg';
-            div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
-            box.appendChild(div);
-        });
-        box.scrollTop = box.scrollHeight;
-    });
-
-    // ==========================================
-    // 5. FUNCIONES DE PUBLICACIÓN DE ADMIN
-    // ==========================================
-
-    function publishNews() {
-        const title = document.getElementById('news-title').value.trim();
-        const author = document.getElementById('admin-name').value.trim() || (currentUserData ? currentUserData.username : 'Admin Staff');
-        const content = document.getElementById('news-content').value.trim();
-
-        if(!title || !content) return alert('Escribe un título y contenido para la noticia.');
-
-        db.ref('posts').push({
-            type: 'news',
-            title: title,
-            author: author,
-            content: content,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-
-        alert('¡Noticia publicada!');
-        document.getElementById('news-title').value = '';
-        document.getElementById('news-content').value = '';
-        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-    }
-
-    function publishPoll() {
-        const question = document.getElementById('poll-title').value.trim();
-        const op1 = document.getElementById('poll-op1').value.trim();
-        const op2 = document.getElementById('poll-op2').value.trim();
-        const op3 = document.getElementById('poll-op3').value.trim();
-
-        if(!question || !op1 || !op2) return alert('Agrega la pregunta y al menos dos opciones.');
-
-        const options = [{ text: op1, votes: 0 }, { text: op2, votes: 0 }];
-        if (op3) options.push({ text: op3, votes: 0 });
-
-        db.ref('posts').push({
-            type: 'poll',
-            question: question,
-            options: options,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-
-        alert('¡Encuesta lanzada!');
-        document.getElementById('poll-title').value = '';
-        document.getElementById('poll-op1').value = '';
-        document.getElementById('poll-op2').value = '';
-        document.getElementById('poll-op3').value = '';
-        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-    }
-
-    function votePoll(postId, optionIndex, btn) {
-        db.ref(`posts/${postId}/options/${optionIndex}/votes`).transaction(curr => (curr || 0) + 1);
-        const parent = btn.parentElement;
-        const buttons = parent.querySelectorAll('.poll-option-btn');
-        buttons.forEach(b => {
-            b.disabled = true;
-            b.style.opacity = "0.7";
-            b.style.cursor = "default";
-        });
-        btn.style.border = "2px solid #2d88ff";
-    }
-
-    // ==========================================
-    // 6. CHAT Y FORO
-    // ==========================================
-
-    function sendForo() {
-        if(!currentUserData) return alert('Debes registrarte o iniciar sesión arriba para comentar.');
-        if(currentUserData.isBlocked) return alert('Tu cuenta está bloqueada.');
-
-        const input = document.getElementById('foro-input');
-        const text = input.value.trim();
-        if(!text) return;
-
-        db.ref('foro').push({
-            uid: currentUserData.uid,
-            user: currentUserData.username,
-            text: text,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        input.value = '';
-    }
-
-    function sendChat() {
-        if(!currentUserData) return alert('Debes registrarte o iniciar sesión arriba para participar.');
-        if(currentUserData.isBlocked) return alert('Tu cuenta está bloqueada.');
-
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if(!text) return;
-
-        db.ref('chat').push({
-            uid: currentUserData.uid,
-            user: currentUserData.username,
-            text: text,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-        input.value = '';
-    }
-
-    // ==========================================
-    // 7. ESTADÍSTICAS Y NAVEGACIÓN
-    // ==========================================
-
-    function loadStats() {
-        db.ref('stats').on('value', (snapshot) => {
-            const data = snapshot.val() || {};
-            const total = data.total_visits || 0;
-            const daily = data.daily_visits || {};
-            const todayVisits = daily[todayKey] || 0;
-
-            const daysKeys = Object.keys(daily);
-            const avg = daysKeys.length ? Math.round(total / daysKeys.length) : total;
-
-            document.getElementById('stat-total').innerText = total.toLocaleString();
-            document.getElementById('stat-today').innerText = todayVisits.toLocaleString();
-            document.getElementById('stat-avg').innerText = avg.toLocaleString();
-
-            renderVisitsChart(daily);
-        });
-    }
-
-    function renderVisitsChart(dailyData) {
-        const ctx = document.getElementById('visitsChart').getContext('2d');
-        const labels = [];
-        const chartValues = [];
-        
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            const dayName = d.toLocaleDateString('es-ES', { weekday: 'short' });
-            labels.push(dayName);
-            chartValues.push(dailyData[dateStr] || 0);
-        }
-
-        if(chartInstance) chartInstance.destroy();
-
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Visitas Diarias',
-                    data: chartValues,
-                    borderColor: '#2d88ff',
-                    backgroundColor: 'rgba(45, 136, 255, 0.15)',
-                    borderWidth: 3,
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { labels: { color: '#e4e6eb' } } },
-                scales: {
-                    x: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } },
-                    y: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } }
-                }
-            }
-        });
-    }
-
-    function switchTab(tabName, element) {
-        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-        
-        document.getElementById(tabName + '-section').classList.add('active');
-        if(element && element.classList && element.classList.contains('nav-tab')) {
-            element.classList.add('active');
-        }
-    }
 
     function toggleMenu() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
 
+    function switchTab(tabId, element) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+
+        document.getElementById(tabId + '-section').classList.add('active');
+        if(element) element.classList.add('active');
+
+        document.getElementById("dropdownMenu").classList.remove("show");
+    }
+
+    // Cerrar el menú si el usuario hace clic fuera de él
     window.onclick = function(event) {
-        if (!event.target.matches('.menu-btn') && !event.target.matches('.fa-bars')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
+        if (!event.target.matches('.menu-btn')) {
+            const dropdowns = document.getElementsByClassName("dropdown-content");
             for (let i = 0; i < dropdowns.length; i++) {
-                let openDropdown = dropdowns[i];
+                const openDropdown = dropdowns[i];
                 if (openDropdown.classList.contains('show')) {
                     openDropdown.classList.remove('show');
                 }
@@ -1199,6 +929,5 @@
         }
     }
 </script>
-
 </body>
 </html>
