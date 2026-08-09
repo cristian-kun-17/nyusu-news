@@ -681,7 +681,56 @@
     let currentUserData = null;
 
     // ==========================================
-    // 2. SISTEMA DE AUTENTICACIÓN Y REGISTRO DE VISITAS
+    // 2. SISTEMA DE DETECCIÓN DE INACTIVIDAD (30 MINUTOS)
+    // ==========================================
+    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 Minutos
+    let inactivityInterval = null;
+
+    function recordUserActivity() {
+        if (auth.currentUser) {
+            localStorage.setItem('nyusu_last_activity', Date.now().toString());
+        }
+    }
+
+    function startInactivityMonitor() {
+        stopInactivityMonitor();
+        recordUserActivity();
+
+        // Escucha eventos de interacción
+        const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+        activityEvents.forEach(event => {
+            window.addEventListener(event, recordUserActivity, { passive: true });
+        });
+
+        // Verificación periódica cada 10 segundos
+        inactivityInterval = setInterval(() => {
+            if (auth.currentUser) {
+                const lastActivity = parseInt(localStorage.getItem('nyusu_last_activity') || '0', 10);
+                const now = Date.now();
+
+                if (lastActivity > 0 && (now - lastActivity >= INACTIVITY_LIMIT_MS)) {
+                    stopInactivityMonitor();
+                    alert('Tu sesión ha finalizado automáticamente por inactividad (30 minutos sin uso).');
+                    handleLogout();
+                }
+            }
+        }, 10000);
+    }
+
+    function stopInactivityMonitor() {
+        if (inactivityInterval) {
+            clearInterval(inactivityInterval);
+            inactivityInterval = null;
+        }
+        const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+        activityEvents.forEach(event => {
+            window.removeEventListener(event, recordUserActivity);
+        });
+        localStorage.removeItem('nyusu_last_activity');
+    }
+
+    // ==========================================
+    // 3. AUTENTICACIÓN Y PERSISTENCIA PERSISTENTE (LOCAL)
     // ==========================================
 
     function switchAuthMode(mode) {
@@ -706,7 +755,8 @@
 
         if(!username || !email || !pass) return alert('Completa todos los campos.');
 
-        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        // Cambiado a Persistence.LOCAL para que la sesión PERMANEZCA activa al recargar la página
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(() => {
                 return auth.createUserWithEmailAndPassword(email, pass);
             })
@@ -759,7 +809,8 @@
             }
         }
 
-        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        // Cambiado a Persistence.LOCAL para guardar la sesión en el navegador
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
             .then(() => {
                 return auth.signInWithEmailAndPassword(emailToAuth, pass);
             })
@@ -772,12 +823,13 @@
     }
 
     function handleLogout() {
+        stopInactivityMonitor();
         auth.signOut().then(() => {
-            alert('Sesión cerrada.');
+            // Sesión cerrada
         });
     }
 
-    // REGISTRO DE VISITAS Y CONTROL DE ROL
+    // CONTROL DE ESTADO DE SESIÓN Y REGISTRO DE VISITAS
     auth.onAuthStateChanged((user) => {
         // --- REGISTRO ÚNICO DE VISITA POR SESIÓN ---
         if (!sessionStorage.getItem('visit_counted')) {
@@ -788,22 +840,32 @@
             db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
 
             if (user) {
-                // Usuario registrado
                 db.ref('stats/visits/registered').transaction(curr => (curr || 0) + 1);
             } else {
-                // Visitante anónimo
                 db.ref('stats/visits/anonymous').transaction(curr => (curr || 0) + 1);
             }
         }
 
         // --- VERIFICACIÓN DE SESIÓN Y VISTAS ---
         if (user) {
+            // Validar si la sesión ya superó los 30 min de inactividad antes de cargar
+            const lastActivity = parseInt(localStorage.getItem('nyusu_last_activity') || '0', 10);
+            if (lastActivity > 0 && (Date.now() - lastActivity >= INACTIVITY_LIMIT_MS)) {
+                stopInactivityMonitor();
+                alert('Tu sesión anterior ha expirado por 30 minutos de inactividad.');
+                handleLogout();
+                return;
+            }
+
+            // Iniciar monitor de inactividad
+            startInactivityMonitor();
+
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
                     if(data.isBlocked) {
                         alert('Tu cuenta ha sido bloqueada por un administrador.');
-                        auth.signOut();
+                        handleLogout();
                         return;
                     }
 
@@ -830,6 +892,7 @@
                 }
             });
         } else {
+            stopInactivityMonitor();
             currentUserData = null;
             document.getElementById('auth-guest-section').style.display = 'flex';
             document.getElementById('auth-user-section').style.display = 'none';
@@ -845,27 +908,23 @@
     });
 
     // ==========================================
-    // 3. CARGA DE ESTADÍSTICAS (SOLO ADMINS)
+    // 4. CARGA DE ESTADÍSTICAS (SOLO ADMINS)
     // ==========================================
 
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
             
-            // Visitas Totales
             document.getElementById('stat-total').innerText = stats.total_visits || 0;
             
-            // Visitas Hoy
             const todayKey = new Date().toISOString().split('T')[0];
             const todayVisits = (stats.daily_visits && stats.daily_visits[todayKey]) || 0;
             document.getElementById('stat-today').innerText = todayVisits;
 
-            // Registrados vs Anónimos
             const visitsType = stats.visits || {};
             document.getElementById('stat-registered').innerText = visitsType.registered || 0;
             document.getElementById('stat-anonymous').innerText = visitsType.anonymous || 0;
 
-            // Gráfico de los últimos 7 días
             if (stats.daily_visits) {
                 updateVisitsChart(stats.daily_visits);
             }
@@ -903,7 +962,7 @@
     }
 
     // ==========================================
-    // 4. MODERACIÓN Y GESTIÓN DE USUARIOS
+    // 5. MODERACIÓN Y GESTIÓN DE USUARIOS
     // ==========================================
 
     function toggleBlockUser(uid, blockStatus) {
@@ -943,7 +1002,7 @@
     }
 
     // ==========================================
-    // 5. PUBLICACIONES, CHAT Y FORO
+    // 6. PUBLICACIONES, CHAT Y FORO
     // ==========================================
 
     function publishNews() {
@@ -1084,7 +1143,7 @@
     }
 
     // ==========================================
-    // 6. NAVEGACIÓN DE PESTAÑAS Y MENÚ
+    // 7. NAVEGACIÓN DE PESTAÑAS Y MENÚ
     // ==========================================
 
     function switchTab(tabId, element) {
@@ -1106,7 +1165,7 @@
         document.getElementById('dropdownMenu').classList.toggle('show');
     }
 
-    // Inicializar cargas de datos al entrar
+    // Carga inicial
     loadNews();
     loadChat();
     loadForo();
