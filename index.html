@@ -299,13 +299,6 @@
             gap: 10px;
             margin-bottom: 12px;
         }
-        .post-author badge {
-            background: #2d88ff;
-            color: white;
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
         
         /* ESTILOS DE ENCUESTAS */
         .poll-box {
@@ -502,14 +495,14 @@
                 <button id="toggle-register-btn" class="auth-toggle-btn" onclick="switchAuthMode('register')">Registrarse</button>
             </div>
 
-            <!-- Formulario Iniciar Sesión (Soporta Correo o Nombre de Usuario) -->
+            <!-- Formulario Iniciar Sesión -->
             <form id="form-login" class="auth-form-inline" onsubmit="handleLogin(event)">
                 <input type="text" id="login-identifier" class="auth-input-top" placeholder="Correo o Usuario" required>
                 <input type="password" id="login-pass" class="auth-input-top" placeholder="Contraseña" required>
                 <button type="submit" class="auth-btn-top">Entrar</button>
             </form>
 
-            <!-- Formulario Registro (Inicialmente oculto) -->
+            <!-- Formulario Registro -->
             <form id="form-register" class="auth-form-inline" onsubmit="handleRegister(event)" style="display: none;">
                 <input type="text" id="reg-username" class="auth-input-top" placeholder="Usuario" required>
                 <input type="email" id="reg-email" class="auth-input-top" placeholder="Correo electrónico" required>
@@ -565,7 +558,6 @@
                 <a href="#" onclick="switchTab('chat', null)"><i class="fa-solid fa-comments"></i> Chat en Vivo</a>
                 <a href="#" onclick="switchTab('foro', null)"><i class="fa-solid fa-users"></i> Foro Comunitario</a>
                 <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
-                <!-- OCULTO POR DEFECTO PARA NO ADMINS -->
                 <a href="#" id="admin-menu-link" onclick="switchTab('admin', null)" style="color: #e41e3f; display: none;"><i class="fa-solid fa-key"></i> Panel de Control</a>
             </div>
         </div>
@@ -574,7 +566,6 @@
         <div class="nav-tabs">
             <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
             <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
-            <!-- OCULTO POR DEFECTO PARA NO ADMINS -->
             <span id="admin-tab-nav" class="nav-tab admin-tab" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
         </div>
     </div>
@@ -647,7 +638,7 @@
 
             <!-- Creador de Encuestas -->
             <div class="admin-panel-card">
-                <h3><i class="fa-solid fa-poll"></i> Crear Nueva Encuesta Comunitario</h3>
+                <h3><i class="fa-solid fa-poll"></i> Crear Nueva Encuesta Comunitaria</h3>
                 <input type="text" id="poll-title" class="admin-input" placeholder="Pregunta de la encuesta">
                 <input type="text" id="poll-op1" class="admin-input" placeholder="Opción 1">
                 <input type="text" id="poll-op2" class="admin-input" placeholder="Opción 2">
@@ -745,7 +736,6 @@
         auth.createUserWithEmailAndPassword(email, pass)
             .then((userCredential) => {
                 const user = userCredential.user;
-                // Si se registra con el correo del administrador oficial, se le asigna rol 'admin'
                 const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
 
                 const userData = {
@@ -767,7 +757,6 @@
             });
     }
 
-    // INICIO DE SESIÓN CON CORREO O NOMBRE DE USUARIO
     async function handleLogin(e) {
         e.preventDefault();
         const identifier = document.getElementById('login-identifier').value.trim();
@@ -777,7 +766,6 @@
 
         let emailToAuth = identifier;
 
-        // Si escribió un Usuario sin '@', se resuelve el correo desde la base de datos
         if(!identifier.includes('@')) {
             try {
                 const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
@@ -795,7 +783,6 @@
             }
         }
 
-        // Autenticar con el correo obtenido
         auth.signInWithEmailAndPassword(emailToAuth, pass)
             .then(() => {
                 document.getElementById('form-login').reset();
@@ -811,7 +798,6 @@
         });
     }
 
-    // CONTROL DE ESTADO DE SESIÓN (Ocultar/Mostrar opciones Admin)
     auth.onAuthStateChanged((user) => {
         if (user) {
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
@@ -832,7 +818,6 @@
                     roleBadge.innerText = data.role.toUpperCase();
                     roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
 
-                    // SI ES ADMINISTRADOR, DESBLOQUEAR PESTAÑAS Y MENU ADMIN
                     if(data.role === 'admin') {
                         document.getElementById('admin-tab-nav').style.display = 'inline-block';
                         document.getElementById('admin-menu-link').style.display = 'flex';
@@ -840,7 +825,6 @@
                         loadStats();
                         loadUsersList();
                     } else {
-                        // SI ES USUARIO COMÚN, MANTENER OCULTO EL ADMIN
                         document.getElementById('admin-tab-nav').style.display = 'none';
                         document.getElementById('admin-menu-link').style.display = 'none';
                         document.getElementById('admin-dashboard').style.display = 'none';
@@ -852,12 +836,10 @@
             document.getElementById('auth-guest-section').style.display = 'flex';
             document.getElementById('auth-user-section').style.display = 'none';
 
-            // VISITANTES: OCULTAR TOTALMENTE RUTA DE ADMINISTRADOR
             document.getElementById('admin-tab-nav').style.display = 'none';
             document.getElementById('admin-menu-link').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'none';
 
-            // Redirigir a Noticias si el usuario estaba parado en Admin al cerrar sesión
             if (document.getElementById('admin-section').classList.contains('active')) {
                 switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
             }
@@ -870,55 +852,53 @@
 
     function loadUsersList() {
         db.ref('users').on('value', (snapshot) => {
-            const tableBody = document.getElementById('users-table-body');
-            tableBody.innerHTML = '';
             const users = snapshot.val();
-            if (!users) return;
+            const tableBody = document.getElementById('users-table-body');
+            if(!tableBody) return;
+            tableBody.innerHTML = '';
 
-            Object.keys(users).forEach(uid => {
-                const u = users[uid];
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${u.username || 'Sin nombre'}</td>
-                    <td>${u.email}</td>
-                    <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
-                    <td>${u.isBlocked ? '<span style="color:#e41e3f;">Bloqueado</span>' : '<span style="color:#00e676;">Activo</span>'}</td>
-                    <td>
-                        ${u.isBlocked 
-                            ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>` 
-                            : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`}
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
+            if (users) {
+                Object.keys(users).forEach(uid => {
+                    const u = users[uid];
+                    const tr = document.createElement('tr');
+
+                    const isBlocked = u.isBlocked || false;
+                    const actionBtn = isBlocked
+                        ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', true)">Desbloquear</button>`
+                        : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', false)">Bloquear</button>`;
+
+                    tr.innerHTML = `
+                        <td>${escapeHTML(u.username || 'Sin nombre')}</td>
+                        <td>${escapeHTML(u.email || '')}</td>
+                        <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
+                        <td style="color: ${isBlocked ? '#e41e3f' : '#00e676'}; font-weight: bold;">${isBlocked ? 'Bloqueado' : 'Activo'}</td>
+                        <td>${u.role === 'admin' ? '-' : actionBtn}</td>
+                    `;
+                    tableBody.appendChild(tr);
+                });
+            }
         });
     }
 
-    function toggleBlockUser(uid, blockState) {
-        db.ref(`users/${uid}/isBlocked`).set(blockState);
+    function toggleBlockUser(uid, currentlyBlocked) {
+        db.ref(`users/${uid}`).update({
+            isBlocked: !currentlyBlocked
+        }).then(() => {
+            alert(`Usuario ${currentlyBlocked ? 'desbloqueado' : 'bloqueado'} con éxito.`);
+        }).catch(err => alert('Error: ' + err.message));
     }
 
     // ==========================================
-    // 4. FUNCIONES DE NAVEGACIÓN Y MENÚ
+    // 4. NAVEGACIÓN Y MENÚS
     // ==========================================
 
     function toggleMenu() {
-        document.getElementById("dropdownMenu").classList.toggle("show");
+        const menu = document.getElementById('dropdownMenu');
+        menu.classList.toggle('show');
     }
 
-    function switchTab(tabId, element) {
-        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-
-        document.getElementById(tabId + '-section').classList.add('active');
-        if(element) element.classList.add('active');
-
-        document.getElementById("dropdownMenu").classList.remove("show");
-    }
-
-    // Cerrar el menú si el usuario hace clic fuera de él
     window.onclick = function(event) {
-        if (!event.target.matches('.menu-btn')) {
+        if (!event.target.matches('.menu-btn') && !event.target.parentElement.matches('.menu-btn')) {
             const dropdowns = document.getElementsByClassName("dropdown-content");
             for (let i = 0; i < dropdowns.length; i++) {
                 const openDropdown = dropdowns[i];
@@ -928,6 +908,296 @@
             }
         }
     }
+
+    function switchTab(tabId, element) {
+        const sections = document.querySelectorAll('.content-section');
+        sections.forEach(sec => sec.classList.remove('active'));
+
+        const targetSection = document.getElementById(`${tabId}-section`);
+        if (targetSection) targetSection.classList.add('active');
+
+        if (element) {
+            const tabs = document.querySelectorAll('.nav-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        const menu = document.getElementById('dropdownMenu');
+        if (menu) menu.classList.remove('show');
+    }
+
+    // ==========================================
+    // 5. PUBLICACIÓN DE NOTICIAS Y ENCUESTAS
+    // ==========================================
+
+    function publishNews() {
+        const title = document.getElementById('news-title').value.trim();
+        const author = document.getElementById('admin-name').value.trim() || (currentUserData ? currentUserData.username : 'Admin');
+        const content = document.getElementById('news-content').value.trim();
+
+        if (!title || !content) return alert('Completa el título y el contenido de la noticia.');
+
+        const newPostRef = db.ref('posts').push();
+        newPostRef.set({
+            type: 'news',
+            title: title,
+            author: author,
+            content: content,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            alert('Noticia publicada con éxito.');
+            document.getElementById('news-title').value = '';
+            document.getElementById('news-content').value = '';
+        }).catch(err => alert('Error: ' + err.message));
+    }
+
+    function publishPoll() {
+        const title = document.getElementById('poll-title').value.trim();
+        const op1 = document.getElementById('poll-op1').value.trim();
+        const op2 = document.getElementById('poll-op2').value.trim();
+        const op3 = document.getElementById('poll-op3').value.trim();
+
+        if (!title || !op1 || !op2) return alert('La encuesta debe tener un título y al menos dos opciones.');
+
+        const options = [
+            { text: op1, votes: 0 },
+            { text: op2, votes: 0 }
+        ];
+        if (op3) options.push({ text: op3, votes: 0 });
+
+        const newPollRef = db.ref('posts').push();
+        newPollRef.set({
+            type: 'poll',
+            title: title,
+            author: currentUserData ? currentUserData.username : 'Admin',
+            options: options,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            alert('Encuesta creada con éxito.');
+            document.getElementById('poll-title').value = '';
+            document.getElementById('poll-op1').value = '';
+            document.getElementById('poll-op2').value = '';
+            document.getElementById('poll-op3').value = '';
+        }).catch(err => alert('Error: ' + err.message));
+    }
+
+    function votePoll(postId, optionIndex) {
+        if (!currentUserData) return alert('Debes iniciar sesión para votar.');
+        const voteRef = db.ref(`posts/${postId}/options/${optionIndex}/votes`);
+        voteRef.transaction(currentVotes => (currentVotes || 0) + 1)
+            .then(() => alert('¡Voto registrado!'))
+            .catch(err => alert('Error al votar: ' + err.message));
+    }
+
+    // CARGA DE NOTICIAS Y ENCUESTAS EN EL FEED
+    db.ref('posts').on('value', (snapshot) => {
+        const container = document.getElementById('news-container');
+        if (!container) return;
+        container.innerHTML = '';
+        const posts = snapshot.val();
+
+        if (!posts) {
+            container.innerHTML = '<p style="text-align:center; color:#b0b3b8;">No hay publicaciones disponibles.</p>';
+            return;
+        }
+
+        const keys = Object.keys(posts).reverse();
+        keys.forEach(key => {
+            const p = posts[key];
+            const div = document.createElement('div');
+            div.className = 'post';
+
+            const dateStr = p.timestamp ? new Date(p.timestamp).toLocaleString() : '';
+
+            if (p.type === 'news') {
+                div.innerHTML = `
+                    <div class="post-author">
+                        <i class="fa-solid fa-newspaper" style="color: #2d88ff; font-size: 18px;"></i>
+                        <div>
+                            <strong>${escapeHTML(p.author || 'Admin')}</strong>
+                            <span style="font-size: 11px; color: #b0b3b8; display: block;">${dateStr}</span>
+                        </div>
+                    </div>
+                    <h2 style="margin: 5px 0 10px 0; color: #2d88ff; font-size: 20px;">${escapeHTML(p.title)}</h2>
+                    <p style="line-height: 1.5; white-space: pre-wrap;">${escapeHTML(p.content)}</p>
+                `;
+            } else if (p.type === 'poll') {
+                let optionsHTML = '';
+                const totalVotes = p.options ? p.options.reduce((sum, opt) => sum + (opt.votes || 0), 0) : 0;
+
+                if (p.options) {
+                    p.options.forEach((opt, idx) => {
+                        const pct = totalVotes > 0 ? Math.round(((opt.votes || 0) / totalVotes) * 100) : 0;
+                        optionsHTML += `
+                            <button class="poll-option-btn" onclick="votePoll('${key}', ${idx})">
+                                <span>${escapeHTML(opt.text)}</span>
+                                <strong>${opt.votes || 0} votos (${pct}%)</strong>
+                            </button>
+                        `;
+                    });
+                }
+
+                div.innerHTML = `
+                    <div class="post-author">
+                        <i class="fa-solid fa-poll" style="color: #ff9200; font-size: 18px;"></i>
+                        <div>
+                            <strong>${escapeHTML(p.author || 'Admin')}</strong>
+                            <span style="font-size: 11px; color: #b0b3b8; display: block;">${dateStr}</span>
+                        </div>
+                    </div>
+                    <h3 style="margin: 5px 0 10px 0;">${escapeHTML(p.title)}</h3>
+                    <div class="poll-box">
+                        ${optionsHTML}
+                        <p style="font-size: 12px; color: #b0b3b8; margin-top: 8px; margin-bottom: 0;">Total de votos: ${totalVotes}</p>
+                    </div>
+                `;
+            }
+
+            container.appendChild(div);
+        });
+    });
+
+    // ==========================================
+    // 6. FORO Y CHAT EN VIVO
+    // ==========================================
+
+    function sendForo() {
+        if (!currentUserData) return alert('Debes iniciar sesión para comentar en el foro.');
+        const input = document.getElementById('foro-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        db.ref('foro').push({
+            author: currentUserData.username,
+            role: currentUserData.role,
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            input.value = '';
+        });
+    }
+
+    db.ref('foro').on('value', (snapshot) => {
+        const box = document.getElementById('foro-box');
+        if (!box) return;
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+            Object.values(data).forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-msg';
+                msgDiv.innerHTML = `
+                    <strong>${escapeHTML(msg.author)} ${msg.role === 'admin' ? '<span class="badge-role">ADMIN</span>' : ''}</strong>
+                    <span>${escapeHTML(msg.text)}</span>
+                `;
+                box.appendChild(msgDiv);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+
+    function sendChat() {
+        if (!currentUserData) return alert('Debes iniciar sesión para chatear.');
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        db.ref('chat').push({
+            author: currentUserData.username,
+            role: currentUserData.role,
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }).then(() => {
+            input.value = '';
+        });
+    }
+
+    db.ref('chat').on('value', (snapshot) => {
+        const box = document.getElementById('chat-box');
+        if (!box) return;
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+            Object.values(data).forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'chat-msg';
+                msgDiv.innerHTML = `
+                    <strong>${escapeHTML(msg.author)} ${msg.role === 'admin' ? '<span class="badge-role">ADMIN</span>' : ''}</strong>
+                    <span>${escapeHTML(msg.text)}</span>
+                `;
+                box.appendChild(msgDiv);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+
+    // ==========================================
+    // 7. ESTADÍSTICAS Y GRÁFICO (CHART.JS)
+    // ==========================================
+
+    function loadStats() {
+        db.ref('stats').on('value', (snapshot) => {
+            const stats = snapshot.val() || {};
+            const total = stats.total_visits || 0;
+            const daily = stats.daily_visits || {};
+
+            const todayVisits = daily[todayKey] || 0;
+            const daysCount = Object.keys(daily).length || 1;
+            const avgVisits = Math.round(total / daysCount);
+
+            document.getElementById('stat-total').innerText = total;
+            document.getElementById('stat-today').innerText = todayVisits;
+            document.getElementById('stat-avg').innerText = avgVisits;
+
+            const labels = [];
+            const dataVisits = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const k = d.toISOString().split('T')[0];
+                labels.push(k.slice(5));
+                dataVisits.push(daily[k] || 0);
+            }
+
+            const ctx = document.getElementById('visitsChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Visitas',
+                        data: dataVisits,
+                        borderColor: '#2d88ff',
+                        backgroundColor: 'rgba(45, 136, 255, 0.2)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: '#3e4042' }, ticks: { color: '#b0b3b8' } },
+                        x: { grid: { color: '#3e4042' }, ticks: { color: '#b0b3b8' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        });
+    }
+
+    // FUNCIÓN AUXILIAR DE SEGURIDAD XSS
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 </script>
+
 </body>
 </html>
