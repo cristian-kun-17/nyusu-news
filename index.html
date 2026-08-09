@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYŪSU NEWS | Perfil</title>
+    <title>NYŪSU NEWS | Perfil & Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Librería para gráficos de estadísticas -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { 
             background-color: #18191a; 
@@ -74,6 +76,19 @@
             color: #2d88ff;
         }
 
+        /* CONTADOR DE VISITAS PUBLICO */
+        .visitor-counter {
+            margin-top: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #242526;
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid #3e4042;
+        }
+
         /* NAVEGACIÓN Y MENÚ DESPLEGABLE */
         .nav-bar { 
             display: flex; 
@@ -87,7 +102,8 @@
         }
         .nav-tabs { 
             display: flex; 
-            gap: 20px; 
+            gap: 15px; 
+            flex-wrap: wrap;
         }
         .nav-tab { 
             color: #b0b3b8; 
@@ -99,6 +115,13 @@
         .nav-tab.active, .nav-tab:hover { 
             color: #2d88ff; 
             border-bottom: 3px solid #2d88ff; 
+        }
+        .admin-tab {
+            color: #e41e3f;
+        }
+        .admin-tab.active, .admin-tab:hover {
+            color: #e41e3f;
+            border-bottom: 3px solid #e41e3f;
         }
 
         /* BOTÓN DE MENÚ DESPLEGABLE */
@@ -146,7 +169,7 @@
             display: block; 
         }
 
-        /* SECCIONES (FEED, FORO, CHAT) */
+        /* SECCIONES DE CONTENIDO */
         .content-section { 
             display: none; 
         }
@@ -154,30 +177,119 @@
             display: block; 
         }
 
-        /* FEED Y POSTS */
+        /* PUBLICACIONES Y TARJETAS */
         .post { 
             background: #242526; 
             margin: 20px 0; 
             padding: 15px; 
             border-radius: 8px; 
+            border: 1px solid #3e4042;
         }
-        .post-input { 
-            background: #3a3b3c; 
-            border-radius: 20px; 
-            padding: 10px 15px; 
-            margin-bottom: 10px; 
-            color: #b0b3b8; 
-            font-size: 14px;
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .post-author badge {
+            background: #2d88ff;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
         }
         
-        /* BARRA DIVISORA DE COMENTARIOS */
-        .comment-divider { 
-            border: 0; 
-            border-top: 1px solid #3e4042; 
-            margin: 15px 0; 
+        /* ESTILOS DE ENCUESTAS */
+        .poll-box {
+            background: #18191a;
+            border: 1px solid #3e4042;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
         }
-        
-        /* SECCIÓN DE CHAT Y FORO COMUNITARIO */
+        .poll-option-btn {
+            width: 100%;
+            background: #3a3b3c;
+            color: white;
+            border: 1px solid #4e4f50;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 6px;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+        }
+        .poll-option-btn:hover {
+            background: #4e4f50;
+        }
+
+        /* ESTILOS DEL PANEL DE ADMINISTRACIÓN */
+        .admin-panel-card {
+            background: #242526;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 1px solid #e41e3f;
+        }
+        .admin-input, .admin-textarea {
+            width: 100%;
+            background: #3a3b3c;
+            border: 1px solid #3e4042;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .admin-btn {
+            background: #e41e3f;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .admin-btn:hover {
+            background: #b81430;
+        }
+
+        /* TARJETAS DE ESTADÍSTICAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #18191a;
+            border: 1px solid #3e4042;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-card h4 {
+            margin: 0;
+            color: #b0b3b8;
+            font-size: 13px;
+        }
+        .stat-card .number {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2d88ff;
+            margin-top: 5px;
+        }
+        .chart-box {
+            background: #18191a;
+            border: 1px solid #3e4042;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        /* SECCIÓN DE CHAT Y FORO */
         .community-box { 
             background: #242526; 
             margin: 20px 0; 
@@ -241,7 +353,7 @@
 <div class="container">
     <!-- PORTADA -->
     <div class="cover-photo">
-        <img src="portada.jpg" alt="Portada">
+        <img src="portada.jpg" alt="Portada de NYŪSU NEWS">
     </div>
 
     <!-- PERFIL -->
@@ -250,6 +362,12 @@
         <div class="profile-info">
             <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check" style="color: #0084ff;"></i></h1>
             <p>Tu portal de noticias sobre Japón, Anime y más.</p>
+            
+            <!-- CONTADOR DE VISITAS PUBLICO -->
+            <div class="visitor-counter">
+                <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fnyusu-news.github.io&count_bg=%232D88FF&title_bg=%233A3B3C&icon=eye.svg&icon_color=%23E7E7E7&title=visitas&edge_flat=false" alt="Visitas"/>
+            </div>
+
             <div class="social-links">
                 <a href="#"><i class="fa-brands fa-facebook"></i></a>
                 <a href="#"><i class="fa-brands fa-instagram"></i></a>
@@ -258,47 +376,113 @@
         </div>
     </div>
 
-    <!-- BARRA DE NAVEGACIÓN Y MENÚ DESPLEGABLE -->
+    <!-- NAVEGACIÓN -->
     <div class="nav-bar">
         <div class="nav-tabs">
-            <span class="nav-tab active" onclick="switchTab('feed', this)">Publicaciones</span>
+            <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
             <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
+            <span class="nav-tab admin-tab" onclick="switchTab('admin', this)"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
         </div>
         
-        <!-- Botón Desplegable -->
         <div class="menu-dropdown-container">
             <button onclick="toggleMenu()" class="menu-btn"><i class="fa-solid fa-bars"></i> Menú</button>
             <div id="dropdownMenu" class="dropdown-content">
                 <a href="#" onclick="switchTab('chat', null)"><i class="fa-solid fa-comments"></i> Chat en Vivo</a>
                 <a href="#" onclick="switchTab('foro', null)"><i class="fa-solid fa-users"></i> Foro Comunitario</a>
                 <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
+                <a href="#" onclick="switchTab('admin', null)" style="color: #e41e3f;"><i class="fa-solid fa-key"></i> Panel de Control</a>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN 1: FEED DE NOTICIAS -->
+    <!-- SECCIÓN 1: FEED DE NOTICIAS Y ENCUESTAS -->
     <div id="feed-section" class="content-section active">
-        <div class="post">
-            <div class="post-input">¿Qué está pasando en el mundo del anime hoy?</div>
-            <hr class="comment-divider">
-            <p>¡Aquí se muestran las noticias oficiales de NYŪSU NEWS!</p>
-            
-            <!-- Barra divisora para separar comentarios -->
-            <hr class="comment-divider">
-            <div style="font-size: 13px; color: #b0b3b8; margin-bottom: 8px;">Comentarios de la comunidad:</div>
-            <div style="font-size: 14px;"><strong>Akane:</strong> ¡Excelente noticia la de hoy! 🌸</div>
+        <div id="news-container">
+            <div class="post">
+                <div class="post-author">
+                    <i class="fa-solid fa-circle-user fa-2x" style="color: #2d88ff;"></i>
+                    <div>
+                        <strong>Admin Staff</strong> <badge>ADMIN</badge>
+                        <div style="font-size: 11px; color: #b0b3b8;">Oficial NYŪSU NEWS</div>
+                    </div>
+                </div>
+                <h3>¡Bienvenidos a NYŪSU NEWS!</h3>
+                <p>Estrenamos el nuevo portal con panel de noticias, área comunitaria y encuestas interactiva.</p>
+            </div>
         </div>
     </div>
 
-    <!-- SECCIÓN 2: FORO -->
+    <!-- SECCIÓN 2: PANEL DE ADMINISTRACIÓN -->
+    <div id="admin-section" class="content-section">
+        <!-- Login de Seguridad -->
+        <div id="admin-login-box" class="admin-panel-card">
+            <h3><i class="fa-solid fa-lock"></i> Acceso Restringido a Administradores</h3>
+            <p style="font-size: 13px; color: #b0b3b8;">Ingresa el PIN de administración para publicar noticias, encuestas y revisar las estadísticas.</p>
+            <input type="password" id="admin-pin" class="admin-input" placeholder="Introduce la clave de Admin">
+            <button class="admin-btn" onclick="verifyAdminPin()">Entrar al Panel</button>
+            <p id="admin-error" style="color: #ff4d4d; font-size: 13px; display: none; margin-top: 10px;">Clave incorrecta.</p>
+        </div>
+
+        <!-- Contenido del Panel (Solo visible tras login) -->
+        <div id="admin-dashboard" style="display: none;">
+            
+            <!-- APARTADO DE ESTADÍSTICAS DE VISITAS -->
+            <div class="admin-panel-card" style="border-color: #2d88ff;">
+                <h3 style="color: #2d88ff;"><i class="fa-solid fa-chart-line"></i> Estadísticas de Visitas del Sitio</h3>
+                <p style="font-size: 13px; color: #b0b3b8;">Resumen analítico de la actividad de los usuarios en la web.</p>
+                
+                <!-- Tarjetas de métricas -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>VISITAS TOTALES</h4>
+                        <div class="number" id="stat-total">1,240</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>VISITAS HOY</h4>
+                        <div class="number" style="color: #00e676;" id="stat-today">185</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>PROMEDIO DIARIO</h4>
+                        <div class="number" style="color: #ff9200;" id="stat-avg">140</div>
+                    </div>
+                </div>
+
+                <!-- Gráfico interactivo -->
+                <div class="chart-box">
+                    <h4 style="margin-top:0; color:#e4e6eb;">Tendencia de Tráfico (Últimos 7 días)</h4>
+                    <canvas id="visitsChart" height="140"></canvas>
+                </div>
+            </div>
+
+            <!-- Creador de Noticias -->
+            <div class="admin-panel-card">
+                <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Nueva Noticia</h3>
+                <input type="text" id="news-title" class="admin-input" placeholder="Título de la Noticia">
+                <input type="text" id="admin-name" class="admin-input" placeholder="Nombre del Administrador (Ej: Admin Alex)">
+                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Contenido o texto de la noticia..."></textarea>
+                <button class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
+            </div>
+
+            <!-- Creador de Encuestas -->
+            <div class="admin-panel-card">
+                <h3><i class="fa-solid fa-poll"></i> Crear Nueva Encuesta Comunitario</h3>
+                <input type="text" id="poll-title" class="admin-input" placeholder="Pregunta de la encuesta">
+                <input type="text" id="poll-op1" class="admin-input" placeholder="Opción 1">
+                <input type="text" id="poll-op2" class="admin-input" placeholder="Opción 2">
+                <input type="text" id="poll-op3" class="admin-input" placeholder="Opción 3 (Opcional)">
+                <button class="admin-btn" onclick="publishPoll()" style="background: #2d88ff;">Lanzar Encuesta</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: FORO -->
     <div id="foro-section" class="content-section">
         <div class="community-box">
             <h3>Foro de Discusión Otaku</h3>
-            <p style="font-size: 14px; color: #b0b3b8;">Espacio para que la comunidad comparta teorías, recomendaciones y debates sobre manga y Japón.</p>
+            <p style="font-size: 14px; color: #b0b3b8;">Espacio para que la comunidad comparta teorías y recomendaciones.</p>
             
             <div class="chat-messages" id="foro-box">
                 <div class="chat-msg"><strong>Carlos:</strong> ¿Cuál creen que sea el mejor anime de esta temporada?</div>
-                <div class="chat-msg"><strong>Lucía:</strong> Sin duda el nuevo de romance, está buenísimo.</div>
             </div>
             
             <div class="chat-input-area">
@@ -308,7 +492,7 @@
         </div>
     </div>
 
-    <!-- SECCIÓN 3: CHAT EN VIVO -->
+    <!-- SECCIÓN 4: CHAT EN VIVO -->
     <div id="chat-section" class="content-section">
         <div class="community-box">
             <h3>Chat en Vivo de la Comunidad</h3>
@@ -328,7 +512,166 @@
 </div>
 
 <script>
-    // Control del Menú Desplegable
+    // PIN de Administrador por defecto
+    const SECRET_PIN = "nyusu123";
+    let chartRendered = false;
+
+    // Verificación de Admin
+    function verifyAdminPin() {
+        const pin = document.getElementById('admin-pin').value;
+        if(pin === SECRET_PIN) {
+            document.getElementById('admin-login-box').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
+            document.getElementById('admin-error').style.display = 'none';
+            
+            // Renderizar el gráfico de visitas si no se ha creado
+            if(!chartRendered) {
+                renderVisitsChart();
+                chartRendered = true;
+            }
+        } else {
+            document.getElementById('admin-error').style.display = 'block';
+        }
+    }
+
+    // Dibujar gráfico de analítica con Chart.js
+    function renderVisitsChart() {
+        const ctx = document.getElementById('visitsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+                datasets: [{
+                    label: 'Visitas Diarias',
+                    data: [120, 150, 180, 130, 210, 270, 185],
+                    borderColor: '#2d88ff',
+                    backgroundColor: 'rgba(45, 136, 255, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { labels: { color: '#e4e6eb' } }
+                },
+                scales: {
+                    x: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } },
+                    y: { ticks: { color: '#b0b3b8' }, grid: { color: '#3e4042' } }
+                }
+            }
+        });
+    }
+
+    // Publicar Noticia
+    function publishNews() {
+        const title = document.getElementById('news-title').value.trim();
+        const author = document.getElementById('admin-name').value.trim() || 'Admin Staff';
+        const content = document.getElementById('news-content').value.trim();
+
+        if(!title || !content) {
+            alert('Por favor escribe un título y contenido para la noticia.');
+            return;
+        }
+
+        const container = document.getElementById('news-container');
+        const newPost = document.createElement('div');
+        newPost.className = 'post';
+        newPost.innerHTML = `
+            <div class="post-author">
+                <i class="fa-solid fa-user-check fa-2x" style="color: #2d88ff;"></i>
+                <div>
+                    <strong>${author}</strong> <badge>ADMIN</badge>
+                    <div style="font-size: 11px; color: #b0b3b8;">Publicado recién</div>
+                </div>
+            </div>
+            <h3>${title}</h3>
+            <p>${content}</p>
+        `;
+
+        container.prepend(newPost);
+        alert('¡Noticia publicada con éxito!');
+        document.getElementById('news-title').value = '';
+        document.getElementById('news-content').value = '';
+        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+    }
+
+    // Lanzar Encuesta
+    function publishPoll() {
+        const question = document.getElementById('poll-title').value.trim();
+        const op1 = document.getElementById('poll-op1').value.trim();
+        const op2 = document.getElementById('poll-op2').value.trim();
+        const op3 = document.getElementById('poll-op3').value.trim();
+
+        if(!question || !op1 || !op2) {
+            alert('Agrega al menos una pregunta y dos opciones de respuesta.');
+            return;
+        }
+
+        const container = document.getElementById('news-container');
+        const pollPost = document.createElement('div');
+        pollPost.className = 'post';
+
+        let optionsHTML = `
+            <button class="poll-option-btn" onclick="vote(this)"><span>${op1}</span> <strong><span class="count">0</span> votos</strong></button>
+            <button class="poll-option-btn" onclick="vote(this)"><span>${op2}</span> <strong><span class="count">0</span> votos</strong></button>
+        `;
+
+        if(op3) {
+            optionsHTML += `<button class="poll-option-btn" onclick="vote(this)"><span>${op3}</span> <strong><span class="count">0</span> votos</strong></button>`;
+        }
+
+        pollPost.innerHTML = `
+            <div class="post-author">
+                <i class="fa-solid fa-square-poll-vertical fa-2x" style="color: #e41e3f;"></i>
+                <div>
+                    <strong>Encuesta Oficial NYŪSU NEWS</strong> <badge style="background:#e41e3f;">ENCUESTA</badge>
+                </div>
+            </div>
+            <h4>${question}</h4>
+            <div class="poll-box">
+                ${optionsHTML}
+            </div>
+        `;
+
+        container.prepend(pollPost);
+        alert('¡Encuesta enviada al Feed!');
+        document.getElementById('poll-title').value = '';
+        document.getElementById('poll-op1').value = '';
+        document.getElementById('poll-op2').value = '';
+        document.getElementById('poll-op3').value = '';
+        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+    }
+
+    // Votar en encuestas
+    function vote(btn) {
+        const countSpan = btn.querySelector('.count');
+        let currentVotes = parseInt(countSpan.innerText);
+        countSpan.innerText = currentVotes + 1;
+        
+        const parent = btn.parentElement;
+        const buttons = parent.querySelectorAll('.poll-option-btn');
+        buttons.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = "0.7";
+            b.style.cursor = "default";
+        });
+        btn.style.border = "2px solid #2d88ff";
+    }
+
+    // Navegación entre pestañas
+    function switchTab(tabName, element) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+        
+        document.getElementById(tabName + '-section').classList.add('active');
+        if(element && element.classList && element.classList.contains('nav-tab')) {
+            element.classList.add('active');
+        }
+    }
+
+    // Menú desplegable
     function toggleMenu() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
@@ -345,23 +688,11 @@
         }
     }
 
-    // Cambiar entre pestañas (Feed, Foro, Chat)
-    function switchTab(tabName, element) {
-        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
-        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-        
-        document.getElementById(tabName + '-section').classList.add('active');
-        if(element && element.classList && element.classList.contains('nav-tab')) {
-            element.classList.add('active');
-        }
-    }
-
-    // Funcionalidad para enviar mensajes al Foro
+    // Foro y Chat
     function sendForo() {
         const input = document.getElementById('foro-input');
         const text = input.value.trim();
-        if(text === '') return;
-
+        if(!text) return;
         const box = document.getElementById('foro-box');
         const msg = document.createElement('div');
         msg.className = 'chat-msg';
@@ -371,12 +702,10 @@
         input.value = '';
     }
 
-    // Funcionalidad para enviar mensajes al Chat
     function sendChat() {
         const input = document.getElementById('chat-input');
         const text = input.value.trim();
-        if(text === '') return;
-
+        if(!text) return;
         const box = document.getElementById('chat-box');
         const msg = document.createElement('div');
         msg.className = 'chat-msg';
