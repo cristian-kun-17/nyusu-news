@@ -565,7 +565,8 @@
                 <a href="#" onclick="switchTab('chat', null)"><i class="fa-solid fa-comments"></i> Chat en Vivo</a>
                 <a href="#" onclick="switchTab('foro', null)"><i class="fa-solid fa-users"></i> Foro Comunitario</a>
                 <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
-                <a href="#" onclick="switchTab('admin', null)" style="color: #e41e3f;"><i class="fa-solid fa-key"></i> Panel de Control</a>
+                <!-- OCULTO POR DEFECTO PARA NO ADMINS -->
+                <a href="#" id="admin-menu-link" onclick="switchTab('admin', null)" style="color: #e41e3f; display: none;"><i class="fa-solid fa-key"></i> Panel de Control</a>
             </div>
         </div>
 
@@ -573,7 +574,8 @@
         <div class="nav-tabs">
             <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
             <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
-            <span class="nav-tab admin-tab" onclick="switchTab('admin', this)"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
+            <!-- OCULTO POR DEFECTO PARA NO ADMINS -->
+            <span id="admin-tab-nav" class="nav-tab admin-tab" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
         </div>
     </div>
 
@@ -586,14 +588,6 @@
 
     <!-- SECCIÓN 2: PANEL DE ADMINISTRACIÓN -->
     <div id="admin-section" class="content-section">
-        <div id="admin-login-box" class="admin-panel-card">
-            <h3><i class="fa-solid fa-lock"></i> Acceso Restringido a Administradores</h3>
-            <p style="font-size: 13px; color: #b0b3b8;">Inicia sesión arriba con tu cuenta de Admin o ingresa el PIN directo.</p>
-            <input type="password" id="admin-pin" class="admin-input" placeholder="Introduce el PIN de Admin">
-            <button class="admin-btn" onclick="verifyAdminPin()">Entrar al Panel con PIN</button>
-            <p id="admin-error" style="color: #ff4d4d; font-size: 13px; display: none; margin-top: 10px;">Clave incorrecta o tu cuenta no tiene permisos de Administrador.</p>
-        </div>
-
         <div id="admin-dashboard" style="display: none;">
             <!-- ESTADÍSTICAS -->
             <div class="admin-panel-card" style="border-color: #2d88ff;">
@@ -713,7 +707,6 @@
     const db = firebase.database();
     const auth = firebase.auth();
 
-    const SECRET_PIN = "nyusu123";
     let chartInstance = null;
     let currentUserData = null;
 
@@ -773,7 +766,7 @@
             });
     }
 
-    // FUNCIÓN DE INICIO DE SESIÓN CON CORREO O NOMBRE DE USUARIO
+    // INICIO DE SESIÓN CON CORREO O NOMBRE DE USUARIO
     async function handleLogin(e) {
         e.preventDefault();
         const identifier = document.getElementById('login-identifier').value.trim();
@@ -783,7 +776,7 @@
 
         let emailToAuth = identifier;
 
-        // Si el usuario escribió un Nombre de Usuario en lugar de un Correo (no contiene '@')
+        // Si escribió un Usuario sin '@', se resuelve el correo desde la base de datos
         if(!identifier.includes('@')) {
             try {
                 const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
@@ -801,7 +794,7 @@
             }
         }
 
-        // Iniciar sesión con Firebase Auth usando el correo resuelto
+        // Autenticar con el correo obtenido
         auth.signInWithEmailAndPassword(emailToAuth, pass)
             .then(() => {
                 document.getElementById('form-login').reset();
@@ -817,7 +810,7 @@
         });
     }
 
-    // Escuchar cambios de estado de autenticación
+    // CONTROL DE ESTADO DE SESIÓN (Ocultar/Mostrar opciones Admin)
     auth.onAuthStateChanged((user) => {
         if (user) {
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
@@ -838,11 +831,18 @@
                     roleBadge.innerText = data.role.toUpperCase();
                     roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
 
+                    // SI ES ADMINISTRADOR, DESBLOQUEAR PESTAÑAS Y MENU ADMIN
                     if(data.role === 'admin') {
-                        document.getElementById('admin-login-box').style.display = 'none';
+                        document.getElementById('admin-tab-nav').style.display = 'inline-block';
+                        document.getElementById('admin-menu-link').style.display = 'flex';
                         document.getElementById('admin-dashboard').style.display = 'block';
                         loadStats();
                         loadUsersList();
+                    } else {
+                        // SI ES USUARIO COMÚN, MANTENER OCULTO EL ADMIN
+                        document.getElementById('admin-tab-nav').style.display = 'none';
+                        document.getElementById('admin-menu-link').style.display = 'none';
+                        document.getElementById('admin-dashboard').style.display = 'none';
                     }
                 }
             });
@@ -850,8 +850,16 @@
             currentUserData = null;
             document.getElementById('auth-guest-section').style.display = 'flex';
             document.getElementById('auth-user-section').style.display = 'none';
-            document.getElementById('admin-login-box').style.display = 'block';
+
+            // VISITANTES: OCULTAR TOTALMENTE RUTA DE ADMINISTRADOR
+            document.getElementById('admin-tab-nav').style.display = 'none';
+            document.getElementById('admin-menu-link').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'none';
+
+            // Redirigir a Noticias si el usuario estaba parado en Admin al cerrar sesión
+            if (document.getElementById('admin-section').classList.contains('active')) {
+                switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+            }
         }
     });
 
@@ -1004,19 +1012,6 @@
     // ==========================================
     // 5. FUNCIONES DE PUBLICACIÓN DE ADMIN
     // ==========================================
-
-    function verifyAdminPin() {
-        const pin = document.getElementById('admin-pin').value;
-        if(pin === SECRET_PIN) {
-            document.getElementById('admin-login-box').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-            document.getElementById('admin-error').style.display = 'none';
-            loadStats();
-            loadUsersList();
-        } else {
-            document.getElementById('admin-error').style.display = 'block';
-        }
-    }
 
     function publishNews() {
         const title = document.getElementById('news-title').value.trim();
