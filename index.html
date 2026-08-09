@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYŪSU NEWS | Portal de Anime, Manga y Japón</title>
+    <!-- Iconos y fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #0f1016;
+            --card-bg: #191b24;
+            --accent-color: #ff2a5f; /* Estilo anime/neón */
+            --text-color: #f1f1f1;
+            --text-muted: #94a3b8;
+            --border-color: #2a2d3d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            border-left: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Cabecera del Perfil */
+        .profile-header {
+            background: linear-gradient(135deg, #2b0c1e, #131520);
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            border: 3px solid var(--bg-color);
+        }
+
+        .profile-details h1 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-details h1 i {
+            color: var(--accent-color);
+            font-size: 16px;
+        }
+
+        .profile-details p {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* Redes Sociales y Panel de Visitas */
+        .header-widgets {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            font-size: 13px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-links a {
+            color: var(--text-muted);
+            font-size: 18px;
+            transition: color 0.2s;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .admin-views {
+            background: rgba(255, 42, 95, 0.1);
+            color: var(--accent-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Feed / Publicaciones */
+        .feed {
+            flex: 1;
+            padding-bottom: 50px;
+        }
+
+        .post-card {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px;
+            margin-bottom: 10px;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+
+        .post-meta h4 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .post-meta span {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .post-content {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .post-image {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 8px;
+            max-height: 350px;
+            object-fit: cover;
+        }
+
+        .post-sticker {
+            max-width: 90px;
+            display: block;
+            margin-top: 8px;
+        }
+
+        /* Sección de Interacción (Reacciones y Comentarios) */
+        .post-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.2s;
+        }
+
+        .action-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* Sección de Comentarios */
+        .comments-section {
+            margin-top: 12px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 8px;
+            display: none; /* Se abre al hacer clic */
+        }
+
+        .comment-item {
+            font-size: 13px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+
+        .comment-item strong {
+            color: var(--accent-color);
+        }
+
+        .comment-input-box {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .comment-input-box input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .comment-input-box button {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- CABECERA DEL PERFIL -->
+        <header class="profile-header">
+            <div class="profile-info">
+                <div class="avatar">NN</div>
+                <div class="profile-details">
+                    <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check"></i></h1>
+                    <p>Tu portal otaku definitivo: Anime, Manga, TV, Videojuegos y Cultura Japonesa 🌸</p>
+                </div>
+            </div>
+
+            <!-- Redes y Visitas de Admin -->
+            <div class="header-widgets">
+                <div class="social-links">
+                    <a href="https://twitter.com" target="_blank" title="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://instagram.com" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://discord.com" target="_blank" title="Discord"><i class="fa-brands fa-discord"></i></a>
+                    <a href="https://t.me" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                </div>
+                <!-- Visitas exclusivas para el administrador -->
+                <div class="admin-views" title="Contador visible solo para ti">
+                    <i class="fa-solid fa-eye"></i> <span id="view-count">0</span> visitas
+                </div>
+            </div>
+        </header>
+
+        <!-- SECCIÓN DE POSTS (NOTICIAS EN FORMATO MURO) -->
+        <main class="feed" id="feed-container">
+            
+            <!-- Post de Ejemplo 1: Anime -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar">NN</div>
+                    <div class="post-meta">
+                        <h4>NYŪSU NEWS</h4>
+                        <span>Hace 2 horas • ⚡ Anime</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    ¡Atención otakus! Se confirma oficialmente la fecha de estreno del nuevo arco. ¡Prepárense porque la animación se ve increíble! 🔥 ¿Quién más esperando este estreno?
+                </div>
+                <!-- Ejemplo de Sticker personalizado que puedes agregar -->
+                <!-- <img src="URL_DE_TU_STICKER.png" class="post-sticker" alt="Sticker"> -->
+                
+                <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(this)"><i class="fa-solid fa-heart"></i> <span class="like-count">142</span></button>
+                    <button class="action-btn" onclick="toggleComments(this)"><i class="fa-solid fa-comment"></i> Comentarios (2)</button>
+                </div>
+
+                <!-- Caja de comentarios -->
+                <div class="comments-section" style="display: block;">
+                    <div class="comment-item"><strong>Carlos:</strong> ¡No puedo esperar más por verlo! 🤩</div>
+                    <div class="comment-item"><strong>Akane:</strong> El estudio de animación nunca decepciona.</div>
+                    <div class="comment-input-box">
+                        <input type="text" placeholder="Escribe un comentario o pon un emoji...">
+                        <button onclick="addComment(this)">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Post de Ejemplo 2: Videojuegos / Japón -->
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-avatar">NN</div>
+                    <div class="post-meta">
+                        <h4>NYŪSU NEWS</h4>
+                        <span>Hace 5 horas • 🎮 Videojuegos</span>
+                    </div>
+                </div>
+                <div class="post-content">
+                    Nuevos detalles filtrados sobre el mapa ambientado en Japón para el próximo gran lanzamiento RPG. Las calles inspiradas en Tokyo lucen alucinantes a medianoche. 🕹️✨
+                </div>
+                <div class="post-actions">
+                    <button class="action-btn" onclick="likePost(this)"><i class="fa-solid fa-heart"></i> <span class="like-count">89</span></button>
+                    <button class="action-btn" onclick="toggleComments(this)"><i class="fa-solid fa-comment"></i> Comentarios (0)</button>
+                </div>
+                <div class="comments-section">
+                    <div class="comment-input-box">
+                        <input type="text" placeholder="Escribe un comentario o pon un emoji...">
+                        <button onclick="addComment(this)">Enviar</button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // --- 1. CONTADOR DE VISITAS PRIVADO ---
+        // Utiliza el almacenamiento local del navegador para contar visitas de forma sencilla y privada
+        let visits = localStorage.getItem('nyusu_visits');
+        if (!visits) {
+            visits = 1255; // Número base de inicio opcional
+        } else {
+            // Sube el contador solo si es una sesión nueva (puedes cambiar la lógica si prefieres)
+            visits = parseInt(visits) + 1;
+        }
+        localStorage.setItem('nyusu_visits', visits);
+        document.getElementById('view-count').innerText = visits;
+
+        // --- 2. FUNCIONES DE INTERACCIÓN (Likes y Comentarios) ---
+        function likePost(button) {
+            const countSpan = button.querySelector('.like-count');
+            let count = parseInt(countSpan.innerText);
+            countSpan.innerText = count + 1;
+            button.style.color = 'var(--accent-color)';
+        }
+
+        function toggleComments(button) {
+            const postCard = button.closest('.post-card');
+            const commentSection = postCard.querySelector('.comments-section');
+            if (commentSection.style.display === 'block') {
+                commentSection.style.display = 'none';
+            } else {
+                commentSection.style.display = 'block';
+            }
+        }
+
+        function addComment(button) {
+            const input = button.previousElementSibling;
+            const text = input.value.trim();
+            if (text === '') return;
+
+            const commentsSection = button.closest('.comments-section');
+            const newComment = document.createElement('div');
+            newComment.className = 'comment-item';
+            newComment.innerHTML = `<strong>Fan:</strong> ${text}`;
+            
+            // Insertar antes de la caja de texto
+            commentsSection.insertBefore(newComment, commentsSection.querySelector('.comment-input-box'));
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
