@@ -708,7 +708,7 @@
     db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
 
     // ==========================================
-    // 2. SISTEMA DE AUTENTICACIÓN (CORREO O USUARIO)
+    // 2. SISTEMA DE AUTENTICACIÓN (CORREO O USUARIO Y PERSISTENCIA DE PESTAÑA)
     // ==========================================
 
     function switchAuthMode(mode) {
@@ -733,7 +733,11 @@
 
         if(!username || !email || !pass) return alert('Completa todos los campos.');
 
-        auth.createUserWithEmailAndPassword(email, pass)
+        // Establecer la persistencia solo a la sesión de la pestaña actual
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+            .then(() => {
+                return auth.createUserWithEmailAndPassword(email, pass);
+            })
             .then((userCredential) => {
                 const user = userCredential.user;
                 const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
@@ -783,7 +787,11 @@
             }
         }
 
-        auth.signInWithEmailAndPassword(emailToAuth, pass)
+        // Configurar la persistencia para mantener la sesión al refrescar pero cerrarla al cerrar la pestaña
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
+            .then(() => {
+                return auth.signInWithEmailAndPassword(emailToAuth, pass);
+            })
             .then(() => {
                 document.getElementById('form-login').reset();
             })
