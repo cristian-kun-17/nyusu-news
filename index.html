@@ -252,7 +252,7 @@
         .dropdown-content { 
             display: none; 
             position: absolute; 
-            left: 0; /* Desplegable alineado a la izquierda */
+            left: 0; 
             background-color: #242526; 
             min-width: 180px; 
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); 
@@ -492,7 +492,7 @@
 </head>
 <body>
 
-<!-- BARRA SUPERIOR DE AUTENTICACIÓN (REGISTRO Y LOGIN A LA DERECHA) -->
+<!-- BARRA SUPERIOR DE AUTENTICACIÓN -->
 <div class="auth-bar">
     <div class="auth-container">
         <!-- VISTA CUANDO NO HAY SESIÓN INICIADA -->
@@ -502,9 +502,9 @@
                 <button id="toggle-register-btn" class="auth-toggle-btn" onclick="switchAuthMode('register')">Registrarse</button>
             </div>
 
-            <!-- Formulario Iniciar Sesión -->
+            <!-- Formulario Iniciar Sesión (Soporta Correo o Nombre de Usuario) -->
             <form id="form-login" class="auth-form-inline" onsubmit="handleLogin(event)">
-                <input type="email" id="login-email" class="auth-input-top" placeholder="Correo electrónico" required>
+                <input type="text" id="login-identifier" class="auth-input-top" placeholder="Correo o Usuario" required>
                 <input type="password" id="login-pass" class="auth-input-top" placeholder="Contraseña" required>
                 <button type="submit" class="auth-btn-top">Entrar</button>
             </form>
@@ -556,7 +556,7 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN (MENÚ A LA IZQUIERDA Y PESTAÑAS A LA DERECHA) -->
+    <!-- NAVEGACIÓN -->
     <div class="nav-bar">
         <!-- BOTÓN DE MENÚ DESPLEGABLE EN LA IZQUIERDA -->
         <div class="menu-dropdown-container">
@@ -586,19 +586,16 @@
 
     <!-- SECCIÓN 2: PANEL DE ADMINISTRACIÓN -->
     <div id="admin-section" class="content-section">
-        <!-- Login de PIN tradicional / Verificación de Administrador -->
         <div id="admin-login-box" class="admin-panel-card">
             <h3><i class="fa-solid fa-lock"></i> Acceso Restringido a Administradores</h3>
-            <p style="font-size: 13px; color: #b0b3b8;">Inicia sesión arriba con una cuenta Admin o ingresa el PIN directo.</p>
+            <p style="font-size: 13px; color: #b0b3b8;">Inicia sesión arriba con tu cuenta de Admin o ingresa el PIN directo.</p>
             <input type="password" id="admin-pin" class="admin-input" placeholder="Introduce el PIN de Admin">
             <button class="admin-btn" onclick="verifyAdminPin()">Entrar al Panel con PIN</button>
             <p id="admin-error" style="color: #ff4d4d; font-size: 13px; display: none; margin-top: 10px;">Clave incorrecta o tu cuenta no tiene permisos de Administrador.</p>
         </div>
 
-        <!-- Contenido del Panel (Visible tras login o verificar Admin) -->
         <div id="admin-dashboard" style="display: none;">
-            
-            <!-- APARTADO DE ESTADÍSTICAS DE VISITAS -->
+            <!-- ESTADÍSTICAS -->
             <div class="admin-panel-card" style="border-color: #2d88ff;">
                 <h3 style="color: #2d88ff;"><i class="fa-solid fa-chart-line"></i> Estadísticas de Visitas del Sitio</h3>
                 <p style="font-size: 13px; color: #b0b3b8;">Resumen analítico de la actividad de los usuarios en la web.</p>
@@ -624,7 +621,7 @@
                 </div>
             </div>
 
-            <!-- APARTADO DE MODERACIÓN Y GESTIÓN DE USUARIOS -->
+            <!-- MODERACIÓN DE USUARIOS -->
             <div class="admin-panel-card" style="border-color: #ff9200;">
                 <h3 style="color: #ff9200;"><i class="fa-solid fa-users-gear"></i> Moderación de Usuarios</h3>
                 <p style="font-size: 13px; color: #b0b3b8;">Lista de usuarios registrados. Puedes bloquear o desbloquear usuarios.</p>
@@ -640,7 +637,7 @@
                         </tr>
                     </thead>
                     <tbody id="users-table-body">
-                        <!-- Carga dinámica de usuarios -->
+                        <!-- Carga dinámica -->
                     </tbody>
                 </table>
             </div>
@@ -649,7 +646,7 @@
             <div class="admin-panel-card">
                 <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Nueva Noticia</h3>
                 <input type="text" id="news-title" class="admin-input" placeholder="Título de la Noticia">
-                <input type="text" id="admin-name" class="admin-input" placeholder="Nombre del Administrador (Ej: Admin Alex)">
+                <input type="text" id="admin-name" class="admin-input" placeholder="Nombre del Administrador">
                 <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Contenido o texto de la noticia..."></textarea>
                 <button class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
             </div>
@@ -726,7 +723,7 @@
     db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
 
     // ==========================================
-    // 2. SISTEMA DE AUTENTICACIÓN Y ROLES
+    // 2. SISTEMA DE AUTENTICACIÓN (CORREO O USUARIO)
     // ==========================================
 
     function switchAuthMode(mode) {
@@ -754,11 +751,14 @@
         auth.createUserWithEmailAndPassword(email, pass)
             .then((userCredential) => {
                 const user = userCredential.user;
+                // Si se registra con el correo del administrador oficial, se le asigna rol 'admin'
+                const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
+
                 const userData = {
                     uid: user.uid,
                     username: username,
                     email: email,
-                    role: 'user',
+                    role: assignedRole,
                     isBlocked: false,
                     createdAt: firebase.database.ServerValue.TIMESTAMP
                 };
@@ -773,12 +773,36 @@
             });
     }
 
-    function handleLogin(e) {
+    // FUNCIÓN DE INICIO DE SESIÓN CON CORREO O NOMBRE DE USUARIO
+    async function handleLogin(e) {
         e.preventDefault();
-        const email = document.getElementById('login-email').value.trim();
+        const identifier = document.getElementById('login-identifier').value.trim();
         const pass = document.getElementById('login-pass').value.trim();
 
-        auth.signInWithEmailAndPassword(email, pass)
+        if(!identifier || !pass) return alert('Ingresa tu correo/usuario y contraseña.');
+
+        let emailToAuth = identifier;
+
+        // Si el usuario escribió un Nombre de Usuario en lugar de un Correo (no contiene '@')
+        if(!identifier.includes('@')) {
+            try {
+                const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
+                const users = snapshot.val();
+                if(users) {
+                    const firstKey = Object.keys(users)[0];
+                    emailToAuth = users[firstKey].email;
+                } else {
+                    alert('No existe ningún usuario registrado con el nombre: ' + identifier);
+                    return;
+                }
+            } catch (err) {
+                alert('Error al buscar el nombre de usuario: ' + err.message);
+                return;
+            }
+        }
+
+        // Iniciar sesión con Firebase Auth usando el correo resuelto
+        auth.signInWithEmailAndPassword(emailToAuth, pass)
             .then(() => {
                 document.getElementById('form-login').reset();
             })
@@ -1054,7 +1078,7 @@
     }
 
     // ==========================================
-    // 6. CHAT Y FORO (CON VALIDACIÓN DE SESIÓN/BLOQUEO)
+    // 6. CHAT Y FORO
     // ==========================================
 
     function sendForo() {
