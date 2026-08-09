@@ -22,7 +22,7 @@
             padding-bottom: 40px;
         }
 
-        /* BARRA SUPERIOR DE AUTENTICACIÓN */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN ALINEADA A LA DERECHA */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
@@ -38,10 +38,10 @@
             max-width: 800px;
             width: 100%;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end; /* Alineado a la derecha */
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 15px;
         }
         .auth-forms-toggle {
             display: flex;
@@ -197,7 +197,7 @@
             border: 1px solid #3e4042;
         }
 
-        /* NAVEGACIÓN Y MENÚ DESPLEGABLE */
+        /* NAVEGACIÓN Y MENÚ A LA IZQUIERDA */
         .nav-bar { 
             display: flex; 
             justify-content: space-between; 
@@ -232,7 +232,7 @@
             border-bottom: 3px solid #e41e3f;
         }
 
-        /* BOTÓN DE MENÚ DESPLEGABLE */
+        /* BOTÓN DE MENÚ DESPLEGABLE (IZQUIERDA) */
         .menu-dropdown-container { 
             position: relative; 
             display: inline-block; 
@@ -252,7 +252,7 @@
         .dropdown-content { 
             display: none; 
             position: absolute; 
-            right: 0; 
+            left: 0; /* Desplegable alineado a la izquierda */
             background-color: #242526; 
             min-width: 180px; 
             box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); 
@@ -492,11 +492,11 @@
 </head>
 <body>
 
-<!-- BARRA SUPERIOR DE AUTENTICACIÓN (REGISTRO Y LOGIN) -->
+<!-- BARRA SUPERIOR DE AUTENTICACIÓN (REGISTRO Y LOGIN A LA DERECHA) -->
 <div class="auth-bar">
     <div class="auth-container">
         <!-- VISTA CUANDO NO HAY SESIÓN INICIADA -->
-        <div id="auth-guest-section" style="display: flex; width: 100%; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <div id="auth-guest-section" style="display: flex; width: 100%; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 15px;">
             <div class="auth-forms-toggle">
                 <button id="toggle-login-btn" class="auth-toggle-btn active" onclick="switchAuthMode('login')">Iniciar Sesión</button>
                 <button id="toggle-register-btn" class="auth-toggle-btn" onclick="switchAuthMode('register')">Registrarse</button>
@@ -519,7 +519,7 @@
         </div>
 
         <!-- VISTA CUANDO HAY SESIÓN INICIADA -->
-        <div id="auth-user-section" class="user-logged-box" style="display: none; width: 100%; justify-content: space-between;">
+        <div id="auth-user-section" class="user-logged-box" style="display: none; width: 100%; justify-content: flex-end; gap: 15px;">
             <div>
                 <i class="fa-solid fa-user-check" style="color: #00e676;"></i>
                 <span id="current-user-name" style="font-weight: bold; margin-left: 5px;">Usuario</span>
@@ -556,14 +556,9 @@
         </div>
     </div>
 
-    <!-- NAVEGACIÓN -->
+    <!-- NAVEGACIÓN (MENÚ A LA IZQUIERDA Y PESTAÑAS A LA DERECHA) -->
     <div class="nav-bar">
-        <div class="nav-tabs">
-            <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
-            <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
-            <span class="nav-tab admin-tab" onclick="switchTab('admin', this)"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
-        </div>
-        
+        <!-- BOTÓN DE MENÚ DESPLEGABLE EN LA IZQUIERDA -->
         <div class="menu-dropdown-container">
             <button onclick="toggleMenu()" class="menu-btn"><i class="fa-solid fa-bars"></i> Menú</button>
             <div id="dropdownMenu" class="dropdown-content">
@@ -572,6 +567,13 @@
                 <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
                 <a href="#" onclick="switchTab('admin', null)" style="color: #e41e3f;"><i class="fa-solid fa-key"></i> Panel de Control</a>
             </div>
+        </div>
+
+        <!-- PESTAÑAS A LA DERECHA -->
+        <div class="nav-tabs">
+            <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
+            <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
+            <span class="nav-tab admin-tab" onclick="switchTab('admin', this)"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
         </div>
     </div>
 
@@ -622,7 +624,7 @@
                 </div>
             </div>
 
-            <!-- APARTADO DE MODERACIÓN Y GESTIÓN DE USUARIOS (NUEVO) -->
+            <!-- APARTADO DE MODERACIÓN Y GESTIÓN DE USUARIOS -->
             <div class="admin-panel-card" style="border-color: #ff9200;">
                 <h3 style="color: #ff9200;"><i class="fa-solid fa-users-gear"></i> Moderación de Usuarios</h3>
                 <p style="font-size: 13px; color: #b0b3b8;">Lista de usuarios registrados. Puedes bloquear o desbloquear usuarios.</p>
@@ -752,12 +754,11 @@
         auth.createUserWithEmailAndPassword(email, pass)
             .then((userCredential) => {
                 const user = userCredential.user;
-                // Guardar información extendida del usuario en Realtime Database
                 const userData = {
                     uid: user.uid,
                     username: username,
                     email: email,
-                    role: 'user', // Por defecto 'user', más adelante puedes cambiar a 'admin'
+                    role: 'user',
                     isBlocked: false,
                     createdAt: firebase.database.ServerValue.TIMESTAMP
                 };
@@ -795,7 +796,6 @@
     // Escuchar cambios de estado de autenticación
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // Usuario Autenticado: Obtener perfil de la BD
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
                 const data = snapshot.val();
                 if(data) {
@@ -814,7 +814,6 @@
                     roleBadge.innerText = data.role.toUpperCase();
                     roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
 
-                    // Si es Admin, abrir auto el dashboard al tocar pestaña Admin
                     if(data.role === 'admin') {
                         document.getElementById('admin-login-box').style.display = 'none';
                         document.getElementById('admin-dashboard').style.display = 'block';
