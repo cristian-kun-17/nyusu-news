@@ -22,26 +22,28 @@
             padding-bottom: 40px;
         }
 
-        /* BARRA SUPERIOR DE AUTENTICACIÓN */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN (ALINEADA A LA DERECHA) */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
             padding: 10px 20px;
             display: flex;
-            justify-content: center;
+            justify-content: flex-end; /* Alinea todo a la derecha */
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 90;
-        }
-        .auth-container {
-            max-width: 800px;
             width: 100%;
+            box-sizing: border-box;
+        }
+
+        .auth-container {
             display: flex;
             justify-content: flex-end;
             align-items: center;
             gap: 10px;
         }
+
         .auth-open-btn {
             background: #2d88ff;
             color: white;
@@ -416,7 +418,7 @@
 </head>
 <body>
 
-<!-- BARRA SUPERIOR CON BOTONES DE ACCESO -->
+<!-- BARRA SUPERIOR DE AUTENTICACIÓN -->
 <div class="auth-bar">
     <div class="auth-container">
         <!-- CUANDO NO HAY SESIÓN -->
@@ -823,7 +825,7 @@
         }
     });
 
-    // 6. ESTADÍSTICAS Y MODERACIÓN (MOSTRANDO EDAD Y GÉNERO)
+    // 6. ESTADÍSTICAS Y MODERACIÓN
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
