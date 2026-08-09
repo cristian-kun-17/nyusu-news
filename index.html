@@ -104,8 +104,8 @@
         }
 
         /* ==========================================
-           ESTILOS DE LA VENTANA MODAL (POP-UP)
-           ========================================== */
+            ESTILOS DE LA VENTANA MODAL (POP-UP)
+            ========================================== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -681,7 +681,6 @@
         }
     }
 
-    // Cerrar modal si hace clic fuera del recuadro
     window.addEventListener('click', (e) => {
         const modal = document.getElementById('auth-modal');
         if (e.target === modal) closeModal();
@@ -709,7 +708,6 @@
             const user = userCredential.user;
             const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
 
-            // Objeto de usuario guardando Edad y Género
             const userData = {
                 uid: user.uid,
                 username: username,
@@ -776,7 +774,7 @@
         auth.signOut();
     }
 
-    // 5. ESTADO DE SESIÓN
+    // 5. ESTADO DE SESIÓN Y ESTADÍSTICAS DE VISITA
     auth.onAuthStateChanged((user) => {
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
@@ -825,7 +823,7 @@
         }
     });
 
-    // 6. ESTADÍSTICAS Y MODERACIÓN
+    // 6. ESTADÍSTICAS Y MODERACIÓN DE USUARIOS
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
@@ -853,139 +851,173 @@
         });
     }
 
-    function toggleBlockUser(uid, blockStatus) {
-        db.ref(`users/${uid}/isBlocked`).set(blockStatus);
-    }
-
     function loadUsersList() {
         db.ref('users').on('value', (snapshot) => {
-            const users = snapshot.val();
-            const tableBody = document.getElementById('users-table-body');
-            if (!tableBody) return;
-            tableBody.innerHTML = '';
+            const users = snapshot.val() || {};
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
 
-            if (users) {
-                Object.keys(users).forEach(uid => {
-                    const u = users[uid];
-                    const tr = document.createElement('tr');
-                    const isBlocked = u.isBlocked || false;
-                    const actionBtn = isBlocked
-                        ? `<button style="background:#00e676; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>`
-                        : `<button style="background:#e41e3f; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`;
+            Object.keys(users).forEach(uid => {
+                const u = users[uid];
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${u.username || 'Sin nombre'}</td>
+                    <td>${u.email || ''}</td>
+                    <td>${u.age || 'N/A'}</td>
+                    <td>${u.gender || 'N/A'}</td>
+                    <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${u.role.toUpperCase()}</span></td>
+                    <td>${u.isBlocked ? '<span style="color:red">Bloqueado</span>' : '<span style="color:#00e676">Activo</span>'}</td>
+                    <td>
+                        ${u.role !== 'admin' ? `<button onclick="toggleBlockUser('${uid}', ${u.isBlocked})" class="admin-btn" style="padding: 4px 8px; font-size: 11px; background: ${u.isBlocked ? '#00e676' : '#e41e3f'}">${u.isBlocked ? 'Desbloquear' : 'Bloquear'}</button>` : 'N/A'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+    }
 
-                    tr.innerHTML = `
-                        <td>${u.username || 'Sin Nombre'}</td>
-                        <td>${u.email || 'N/A'}</td>
-                        <td>${u.age || 'N/A'} años</td>
-                        <td>${u.gender || 'N/A'}</td>
-                        <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
-                        <td>${isBlocked ? '<span style="color:#e41e3f;">Bloqueado</span>' : '<span style="color:#00e676;">Activo</span>'}</td>
-                        <td>${actionBtn}</td>
-                    `;
-                    tableBody.appendChild(tr);
-                });
+    async function toggleBlockUser(uid, currentStatus) {
+        try {
+            await db.ref(`users/${uid}`).update({ isBlocked: !currentStatus });
+        } catch (error) {
+            console.error("Error al cambiar estado de bloqueo:", error);
+            alert("No se pudo actualizar el estado del usuario.");
+        }
+    }
+
+    // 7. FUNCIONES DE INTERFAZ, PESTAÑAS, MENÚ, NOTICIAS Y CHAT
+    function toggleMenu() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-btn') && !event.target.closest('.menu-btn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
             }
-        });
-    }
-
-    // 7. FUNCIONES DE NOTICIAS, CHAT Y FORO
-    function publishNews() {
-        const title = document.getElementById('news-title').value.trim();
-        const admin = document.getElementById('admin-name').value.trim() || 'Admin';
-        const content = document.getElementById('news-content').value.trim();
-        if (!title || !content) return alert('Completa los campos.');
-
-        db.ref('news').push({
-            title: title, author: admin, content: content, timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            alert('Noticia publicada');
-            document.getElementById('news-title').value = '';
-            document.getElementById('news-content').value = '';
-        });
-    }
-
-    function loadNews() {
-        db.ref('news').on('value', (snapshot) => {
-            const news = snapshot.val();
-            const container = document.getElementById('news-container');
-            if (!container) return;
-            container.innerHTML = '';
-            if (news) {
-                Object.keys(news).reverse().forEach(key => {
-                    const n = news[key];
-                    const div = document.createElement('div');
-                    div.className = 'post';
-                    div.innerHTML = `<h2>${n.title}</h2><p>${n.content}</p><small style="color:#aaa;">Por ${n.author}</small>`;
-                    container.appendChild(div);
-                });
-            }
-        });
-    }
-
-    function sendChat() {
-        if (!currentUserData) return alert('Debes iniciar sesión.');
-        const input = document.getElementById('chat-input');
-        if (!input.value.trim()) return;
-        db.ref('chat').push({ user: currentUserData.username, text: input.value.trim() });
-        input.value = '';
-    }
-
-    function loadChat() {
-        db.ref('chat').limitToLast(50).on('value', (snapshot) => {
-            const data = snapshot.val();
-            const box = document.getElementById('chat-box');
-            if (!box) return;
-            box.innerHTML = '';
-            if (data) {
-                Object.keys(data).forEach(k => {
-                    const m = data[k];
-                    box.innerHTML += `<div class="chat-msg"><strong>${m.user}</strong>${m.text}</div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            }
-        });
-    }
-
-    function sendForo() {
-        if (!currentUserData) return alert('Debes iniciar sesión.');
-        const input = document.getElementById('foro-input');
-        if (!input.value.trim()) return;
-        db.ref('foro').push({ user: currentUserData.username, text: input.value.trim() });
-        input.value = '';
-    }
-
-    function loadForo() {
-        db.ref('foro').limitToLast(50).on('value', (snapshot) => {
-            const data = snapshot.val();
-            const box = document.getElementById('foro-box');
-            if (!box) return;
-            box.innerHTML = '';
-            if (data) {
-                Object.keys(data).forEach(k => {
-                    const m = data[k];
-                    box.innerHTML += `<div class="chat-msg"><strong>${m.user}</strong>${m.text}</div>`;
-                });
-                box.scrollTop = box.scrollHeight;
-            }
-        });
+        }
     }
 
     function switchTab(tabId, element) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-        document.getElementById(`${tabId}-section`).classList.add('active');
+
+        document.getElementById(tabId + '-section').classList.add('active');
         if (element) element.classList.add('active');
-        document.getElementById('dropdownMenu').classList.remove('show');
+
+        document.getElementById("dropdownMenu").classList.remove("show");
     }
 
-    function toggleMenu() {
-        document.getElementById('dropdownMenu').classList.toggle('show');
+    function publishNews() {
+        const title = document.getElementById('news-title').value.trim();
+        const author = document.getElementById('admin-name').value.trim();
+        const content = document.getElementById('news-content').value.trim();
+
+        if (!title || !author || !content) return alert('Por favor llena todos los campos de la noticia.');
+
+        db.ref('news').push({
+            title: title,
+            author: author,
+            content: content,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        }, (error) => {
+            if (error) {
+                alert('Error al publicar: ' + error.message);
+            } else {
+                alert('¡Noticia publicada con éxito!');
+                document.getElementById('news-title').value = '';
+                document.getElementById('admin-name').value = '';
+                document.getElementById('news-content').value = '';
+                switchTab('feed', document.querySelector('.nav-tab'));
+            }
+        });
     }
 
-    loadNews();
-    loadChat();
-    loadForo();
+    // Cargar Noticias en Tiempo Real
+    db.ref('news').on('value', (snapshot) => {
+        const container = document.getElementById('news-container');
+        container.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).reverse().forEach(key => {
+                const item = data[key];
+                const div = document.createElement('div');
+                div.className = 'post';
+                div.innerHTML = `
+                    <h3>${item.title}</h3>
+                    <p><small style="color: #b0b3b8;">Por ${item.author}</small></p>
+                    <p>${item.content}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+    });
+
+    // Chat en Vivo
+    function sendChat() {
+        if (!currentUserData) return alert('Debes iniciar sesión para chatear.');
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        db.ref('chat').push({
+            username: currentUserData.username,
+            message: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    }
+
+    db.ref('chat').on('value', (snapshot) => {
+        const box = document.getElementById('chat-box');
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const msg = data[key];
+                const div = document.createElement('div');
+                div.className = 'chat-msg';
+                div.innerHTML = `<strong>${msg.username}</strong>${msg.message}`;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    });
+
+    // Foro Comunitario
+    function sendForo() {
+        if (!currentUserData) return alert('Debes iniciar sesión para participar en el foro.');
+        const input = document.getElementById('foro-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        db.ref('foro').push({
+            username: currentUserData.username,
+            message: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    }
+
+    db.ref('foro').on('value', (snapshot) => {
+        const box = document.getElementById('foro-box');
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if (data) {
+            Object.keys(data).forEach(key => {
+                const msg = data[key];
+                const div = document.createElement('div');
+                div.className = 'chat-msg';
+                div.innerHTML = `<strong>${msg.username}</strong>${msg.message}`;
+                box.appendChild(div);
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    });
 </script>
-
 </body>
 </html>
