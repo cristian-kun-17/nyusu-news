@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NYŪSU NEWS | Perfil & Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Librería para gráficos de estadísticas -->
+    <!-- Librería para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- FIREBASE SDK (Compatibilidad para Vanilla JS) -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -22,7 +22,7 @@
             padding-bottom: 40px;
         }
 
-        /* BARRA SUPERIOR DE AUTENTICACIÓN ALINEADA A LA DERECHA */
+        /* BARRA SUPERIOR DE AUTENTICACIÓN */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
@@ -32,62 +32,39 @@
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 90;
         }
         .auth-container {
             max-width: 800px;
             width: 100%;
             display: flex;
-            justify-content: flex-end; /* Alineado a la derecha */
+            justify-content: flex-end;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .auth-forms-toggle {
-            display: flex;
             gap: 10px;
-            align-items: center;
         }
-        .auth-toggle-btn {
-            background: transparent;
-            border: none;
-            color: #b0b3b8;
-            font-weight: bold;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-bottom: 2px solid transparent;
-        }
-        .auth-toggle-btn.active {
-            color: #2d88ff;
-            border-bottom: 2px solid #2d88ff;
-        }
-        .auth-form-inline {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .auth-input-top {
-            background: #3a3b3c;
-            border: 1px solid #3e4042;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .auth-btn-top {
+        .auth-open-btn {
             background: #2d88ff;
             color: white;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 14px;
+            transition: background 0.2s;
         }
-        .auth-btn-top:hover {
+        .auth-open-btn:hover {
             background: #1a73e8;
         }
+        .auth-open-btn.secondary {
+            background: #3a3b3c;
+            color: #e4e6eb;
+            border: 1px solid #3e4042;
+        }
+        .auth-open-btn.secondary:hover {
+            background: #4e4f50;
+        }
+
         .user-logged-box {
             display: flex;
             align-items: center;
@@ -114,21 +91,134 @@
             background: #3a3b3c;
             color: #e4e6eb;
             border: 1px solid #3e4042;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 13px;
         }
         .btn-logout:hover {
-            background: #4e4f50;
+            background: #e41e3f;
+            color: white;
         }
 
+        /* ==========================================
+           ESTILOS DE LA VENTANA MODAL (POP-UP)
+           ========================================== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-card {
+            background: #242526;
+            border: 1px solid #3e4042;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 420px;
+            padding: 25px;
+            box-shadow: 0px 10px 25px rgba(0,0,0,0.6);
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: #b0b3b8;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .modal-close-btn:hover {
+            color: white;
+        }
+        .modal-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 22px;
+            color: #2d88ff;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #b0b3b8;
+            margin-bottom: 5px;
+        }
+        .modal-input, .modal-select {
+            width: 100%;
+            background: #3a3b3c;
+            border: 1px solid #3e4042;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-input:focus, .modal-select:focus {
+            border-color: #2d88ff;
+            outline: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .modal-submit-btn {
+            width: 100%;
+            background: #2d88ff;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .modal-submit-btn:hover {
+            background: #1a73e8;
+        }
+        .modal-footer-text {
+            text-align: center;
+            font-size: 13px;
+            color: #b0b3b8;
+            margin-top: 15px;
+        }
+        .modal-footer-text a {
+            color: #2d88ff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
         .container { 
             max-width: 800px; 
             margin: auto; 
         }
 
-        /* PORTADA */
+        /* PORTADA Y PERFIL */
         .cover-photo { 
             width: 100%; 
             height: 250px; 
@@ -136,18 +226,14 @@
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            position: relative; 
         }
         .cover-photo img { 
             width: 100%; 
             height: 100%; 
             object-fit: cover; 
         }
-        
-        /* PERFIL */
         .profile-section { 
             padding: 0 20px; 
-            position: relative; 
             margin-top: -50px; 
             text-align: center; 
         }
@@ -157,17 +243,11 @@
             border-radius: 50%; 
             border: 4px solid #18191a; 
             background: #242526; 
-            display: inline-block; 
             object-fit: cover; 
-        }
-        
-        /* INFO */
-        .profile-info { 
-            margin-top: 10px; 
         }
         .profile-info h1 { 
             font-size: 28px; 
-            margin: 0; 
+            margin: 10px 0 0 0; 
         }
         .social-links { 
             margin: 10px 0; 
@@ -178,26 +258,18 @@
         .social-links a { 
             color: #aaa; 
             font-size: 20px; 
-            transition: color 0.2s;
-        }
-        .social-links a:hover {
-            color: #2d88ff;
         }
 
-        /* CONTADOR DE VISITAS PUBLICO */
         .visitor-counter {
             margin-top: 10px;
             display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
             background: #242526;
             padding: 6px 14px;
             border-radius: 20px;
             border: 1px solid #3e4042;
         }
 
-        /* NAVEGACIÓN Y MENÚ A LA IZQUIERDA */
+        /* NAVEGACIÓN Y MENÚ */
         .nav-bar { 
             display: flex; 
             justify-content: space-between; 
@@ -211,11 +283,9 @@
         .nav-tabs { 
             display: flex; 
             gap: 15px; 
-            flex-wrap: wrap;
         }
         .nav-tab { 
             color: #b0b3b8; 
-            text-decoration: none; 
             font-weight: 600; 
             cursor: pointer; 
             padding: 5px 0; 
@@ -224,19 +294,10 @@
             color: #2d88ff; 
             border-bottom: 3px solid #2d88ff; 
         }
-        .admin-tab {
-            color: #e41e3f;
-        }
-        .admin-tab.active, .admin-tab:hover {
-            color: #e41e3f;
-            border-bottom: 3px solid #e41e3f;
-        }
+        .admin-tab { color: #e41e3f; }
+        .admin-tab.active, .admin-tab:hover { color: #e41e3f; border-bottom-color: #e41e3f; }
 
-        /* BOTÓN DE MENÚ DESPLEGABLE (IZQUIERDA) */
-        .menu-dropdown-container { 
-            position: relative; 
-            display: inline-block; 
-        }
+        .menu-dropdown-container { position: relative; }
         .menu-btn { 
             background: #3a3b3c; 
             color: #e4e6eb; 
@@ -244,10 +305,6 @@
             padding: 8px 12px; 
             border-radius: 6px; 
             cursor: pointer; 
-            font-size: 15px; 
-        }
-        .menu-btn:hover { 
-            background: #4e4f50; 
         }
         .dropdown-content { 
             display: none; 
@@ -255,7 +312,7 @@
             left: 0; 
             background-color: #242526; 
             min-width: 180px; 
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); 
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.4); 
             z-index: 10; 
             border-radius: 6px; 
             border: 1px solid #3e4042; 
@@ -264,28 +321,17 @@
             color: #e4e6eb; 
             padding: 12px 16px; 
             text-decoration: none; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
             font-size: 14px; 
         }
-        .dropdown-content a:hover { 
-            background-color: #3a3b3c; 
-            border-radius: 6px; 
-        }
-        .show { 
-            display: block; 
-        }
+        .dropdown-content a:hover { background-color: #3a3b3c; }
+        .show { display: block; }
 
-        /* SECCIONES DE CONTENIDO */
-        .content-section { 
-            display: none; 
-        }
-        .content-section.active { 
-            display: block; 
-        }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
 
-        /* PUBLICACIONES Y TARJETAS */
         .post { 
             background: #242526; 
             margin: 20px 0; 
@@ -293,14 +339,6 @@
             border-radius: 8px; 
             border: 1px solid #3e4042;
         }
-        .post-author {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-
-        /* ESTILOS DEL PANEL DE ADMINISTRACIÓN */
         .admin-panel-card {
             background: #242526;
             padding: 20px;
@@ -327,11 +365,7 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .admin-btn:hover {
-            background: #b81430;
-        }
 
-        /* TABLA DE USUARIOS Y MODERACIÓN */
         .users-table {
             width: 100%;
             border-collapse: collapse;
@@ -343,29 +377,8 @@
             padding: 8px;
             text-align: left;
         }
-        .users-table th {
-            background: #18191a;
-            color: #2d88ff;
-        }
-        .btn-action-block {
-            background: #e41e3f;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-action-unblock {
-            background: #00e676;
-            color: black;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .users-table th { background: #18191a; color: #2d88ff; }
 
-        /* TARJETAS DE ESTADÍSTICAS */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -379,36 +392,9 @@
             border-radius: 8px;
             text-align: center;
         }
-        .stat-card h4 {
-            margin: 0;
-            color: #b0b3b8;
-            font-size: 12px;
-        }
-        .stat-card .number {
-            font-size: 22px;
-            font-weight: bold;
-            color: #2d88ff;
-            margin-top: 5px;
-        }
-        .chart-box {
-            background: #18191a;
-            border: 1px solid #3e4042;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
+        .stat-card .number { font-size: 22px; font-weight: bold; color: #2d88ff; }
 
-        /* SECCIÓN DE CHAT Y FORO */
-        .community-box { 
-            background: #242526; 
-            margin: 20px 0; 
-            padding: 20px; 
-            border-radius: 8px; 
-        }
-        .community-box h3 { 
-            margin-top: 0; 
-            color: #2d88ff; 
-        }
+        .community-box { background: #242526; margin: 20px 0; padding: 20px; border-radius: 8px; }
         .chat-messages { 
             background: #18191a; 
             height: 250px; 
@@ -421,96 +407,121 @@
             flex-direction: column; 
             gap: 8px; 
         }
-        .chat-msg { 
-            background: #3a3b3c; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            max-width: 80%; 
-        }
-        .chat-msg strong { 
-            color: #2d88ff; 
-            display: block; 
-            font-size: 12px; 
-            margin-bottom: 2px; 
-        }
-        .chat-input-area { 
-            display: flex; 
-            gap: 10px; 
-        }
-        .chat-input-area input { 
-            flex: 1; 
-            background: #3a3b3c; 
-            border: 1px solid #3e4042; 
-            padding: 10px; 
-            border-radius: 6px; 
-            color: white; 
-        }
-        .chat-input-area button { 
-            background: #2d88ff; 
-            color: white; 
-            border: none; 
-            padding: 10px 15px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-weight: bold; 
-        }
+        .chat-msg { background: #3a3b3c; padding: 8px 12px; border-radius: 6px; font-size: 14px; }
+        .chat-msg strong { color: #2d88ff; display: block; font-size: 12px; }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; background: #3a3b3c; border: 1px solid #3e4042; padding: 10px; border-radius: 6px; color: white; }
+        .chat-input-area button { background: #2d88ff; color: white; border: none; padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<!-- BARRA SUPERIOR DE AUTENTICACIÓN -->
+<!-- BARRA SUPERIOR CON BOTONES DE ACCESO -->
 <div class="auth-bar">
     <div class="auth-container">
-        <!-- VISTA CUANDO NO HAY SESIÓN INICIADA -->
-        <div id="auth-guest-section" style="display: flex; width: 100%; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 15px;">
-            <div class="auth-forms-toggle">
-                <button id="toggle-login-btn" class="auth-toggle-btn active" onclick="switchAuthMode('login')">Iniciar Sesión</button>
-                <button id="toggle-register-btn" class="auth-toggle-btn" onclick="switchAuthMode('register')">Registrarse</button>
-            </div>
-
-            <!-- Formulario Iniciar Sesión -->
-            <form id="form-login" class="auth-form-inline" onsubmit="handleLogin(event)">
-                <input type="text" id="login-identifier" class="auth-input-top" placeholder="Correo o Usuario" required>
-                <input type="password" id="login-pass" class="auth-input-top" placeholder="Contraseña" required>
-                <button type="submit" class="auth-btn-top">Entrar</button>
-            </form>
-
-            <!-- Formulario Registro -->
-            <form id="form-register" class="auth-form-inline" onsubmit="handleRegister(event)" style="display: none;">
-                <input type="text" id="reg-username" class="auth-input-top" placeholder="Usuario" required>
-                <input type="email" id="reg-email" class="auth-input-top" placeholder="Correo electrónico" required>
-                <input type="password" id="reg-pass" class="auth-input-top" placeholder="Contraseña" required>
-                <button type="submit" class="auth-btn-top" style="background: #00e676; color: black;">Crear Cuenta</button>
-            </form>
+        <!-- CUANDO NO HAY SESIÓN -->
+        <div id="auth-guest-section" style="display: flex; gap: 10px;">
+            <button class="auth-open-btn secondary" onclick="openModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
+            <button class="auth-open-btn" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
         </div>
 
-        <!-- VISTA CUANDO HAY SESIÓN INICIADA -->
-        <div id="auth-user-section" class="user-logged-box" style="display: none; width: 100%; justify-content: flex-end; gap: 15px;">
+        <!-- CUANDO HAY SESIÓN INICIADA -->
+        <div id="auth-user-section" class="user-logged-box" style="display: none;">
             <div>
                 <i class="fa-solid fa-user-check" style="color: #00e676;"></i>
                 <span id="current-user-name" style="font-weight: bold; margin-left: 5px;">Usuario</span>
                 <span id="current-user-role" class="badge-user">USER</span>
             </div>
-            <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</button>
+            <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
         </div>
     </div>
 </div>
 
+<!-- ==========================================
+     VENTANA MODAL REUTILIZABLE (LOGIN / REGISTRO)
+     ========================================== -->
+<div id="auth-modal" class="modal-overlay">
+    <div class="modal-card">
+        <button class="modal-close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        
+        <!-- FORMULARIO DE INICIO DE SESIÓN -->
+        <div id="modal-login-content">
+            <h2 class="modal-title"><i class="fa-solid fa-user-lock"></i> Iniciar Sesión</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Correo o Usuario</label>
+                    <input type="text" id="login-identifier" class="modal-input" placeholder="ejemplo@correo.com o tu usuario" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="login-pass" class="modal-input" placeholder="••••••••" required>
+                </div>
+                <button type="submit" id="btn-login-submit" class="modal-submit-btn">Entrar</button>
+            </form>
+            <div class="modal-footer-text">
+                ¿Aún no tienes cuenta? <a href="#" onclick="switchModalTab('register')">Regístrate aquí</a>
+            </div>
+        </div>
+
+        <!-- FORMULARIO DE REGISTRO COMPLETO CON EDAD Y GÉNERO -->
+        <div id="modal-register-content" style="display: none;">
+            <h2 class="modal-title" style="color: #00e676;"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</h2>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label>Nombre de Usuario</label>
+                    <input type="text" id="reg-username" class="modal-input" placeholder="Tu apodo o nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="reg-email" class="modal-input" placeholder="correo@ejemplo.com" required>
+                </div>
+
+                <!-- FILA CON EDAD Y GÉNERO -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Edad</label>
+                        <input type="number" id="reg-age" class="modal-input" placeholder="Ej: 21" min="10" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Género</label>
+                        <select id="reg-gender" class="modal-select" required>
+                            <option value="" disabled selected>Selecciona</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                            <option value="Prefiero no decirlo">Prefiero no decirlo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="reg-pass" class="modal-input" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <button type="submit" id="btn-register-submit" class="modal-submit-btn" style="background: #00e676; color: black;">Registrarme</button>
+            </form>
+            <div class="modal-footer-text">
+                ¿Ya tienes una cuenta? <a href="#" onclick="switchModalTab('login')">Inicia sesión</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
 <div class="container">
-    <!-- PORTADA -->
+    <!-- PORTADA Y PERFIL -->
     <div class="cover-photo">
         <img src="portada.jpg" alt="Portada de NYŪSU NEWS">
     </div>
 
-    <!-- PERFIL -->
     <div class="profile-section">
         <img src="perfil.jpg" class="profile-pic" alt="Perfil">
         <div class="profile-info">
             <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check" style="color: #0084ff;"></i></h1>
             <p>Tu portal de noticias sobre Japón, Anime y más.</p>
             
-            <!-- CONTADOR DE VISITAS PUBLICO -->
             <div class="visitor-counter">
                 <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fnyusu-news.github.io&count_bg=%232D88FF&title_bg=%233A3B3C&icon=eye.svg&icon_color=%23E7E7E7&title=visitas&edge_flat=false" alt="Visitas"/>
             </div>
@@ -525,7 +536,6 @@
 
     <!-- NAVEGACIÓN -->
     <div class="nav-bar">
-        <!-- BOTÓN DE MENÚ DESPLEGABLE EN LA IZQUIERDA -->
         <div class="menu-dropdown-container">
             <button onclick="toggleMenu()" class="menu-btn"><i class="fa-solid fa-bars"></i> Menú</button>
             <div id="dropdownMenu" class="dropdown-content">
@@ -536,7 +546,6 @@
             </div>
         </div>
 
-        <!-- PESTAÑAS A LA DERECHA -->
         <div class="nav-tabs">
             <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
             <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
@@ -544,21 +553,15 @@
         </div>
     </div>
 
-    <!-- SECCIÓN 1: FEED DE NOTICIAS Y ENCUESTAS -->
+    <!-- SECCIONES -->
     <div id="feed-section" class="content-section active">
-        <div id="news-container">
-            <!-- Se carga en tiempo real desde Firebase -->
-        </div>
+        <div id="news-container"></div>
     </div>
 
-    <!-- SECCIÓN 2: PANEL DE ADMINISTRACIÓN -->
     <div id="admin-section" class="content-section">
         <div id="admin-dashboard" style="display: none;">
-            <!-- ESTADÍSTICAS -->
             <div class="admin-panel-card" style="border-color: #2d88ff;">
-                <h3 style="color: #2d88ff;"><i class="fa-solid fa-chart-line"></i> Estadísticas de Visitas del Sitio</h3>
-                <p style="font-size: 13px; color: #b0b3b8;">Resumen analítico de la actividad de los usuarios en la web.</p>
-                
+                <h3 style="color: #2d88ff;"><i class="fa-solid fa-chart-line"></i> Estadísticas de Visitas</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h4>VISITAS TOTALES</h4>
@@ -578,90 +581,66 @@
                     </div>
                 </div>
 
-                <div class="chart-box">
-                    <h4 style="margin-top:0; color:#e4e6eb;">Tendencia de Tráfico (Últimos 7 días)</h4>
+                <div style="background: #18191a; padding: 15px; border-radius: 8px;">
+                    <h4 style="margin-top:0;">Tendencia de Tráfico</h4>
                     <canvas id="visitsChart" height="140"></canvas>
                 </div>
             </div>
 
-            <!-- MODERACIÓN DE USUARIOS -->
+            <!-- TABLA DE MODERACIÓN DE USUARIOS -->
             <div class="admin-panel-card" style="border-color: #ff9200;">
                 <h3 style="color: #ff9200;"><i class="fa-solid fa-users-gear"></i> Moderación de Usuarios</h3>
-                <p style="font-size: 13px; color: #b0b3b8;">Lista de usuarios registrados. Puedes bloquear o desbloquear usuarios.</p>
-                
                 <table class="users-table">
                     <thead>
                         <tr>
                             <th>Usuario</th>
                             <th>Correo</th>
+                            <th>Edad</th>
+                            <th>Género</th>
                             <th>Rol</th>
                             <th>Estado</th>
                             <th>Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="users-table-body">
-                        <!-- Carga dinámica -->
-                    </tbody>
+                    <tbody id="users-table-body"></tbody>
                 </table>
             </div>
 
-            <!-- Creador de Noticias -->
             <div class="admin-panel-card">
-                <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Nueva Noticia</h3>
-                <input type="text" id="news-title" class="admin-input" placeholder="Título de la Noticia">
-                <input type="text" id="admin-name" class="admin-input" placeholder="Nombre del Administrador">
-                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Contenido o texto de la noticia..."></textarea>
-                <button class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
-            </div>
-
-            <!-- Creador de Encuestas -->
-            <div class="admin-panel-card">
-                <h3><i class="fa-solid fa-poll"></i> Crear Nueva Encuesta Comunitaria</h3>
-                <input type="text" id="poll-title" class="admin-input" placeholder="Pregunta de la encuesta">
-                <input type="text" id="poll-op1" class="admin-input" placeholder="Opción 1">
-                <input type="text" id="poll-op2" class="admin-input" placeholder="Opción 2">
-                <input type="text" id="poll-op3" class="admin-input" placeholder="Opción 3 (Opcional)">
-                <button class="admin-btn" onclick="publishPoll()" style="background: #2d88ff;">Lanzar Encuesta</button>
+                <h3><i class="fa-solid fa-pen-to-square"></i> Publicar Noticia</h3>
+                <input type="text" id="news-title" class="admin-input" placeholder="Título">
+                <input type="text" id="admin-name" class="admin-input" placeholder="Tu Nombre">
+                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Contenido..."></textarea>
+                <button class="admin-btn" onclick="publishNews()">Publicar</button>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN 3: FORO -->
     <div id="foro-section" class="content-section">
         <div class="community-box">
-            <h3>Foro de Discusión Otaku</h3>
-            <p style="font-size: 14px; color: #b0b3b8;">Espacio para que la comunidad comparta teorías y recomendaciones.</p>
-            
+            <h3>Foro de Discusión</h3>
             <div class="chat-messages" id="foro-box"></div>
-            
             <div class="chat-input-area">
-                <input type="text" id="foro-input" placeholder="Escribe un tema o respuesta en el foro...">
+                <input type="text" id="foro-input" placeholder="Escribe algo en el foro...">
                 <button onclick="sendForo()">Publicar</button>
             </div>
         </div>
     </div>
 
-    <!-- SECCIÓN 4: CHAT EN VIVO -->
     <div id="chat-section" class="content-section">
         <div class="community-box">
-            <h3>Chat en Vivo de la Comunidad</h3>
-            <p style="font-size: 14px; color: #b0b3b8;">Habla en tiempo real con otros visitantes y comparte ideas.</p>
-            
+            <h3>Chat en Vivo</h3>
             <div class="chat-messages" id="chat-box"></div>
-            
             <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Escribe un mensaje en el chat...">
+                <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
                 <button onclick="sendChat()">Enviar</button>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
-    // ==========================================
-    // 1. CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
-    // ==========================================
+    // 1. CONFIGURACIÓN FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCJmYRIdGd-v7uKIm9GT-D-WuE3wZX90-k",
         authDomain: "nyusu-news.firebaseapp.com",
@@ -680,317 +659,223 @@
     let chartInstance = null;
     let currentUserData = null;
 
-    // ==========================================
-    // 2. SISTEMA DE DETECCIÓN DE INACTIVIDAD (30 MINUTOS)
-    // ==========================================
-    const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 Minutos
-    let inactivityInterval = null;
-
-    function recordUserActivity() {
-        if (auth.currentUser) {
-            localStorage.setItem('nyusu_last_activity', Date.now().toString());
-        }
+    // 2. CONTROL DE LA VENTANA MODAL (POP-UP)
+    function openModal(type) {
+        document.getElementById('auth-modal').classList.add('active');
+        switchModalTab(type);
     }
 
-    function startInactivityMonitor() {
-        stopInactivityMonitor();
-        recordUserActivity();
-
-        // Escucha eventos de interacción
-        const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-        activityEvents.forEach(event => {
-            window.addEventListener(event, recordUserActivity, { passive: true });
-        });
-
-        // Verificación periódica cada 10 segundos
-        inactivityInterval = setInterval(() => {
-            if (auth.currentUser) {
-                const lastActivity = parseInt(localStorage.getItem('nyusu_last_activity') || '0', 10);
-                const now = Date.now();
-
-                if (lastActivity > 0 && (now - lastActivity >= INACTIVITY_LIMIT_MS)) {
-                    stopInactivityMonitor();
-                    alert('Tu sesión ha finalizado automáticamente por inactividad (30 minutos sin uso).');
-                    handleLogout();
-                }
-            }
-        }, 10000);
+    function closeModal() {
+        document.getElementById('auth-modal').classList.remove('active');
     }
 
-    function stopInactivityMonitor() {
-        if (inactivityInterval) {
-            clearInterval(inactivityInterval);
-            inactivityInterval = null;
-        }
-        const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-        activityEvents.forEach(event => {
-            window.removeEventListener(event, recordUserActivity);
-        });
-        localStorage.removeItem('nyusu_last_activity');
-    }
-
-    // ==========================================
-    // 3. AUTENTICACIÓN Y PERSISTENCIA PERSISTENTE (LOCAL)
-    // ==========================================
-
-    function switchAuthMode(mode) {
-        if(mode === 'login') {
-            document.getElementById('form-login').style.display = 'flex';
-            document.getElementById('form-register').style.display = 'none';
-            document.getElementById('toggle-login-btn').classList.add('active');
-            document.getElementById('toggle-register-btn').classList.remove('active');
+    function switchModalTab(type) {
+        if (type === 'login') {
+            document.getElementById('modal-login-content').style.display = 'block';
+            document.getElementById('modal-register-content').style.display = 'none';
         } else {
-            document.getElementById('form-login').style.display = 'none';
-            document.getElementById('form-register').style.display = 'flex';
-            document.getElementById('toggle-login-btn').classList.remove('active');
-            document.getElementById('toggle-register-btn').classList.add('active');
+            document.getElementById('modal-login-content').style.display = 'none';
+            document.getElementById('modal-register-content').style.display = 'block';
         }
     }
 
-    function handleRegister(e) {
+    // Cerrar modal si hace clic fuera del recuadro
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('auth-modal');
+        if (e.target === modal) closeModal();
+    });
+
+    // 3. REGISTRO MEJORADO CON EDAD Y GÉNERO
+    async function handleRegister(e) {
         e.preventDefault();
         const username = document.getElementById('reg-username').value.trim();
         const email = document.getElementById('reg-email').value.trim();
+        const age = document.getElementById('reg-age').value.trim();
+        const gender = document.getElementById('reg-gender').value;
         const pass = document.getElementById('reg-pass').value.trim();
+        const btn = document.getElementById('btn-register-submit');
 
-        if(!username || !email || !pass) return alert('Completa todos los campos.');
+        if (!username || !email || !age || !gender || !pass) {
+            return alert('Por favor llena todos los campos.');
+        }
 
-        // Cambiado a Persistence.LOCAL para que la sesión PERMANEZCA activa al recargar la página
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(() => {
-                return auth.createUserWithEmailAndPassword(email, pass);
-            })
-            .then((userCredential) => {
-                const user = userCredential.user;
-                const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
+        try {
+            btn.innerText = 'Creando cuenta...';
+            btn.disabled = true;
 
-                const userData = {
-                    uid: user.uid,
-                    username: username,
-                    email: email,
-                    role: assignedRole,
-                    isBlocked: false,
-                    createdAt: firebase.database.ServerValue.TIMESTAMP
-                };
-                return db.ref(`users/${user.uid}`).set(userData);
-            })
-            .then(() => {
-                alert('¡Registro exitoso! Bienvenido.');
-                document.getElementById('form-register').reset();
-            })
-            .catch((error) => {
-                alert('Error en el registro: ' + error.message);
-            });
+            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+            const user = userCredential.user;
+            const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
+
+            // Objeto de usuario guardando Edad y Género
+            const userData = {
+                uid: user.uid,
+                username: username,
+                email: email,
+                age: parseInt(age, 10),
+                gender: gender,
+                role: assignedRole,
+                isBlocked: false,
+                createdAt: firebase.database.ServerValue.TIMESTAMP
+            };
+
+            await db.ref(`users/${user.uid}`).set(userData);
+            alert('¡Registro exitoso! Bienvenido.');
+            closeModal();
+        } catch (error) {
+            console.error("Error al registrar:", error);
+            alert('Error en el registro: ' + error.message);
+        } finally {
+            btn.innerText = 'Registrarme';
+            btn.disabled = false;
+        }
     }
 
+    // 4. INICIO DE SESIÓN
     async function handleLogin(e) {
         e.preventDefault();
         const identifier = document.getElementById('login-identifier').value.trim();
         const pass = document.getElementById('login-pass').value.trim();
+        const btn = document.getElementById('btn-login-submit');
 
-        if(!identifier || !pass) return alert('Ingresa tu correo/usuario y contraseña.');
+        if (!identifier || !pass) return alert('Ingresa tu usuario/correo y contraseña.');
 
         let emailToAuth = identifier;
 
-        if(!identifier.includes('@')) {
-            try {
+        try {
+            btn.innerText = 'Entrando...';
+            btn.disabled = true;
+
+            if (!identifier.includes('@')) {
                 const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
                 const users = snapshot.val();
-                if(users) {
+
+                if (users) {
                     const firstKey = Object.keys(users)[0];
                     emailToAuth = users[firstKey].email;
                 } else {
-                    alert('No existe ningún usuario registrado con el nombre: ' + identifier);
+                    alert('No existe un usuario con el nombre: ' + identifier);
                     return;
                 }
-            } catch (err) {
-                alert('Error al buscar el nombre de usuario: ' + err.message);
-                return;
             }
-        }
 
-        // Cambiado a Persistence.LOCAL para guardar la sesión en el navegador
-        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-            .then(() => {
-                return auth.signInWithEmailAndPassword(emailToAuth, pass);
-            })
-            .then(() => {
-                document.getElementById('form-login').reset();
-            })
-            .catch((error) => {
-                alert('Error al iniciar sesión: ' + error.message);
-            });
+            await auth.signInWithEmailAndPassword(emailToAuth, pass);
+            closeModal();
+        } catch (error) {
+            console.error("Error en login:", error);
+            alert('Error al entrar: ' + error.message);
+        } finally {
+            btn.innerText = 'Entrar';
+            btn.disabled = false;
+        }
     }
 
     function handleLogout() {
-        stopInactivityMonitor();
-        auth.signOut().then(() => {
-            // Sesión cerrada
-        });
+        auth.signOut();
     }
 
-    // CONTROL DE ESTADO DE SESIÓN Y REGISTRO DE VISITAS
+    // 5. ESTADO DE SESIÓN
     auth.onAuthStateChanged((user) => {
-        // --- REGISTRO ÚNICO DE VISITA POR SESIÓN ---
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
             const todayKey = new Date().toISOString().split('T')[0];
-
             db.ref('stats/total_visits').transaction(curr => (curr || 0) + 1);
             db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
 
-            if (user) {
-                db.ref('stats/visits/registered').transaction(curr => (curr || 0) + 1);
-            } else {
-                db.ref('stats/visits/anonymous').transaction(curr => (curr || 0) + 1);
-            }
+            if (user) db.ref('stats/visits/registered').transaction(curr => (curr || 0) + 1);
+            else db.ref('stats/visits/anonymous').transaction(curr => (curr || 0) + 1);
         }
 
-        // --- VERIFICACIÓN DE SESIÓN Y VISTAS ---
         if (user) {
-            // Validar si la sesión ya superó los 30 min de inactividad antes de cargar
-            const lastActivity = parseInt(localStorage.getItem('nyusu_last_activity') || '0', 10);
-            if (lastActivity > 0 && (Date.now() - lastActivity >= INACTIVITY_LIMIT_MS)) {
-                stopInactivityMonitor();
-                alert('Tu sesión anterior ha expirado por 30 minutos de inactividad.');
-                handleLogout();
-                return;
-            }
-
-            // Iniciar monitor de inactividad
-            startInactivityMonitor();
-
             db.ref(`users/${user.uid}`).on('value', (snapshot) => {
                 const data = snapshot.val();
-                if(data) {
-                    if(data.isBlocked) {
-                        alert('Tu cuenta ha sido bloqueada por un administrador.');
+                if (data) {
+                    if (data.isBlocked) {
+                        alert('Tu cuenta ha sido bloqueada.');
                         handleLogout();
                         return;
                     }
-
                     currentUserData = data;
                     document.getElementById('auth-guest-section').style.display = 'none';
                     document.getElementById('auth-user-section').style.display = 'flex';
                     document.getElementById('current-user-name').innerText = data.username;
-                    
+
                     const roleBadge = document.getElementById('current-user-role');
                     roleBadge.innerText = data.role.toUpperCase();
                     roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
 
-                    if(data.role === 'admin') {
+                    if (data.role === 'admin') {
                         document.getElementById('admin-tab-nav').style.display = 'inline-block';
                         document.getElementById('admin-menu-link').style.display = 'flex';
                         document.getElementById('admin-dashboard').style.display = 'block';
                         loadStats();
                         loadUsersList();
-                    } else {
-                        document.getElementById('admin-tab-nav').style.display = 'none';
-                        document.getElementById('admin-menu-link').style.display = 'none';
-                        document.getElementById('admin-dashboard').style.display = 'none';
                     }
                 }
             });
         } else {
-            stopInactivityMonitor();
             currentUserData = null;
             document.getElementById('auth-guest-section').style.display = 'flex';
             document.getElementById('auth-user-section').style.display = 'none';
-
             document.getElementById('admin-tab-nav').style.display = 'none';
             document.getElementById('admin-menu-link').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'none';
-
-            if (document.getElementById('admin-section').classList.contains('active')) {
-                switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-            }
         }
     });
 
-    // ==========================================
-    // 4. CARGA DE ESTADÍSTICAS (SOLO ADMINS)
-    // ==========================================
-
+    // 6. ESTADÍSTICAS Y MODERACIÓN (MOSTRANDO EDAD Y GÉNERO)
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
             const stats = snapshot.val() || {};
-            
             document.getElementById('stat-total').innerText = stats.total_visits || 0;
-            
             const todayKey = new Date().toISOString().split('T')[0];
-            const todayVisits = (stats.daily_visits && stats.daily_visits[todayKey]) || 0;
-            document.getElementById('stat-today').innerText = todayVisits;
+            document.getElementById('stat-today').innerText = (stats.daily_visits && stats.daily_visits[todayKey]) || 0;
+            document.getElementById('stat-registered').innerText = (stats.visits && stats.visits.registered) || 0;
+            document.getElementById('stat-anonymous').innerText = (stats.visits && stats.visits.anonymous) || 0;
 
-            const visitsType = stats.visits || {};
-            document.getElementById('stat-registered').innerText = visitsType.registered || 0;
-            document.getElementById('stat-anonymous').innerText = visitsType.anonymous || 0;
-
-            if (stats.daily_visits) {
-                updateVisitsChart(stats.daily_visits);
-            }
+            if (stats.daily_visits) updateVisitsChart(stats.daily_visits);
         });
     }
 
     function updateVisitsChart(dailyVisits) {
         const dates = Object.keys(dailyVisits).sort().slice(-7);
         const counts = dates.map(d => dailyVisits[d]);
-
         const ctx = document.getElementById('visitsChart').getContext('2d');
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
+        if (chartInstance) chartInstance.destroy();
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: dates,
-                datasets: [{
-                    label: 'Visitas',
-                    data: counts,
-                    borderColor: '#2d88ff',
-                    backgroundColor: 'rgba(45, 136, 255, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: { beginAtZero: true }
-                }
+                datasets: [{ label: 'Visitas', data: counts, borderColor: '#2d88ff', fill: true }]
             }
         });
     }
 
-    // ==========================================
-    // 5. MODERACIÓN Y GESTIÓN DE USUARIOS
-    // ==========================================
-
     function toggleBlockUser(uid, blockStatus) {
-        db.ref(`users/${uid}/isBlocked`).set(blockStatus)
-            .then(() => alert(blockStatus ? 'Usuario bloqueado correctamente.' : 'Usuario desbloqueado.'))
-            .catch(err => alert('Error: ' + err.message));
+        db.ref(`users/${uid}/isBlocked`).set(blockStatus);
     }
 
     function loadUsersList() {
         db.ref('users').on('value', (snapshot) => {
             const users = snapshot.val();
             const tableBody = document.getElementById('users-table-body');
-            if(!tableBody) return;
+            if (!tableBody) return;
             tableBody.innerHTML = '';
 
             if (users) {
                 Object.keys(users).forEach(uid => {
                     const u = users[uid];
                     const tr = document.createElement('tr');
-
                     const isBlocked = u.isBlocked || false;
                     const actionBtn = isBlocked
-                        ? `<button class="btn-action-unblock" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>`
-                        : `<button class="btn-action-block" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`;
+                        ? `<button style="background:#00e676; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="toggleBlockUser('${uid}', false)">Desbloquear</button>`
+                        : `<button style="background:#e41e3f; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer;" onclick="toggleBlockUser('${uid}', true)">Bloquear</button>`;
 
                     tr.innerHTML = `
                         <td>${u.username || 'Sin Nombre'}</td>
                         <td>${u.email || 'N/A'}</td>
+                        <td>${u.age || 'N/A'} años</td>
+                        <td>${u.gender || 'N/A'}</td>
                         <td><span class="${u.role === 'admin' ? 'badge-role' : 'badge-user'}">${(u.role || 'user').toUpperCase()}</span></td>
                         <td>${isBlocked ? '<span style="color:#e41e3f;">Bloqueado</span>' : '<span style="color:#00e676;">Activo</span>'}</td>
                         <td>${actionBtn}</td>
@@ -1001,22 +886,15 @@
         });
     }
 
-    // ==========================================
-    // 6. PUBLICACIONES, CHAT Y FORO
-    // ==========================================
-
+    // 7. FUNCIONES DE NOTICIAS, CHAT Y FORO
     function publishNews() {
         const title = document.getElementById('news-title').value.trim();
-        const admin = document.getElementById('admin-name').value.trim() || 'Administrador';
+        const admin = document.getElementById('admin-name').value.trim() || 'Admin';
         const content = document.getElementById('news-content').value.trim();
-
-        if (!title || !content) return alert('Ingresa título y contenido.');
+        if (!title || !content) return alert('Completa los campos.');
 
         db.ref('news').push({
-            title: title,
-            author: admin,
-            content: content,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
+            title: title, author: admin, content: content, timestamp: firebase.database.ServerValue.TIMESTAMP
         }).then(() => {
             alert('Noticia publicada');
             document.getElementById('news-title').value = '';
@@ -1030,63 +908,24 @@
             const container = document.getElementById('news-container');
             if (!container) return;
             container.innerHTML = '';
-
             if (news) {
                 Object.keys(news).reverse().forEach(key => {
                     const n = news[key];
                     const div = document.createElement('div');
                     div.className = 'post';
-                    div.innerHTML = `
-                        <div class="post-author">
-                            <i class="fa-solid fa-user-shield" style="color: #e41e3f;"></i>
-                            <strong>${n.author || 'Admin'}</strong>
-                        </div>
-                        <h2>${n.title}</h2>
-                        <p>${n.content}</p>
-                    `;
+                    div.innerHTML = `<h2>${n.title}</h2><p>${n.content}</p><small style="color:#aaa;">Por ${n.author}</small>`;
                     container.appendChild(div);
                 });
             }
         });
     }
 
-    function publishPoll() {
-        const title = document.getElementById('poll-title').value.trim();
-        const op1 = document.getElementById('poll-op1').value.trim();
-        const op2 = document.getElementById('poll-op2').value.trim();
-        const op3 = document.getElementById('poll-op3').value.trim();
-
-        if (!title || !op1 || !op2) return alert('Ingresa la pregunta y al menos dos opciones.');
-
-        const options = [op1, op2];
-        if (op3) options.push(op3);
-
-        db.ref('polls').push({
-            title: title,
-            options: options,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            alert('Encuesta lanzada');
-            document.getElementById('poll-title').value = '';
-            document.getElementById('poll-op1').value = '';
-            document.getElementById('poll-op2').value = '';
-            document.getElementById('poll-op3').value = '';
-        });
-    }
-
     function sendChat() {
-        if (!currentUserData) return alert('Debes iniciar sesión para participar.');
+        if (!currentUserData) return alert('Debes iniciar sesión.');
         const input = document.getElementById('chat-input');
-        const msg = input.value.trim();
-        if (!msg) return;
-
-        db.ref('chat').push({
-            user: currentUserData.username,
-            text: msg,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            input.value = '';
-        });
+        if (!input.value.trim()) return;
+        db.ref('chat').push({ user: currentUserData.username, text: input.value.trim() });
+        input.value = '';
     }
 
     function loadChat() {
@@ -1098,10 +937,7 @@
             if (data) {
                 Object.keys(data).forEach(k => {
                     const m = data[k];
-                    const div = document.createElement('div');
-                    div.className = 'chat-msg';
-                    div.innerHTML = `<strong>${m.user}</strong>${m.text}`;
-                    box.appendChild(div);
+                    box.innerHTML += `<div class="chat-msg"><strong>${m.user}</strong>${m.text}</div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             }
@@ -1109,18 +945,11 @@
     }
 
     function sendForo() {
-        if (!currentUserData) return alert('Debes iniciar sesión para publicar en el foro.');
+        if (!currentUserData) return alert('Debes iniciar sesión.');
         const input = document.getElementById('foro-input');
-        const msg = input.value.trim();
-        if (!msg) return;
-
-        db.ref('foro').push({
-            user: currentUserData.username,
-            text: msg,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        }).then(() => {
-            input.value = '';
-        });
+        if (!input.value.trim()) return;
+        db.ref('foro').push({ user: currentUserData.username, text: input.value.trim() });
+        input.value = '';
     }
 
     function loadForo() {
@@ -1132,40 +961,25 @@
             if (data) {
                 Object.keys(data).forEach(k => {
                     const m = data[k];
-                    const div = document.createElement('div');
-                    div.className = 'chat-msg';
-                    div.innerHTML = `<strong>${m.user}</strong>${m.text}`;
-                    box.appendChild(div);
+                    box.innerHTML += `<div class="chat-msg"><strong>${m.user}</strong>${m.text}</div>`;
                 });
                 box.scrollTop = box.scrollHeight;
             }
         });
     }
 
-    // ==========================================
-    // 7. NAVEGACIÓN DE PESTAÑAS Y MENÚ
-    // ==========================================
-
     function switchTab(tabId, element) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-
-        const targetSection = document.getElementById(`${tabId}-section`);
-        if (targetSection) targetSection.classList.add('active');
-
-        if (element) {
-            element.classList.add('active');
-        }
-
-        const dropdown = document.getElementById('dropdownMenu');
-        if (dropdown) dropdown.classList.remove('show');
+        document.getElementById(`${tabId}-section`).classList.add('active');
+        if (element) element.classList.add('active');
+        document.getElementById('dropdownMenu').classList.remove('show');
     }
 
     function toggleMenu() {
         document.getElementById('dropdownMenu').classList.toggle('show');
     }
 
-    // Carga inicial
     loadNews();
     loadChat();
     loadForo();
