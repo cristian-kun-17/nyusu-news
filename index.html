@@ -3,401 +3,389 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYŪSU NEWS | Portal de Anime, Manga y Japón</title>
-    <!-- Iconos y fuentes -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>NYŪSU NEWS | Perfil</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root {
-            --bg-color: #0f1016;
-            --card-bg: #191b24;
-            --accent-color: #ff2a5f; /* Estilo anime/neón */
-            --text-color: #f1f1f1;
-            --text-muted: #94a3b8;
-            --border-color: #2a2d3d;
+        body { 
+            background-color: #18191a; 
+            color: #e4e6eb; 
+            font-family: Arial, Helvetica, sans-serif; 
+            margin: 0; 
+            padding-bottom: 40px;
+        }
+        .container { 
+            max-width: 800px; 
+            margin: auto; 
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+        /* PORTADA */
+        .cover-photo { 
+            width: 100%; 
+            height: 250px; 
+            background: #3e4042; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
         }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            min-height: 100vh;
+        .cover-photo img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
         }
-
-        .container {
-            width: 100%;
-            max-width: 650px;
-            border-left: 1px solid var(--border-color);
-            border-right: 1px solid var(--border-color);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        
+        /* PERFIL */
+        .profile-section { 
+            padding: 0 20px; 
+            position: relative; 
+            margin-top: -50px; 
+            text-align: center; 
         }
-
-        /* Cabecera del Perfil */
-        .profile-header {
-            background: linear-gradient(135deg, #2b0c1e, #131520);
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            position: relative;
+        .profile-pic { 
+            width: 160px; 
+            height: 160px; 
+            border-radius: 50%; 
+            border: 4px solid #18191a; 
+            background: #242526; 
+            display: inline-block; 
+            object-fit: cover; 
         }
-
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-top: 10px;
+        
+        /* INFO */
+        .profile-info { 
+            margin-top: 10px; 
         }
-
-        .avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: bold;
-            color: white;
-            border: 3px solid var(--bg-color);
+        .profile-info h1 { 
+            font-size: 28px; 
+            margin: 0; 
         }
-
-        .profile-details h1 {
-            font-size: 22px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .social-links { 
+            margin: 10px 0; 
+            display: flex; 
+            justify-content: center; 
+            gap: 15px; 
         }
-
-        .profile-details h1 i {
-            color: var(--accent-color);
-            font-size: 16px;
-        }
-
-        .profile-details p {
-            color: var(--text-muted);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
-        /* Redes Sociales y Panel de Visitas */
-        .header-widgets {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 15px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,0.08);
-            font-size: 13px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-links a {
-            color: var(--text-muted);
-            font-size: 18px;
+        .social-links a { 
+            color: #aaa; 
+            font-size: 20px; 
             transition: color 0.2s;
         }
-
         .social-links a:hover {
-            color: var(--accent-color);
+            color: #2d88ff;
         }
 
-        .admin-views {
-            background: rgba(255, 42, 95, 0.1);
-            color: var(--accent-color);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        /* NAVEGACIÓN Y MENÚ DESPLEGABLE */
+        .nav-bar { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: #242526; 
+            padding: 10px 20px; 
+            margin-top: 15px; 
+            border-radius: 8px; 
+            border-top: 1px solid #3e4042; 
+        }
+        .nav-tabs { 
+            display: flex; 
+            gap: 20px; 
+        }
+        .nav-tab { 
+            color: #b0b3b8; 
+            text-decoration: none; 
+            font-weight: 600; 
+            cursor: pointer; 
+            padding: 5px 0; 
+        }
+        .nav-tab.active, .nav-tab:hover { 
+            color: #2d88ff; 
+            border-bottom: 3px solid #2d88ff; 
         }
 
-        /* Feed / Publicaciones */
-        .feed {
-            flex: 1;
-            padding-bottom: 50px;
+        /* BOTÓN DE MENÚ DESPLEGABLE */
+        .menu-dropdown-container { 
+            position: relative; 
+            display: inline-block; 
         }
-
-        .post-card {
-            background-color: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 16px;
-            margin-bottom: 10px;
+        .menu-btn { 
+            background: #3a3b3c; 
+            color: #e4e6eb; 
+            border: none; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 15px; 
         }
-
-        .post-header {
+        .menu-btn:hover { 
+            background: #4e4f50; 
+        }
+        .dropdown-content { 
+            display: none; 
+            position: absolute; 
+            right: 0; 
+            background-color: #242526; 
+            min-width: 180px; 
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.4); 
+            z-index: 10; 
+            border-radius: 6px; 
+            border: 1px solid #3e4042; 
+        }
+        .dropdown-content a { 
+            color: #e4e6eb; 
+            padding: 12px 16px; 
+            text-decoration: none; 
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 10px;
+            font-size: 14px; 
+        }
+        .dropdown-content a:hover { 
+            background-color: #3a3b3c; 
+            border-radius: 6px; 
+        }
+        .show { 
+            display: block; 
         }
 
-        .post-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            font-size: 16px;
+        /* SECCIONES (FEED, FORO, CHAT) */
+        .content-section { 
+            display: none; 
+        }
+        .content-section.active { 
+            display: block; 
         }
 
-        .post-meta h4 {
+        /* FEED Y POSTS */
+        .post { 
+            background: #242526; 
+            margin: 20px 0; 
+            padding: 15px; 
+            border-radius: 8px; 
+        }
+        .post-input { 
+            background: #3a3b3c; 
+            border-radius: 20px; 
+            padding: 10px 15px; 
+            margin-bottom: 10px; 
+            color: #b0b3b8; 
             font-size: 14px;
-            font-weight: 600;
         }
-
-        .post-meta span {
-            font-size: 12px;
-            color: var(--text-muted);
+        
+        /* BARRA DIVISORA DE COMENTARIOS */
+        .comment-divider { 
+            border: 0; 
+            border-top: 1px solid #3e4042; 
+            margin: 15px 0; 
         }
-
-        .post-content {
-            font-size: 15px;
-            line-height: 1.5;
-            margin-bottom: 12px;
+        
+        /* SECCIÓN DE CHAT Y FORO COMUNITARIO */
+        .community-box { 
+            background: #242526; 
+            margin: 20px 0; 
+            padding: 20px; 
+            border-radius: 8px; 
         }
-
-        .post-image {
-            width: 100%;
-            border-radius: 12px;
-            margin-top: 8px;
-            max-height: 350px;
-            object-fit: cover;
+        .community-box h3 { 
+            margin-top: 0; 
+            color: #2d88ff; 
         }
-
-        .post-sticker {
-            max-width: 90px;
-            display: block;
-            margin-top: 8px;
+        .chat-messages { 
+            background: #18191a; 
+            height: 250px; 
+            border-radius: 8px; 
+            padding: 10px; 
+            overflow-y: auto; 
+            margin-bottom: 10px; 
+            border: 1px solid #3e4042; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
         }
-
-        /* Sección de Interacción (Reacciones y Comentarios) */
-        .post-actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 12px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border-color);
+        .chat-msg { 
+            background: #3a3b3c; 
+            padding: 8px 12px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            max-width: 80%; 
         }
-
-        .action-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.2s;
+        .chat-msg strong { 
+            color: #2d88ff; 
+            display: block; 
+            font-size: 12px; 
+            margin-bottom: 2px; 
         }
-
-        .action-btn:hover {
-            color: var(--accent-color);
+        .chat-input-area { 
+            display: flex; 
+            gap: 10px; 
         }
-
-        /* Sección de Comentarios */
-        .comments-section {
-            margin-top: 12px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 8px;
-            display: none; /* Se abre al hacer clic */
+        .chat-input-area input { 
+            flex: 1; 
+            background: #3a3b3c; 
+            border: 1px solid #3e4042; 
+            padding: 10px; 
+            border-radius: 6px; 
+            color: white; 
         }
-
-        .comment-item {
-            font-size: 13px;
-            margin-bottom: 6px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 4px;
-        }
-
-        .comment-item strong {
-            color: var(--accent-color);
-        }
-
-        .comment-input-box {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-        }
-
-        .comment-input-box input {
-            flex: 1;
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            padding: 6px 10px;
-            border-radius: 6px;
-            color: white;
-            font-size: 13px;
-        }
-
-        .comment-input-box button {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
+        .chat-input-area button { 
+            background: #2d88ff; 
+            color: white; 
+            border: none; 
+            padding: 10px 15px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold; 
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- CABECERA DEL PERFIL -->
-        <header class="profile-header">
-            <div class="profile-info">
-                <div class="avatar">NN</div>
-                <div class="profile-details">
-                    <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check"></i></h1>
-                    <p>Tu portal otaku definitivo: Anime, Manga, TV, Videojuegos y Cultura Japonesa 🌸</p>
-                </div>
-            </div>
-
-            <!-- Redes y Visitas de Admin -->
-            <div class="header-widgets">
-                <div class="social-links">
-                    <a href="https://twitter.com" target="_blank" title="X (Twitter)"><i class="fa-brands fa-x-twitter"></i></a>
-                    <a href="https://instagram.com" target="_blank" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="https://discord.com" target="_blank" title="Discord"><i class="fa-brands fa-discord"></i></a>
-                    <a href="https://t.me" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
-                </div>
-                <!-- Visitas exclusivas para el administrador -->
-                <div class="admin-views" title="Contador visible solo para ti">
-                    <i class="fa-solid fa-eye"></i> <span id="view-count">0</span> visitas
-                </div>
-            </div>
-        </header>
-
-        <!-- SECCIÓN DE POSTS (NOTICIAS EN FORMATO MURO) -->
-        <main class="feed" id="feed-container">
-            
-            <!-- Post de Ejemplo 1: Anime -->
-            <div class="post-card">
-                <div class="post-header">
-                    <div class="post-avatar">NN</div>
-                    <div class="post-meta">
-                        <h4>NYŪSU NEWS</h4>
-                        <span>Hace 2 horas • ⚡ Anime</span>
-                    </div>
-                </div>
-                <div class="post-content">
-                    ¡Atención otakus! Se confirma oficialmente la fecha de estreno del nuevo arco. ¡Prepárense porque la animación se ve increíble! 🔥 ¿Quién más esperando este estreno?
-                </div>
-                <!-- Ejemplo de Sticker personalizado que puedes agregar -->
-                <!-- <img src="URL_DE_TU_STICKER.png" class="post-sticker" alt="Sticker"> -->
-                
-                <div class="post-actions">
-                    <button class="action-btn" onclick="likePost(this)"><i class="fa-solid fa-heart"></i> <span class="like-count">142</span></button>
-                    <button class="action-btn" onclick="toggleComments(this)"><i class="fa-solid fa-comment"></i> Comentarios (2)</button>
-                </div>
-
-                <!-- Caja de comentarios -->
-                <div class="comments-section" style="display: block;">
-                    <div class="comment-item"><strong>Carlos:</strong> ¡No puedo esperar más por verlo! 🤩</div>
-                    <div class="comment-item"><strong>Akane:</strong> El estudio de animación nunca decepciona.</div>
-                    <div class="comment-input-box">
-                        <input type="text" placeholder="Escribe un comentario o pon un emoji...">
-                        <button onclick="addComment(this)">Enviar</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Post de Ejemplo 2: Videojuegos / Japón -->
-            <div class="post-card">
-                <div class="post-header">
-                    <div class="post-avatar">NN</div>
-                    <div class="post-meta">
-                        <h4>NYŪSU NEWS</h4>
-                        <span>Hace 5 horas • 🎮 Videojuegos</span>
-                    </div>
-                </div>
-                <div class="post-content">
-                    Nuevos detalles filtrados sobre el mapa ambientado en Japón para el próximo gran lanzamiento RPG. Las calles inspiradas en Tokyo lucen alucinantes a medianoche. 🕹️✨
-                </div>
-                <div class="post-actions">
-                    <button class="action-btn" onclick="likePost(this)"><i class="fa-solid fa-heart"></i> <span class="like-count">89</span></button>
-                    <button class="action-btn" onclick="toggleComments(this)"><i class="fa-solid fa-comment"></i> Comentarios (0)</button>
-                </div>
-                <div class="comments-section">
-                    <div class="comment-input-box">
-                        <input type="text" placeholder="Escribe un comentario o pon un emoji...">
-                        <button onclick="addComment(this)">Enviar</button>
-                    </div>
-                </div>
-            </div>
-
-        </main>
+<div class="container">
+    <!-- PORTADA -->
+    <div class="cover-photo">
+        <img src="URL_DE_TU_PORTADA.jpg" alt="Portada">
     </div>
 
-    <script>
-        // --- 1. CONTADOR DE VISITAS PRIVADO ---
-        // Utiliza el almacenamiento local del navegador para contar visitas de forma sencilla y privada
-        let visits = localStorage.getItem('nyusu_visits');
-        if (!visits) {
-            visits = 1255; // Número base de inicio opcional
-        } else {
-            // Sube el contador solo si es una sesión nueva (puedes cambiar la lógica si prefieres)
-            visits = parseInt(visits) + 1;
-        }
-        localStorage.setItem('nyusu_visits', visits);
-        document.getElementById('view-count').innerText = visits;
+    <!-- PERFIL -->
+    <div class="profile-section">
+        <img src="URL_DE_TU_PERFIL.jpg" class="profile-pic" alt="Perfil">
+        <div class="profile-info">
+            <h1>NYŪSU NEWS <i class="fa-solid fa-circle-check" style="color: #0084ff;"></i></h1>
+            <p>Tu portal de noticias sobre Japón, Anime y más.</p>
+            <div class="social-links">
+                <a href="#"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#"><i class="fa-brands fa-discord"></i></a>
+            </div>
+        </div>
+    </div>
 
-        // --- 2. FUNCIONES DE INTERACCIÓN (Likes y Comentarios) ---
-        function likePost(button) {
-            const countSpan = button.querySelector('.like-count');
-            let count = parseInt(countSpan.innerText);
-            countSpan.innerText = count + 1;
-            button.style.color = 'var(--accent-color)';
-        }
+    <!-- BARRA DE NAVEGACIÓN Y MENÚ DESPLEGABLE -->
+    <div class="nav-bar">
+        <div class="nav-tabs">
+            <span class="nav-tab active" onclick="switchTab('feed', this)">Publicaciones</span>
+            <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
+        </div>
+        
+        <!-- Botón Desplegable -->
+        <div class="menu-dropdown-container">
+            <button onclick="toggleMenu()" class="menu-btn"><i class="fa-solid fa-bars"></i> Menú</button>
+            <div id="dropdownMenu" class="dropdown-content">
+                <a href="#" onclick="switchTab('chat', null)"><i class="fa-solid fa-comments"></i> Chat en Vivo</a>
+                <a href="#" onclick="switchTab('foro', null)"><i class="fa-solid fa-users"></i> Foro Comunitario</a>
+                <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
+            </div>
+        </div>
+    </div>
 
-        function toggleComments(button) {
-            const postCard = button.closest('.post-card');
-            const commentSection = postCard.querySelector('.comments-section');
-            if (commentSection.style.display === 'block') {
-                commentSection.style.display = 'none';
-            } else {
-                commentSection.style.display = 'block';
+    <!-- SECCIÓN 1: FEED DE NOTICIAS -->
+    <div id="feed-section" class="content-section active">
+        <div class="post">
+            <div class="post-input">¿Qué está pasando en el mundo del anime hoy?</div>
+            <hr class="comment-divider">
+            <p>¡Aquí se muestran las noticias oficiales de NYŪSU NEWS!</p>
+            
+            <!-- Barra divisora para separar comentarios -->
+            <hr class="comment-divider">
+            <div style="font-size: 13px; color: #b0b3b8; margin-bottom: 8px;">Comentarios de la comunidad:</div>
+            <div style="font-size: 14px;"><strong>Akane:</strong> ¡Excelente noticia la de hoy! 🌸</div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 2: FORO -->
+    <div id="foro-section" class="content-section">
+        <div class="community-box">
+            <h3>Foro de Discusión Otaku</h3>
+            <p style="font-size: 14px; color: #b0b3b8;">Espacio para que la comunidad comparta teorías, recomendaciones y debates sobre manga y Japón.</p>
+            
+            <div class="chat-messages" id="foro-box">
+                <div class="chat-msg"><strong>Carlos:</strong> ¿Cuál creen que sea el mejor anime de esta temporada?</div>
+                <div class="chat-msg"><strong>Lucía:</strong> Sin duda el nuevo de romance, está buenísimo.</div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="foro-input" placeholder="Escribe un tema o respuesta en el foro...">
+                <button onclick="sendForo()">Publicar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: CHAT EN VIVO -->
+    <div id="chat-section" class="content-section">
+        <div class="community-box">
+            <h3>Chat en Vivo de la Comunidad</h3>
+            <p style="font-size: 14px; color: #b0b3b8;">Habla en tiempo real con otros visitantes y comparte ideas.</p>
+            
+            <div class="chat-messages" id="chat-box">
+                <div class="chat-msg"><strong>Bot_Nyusu:</strong> ¡Bienvenidos al chat oficial de NYŪSU NEWS! ✨</div>
+            </div>
+            
+            <div class="chat-input-area">
+                <input type="text" id="chat-input" placeholder="Escribe un mensaje en el chat...">
+                <button onclick="sendChat()">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Control del Menú Desplegable
+    function toggleMenu() {
+        document.getElementById("dropdownMenu").classList.toggle("show");
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.menu-btn') && !event.target.matches('.fa-bars')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            for (let i = 0; i < dropdowns.length; i++) {
+                let openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                    openDropdown.classList.remove('show');
+                }
             }
         }
+    }
 
-        function addComment(button) {
-            const input = button.previousElementSibling;
-            const text = input.value.trim();
-            if (text === '') return;
-
-            const commentsSection = button.closest('.comments-section');
-            const newComment = document.createElement('div');
-            newComment.className = 'comment-item';
-            newComment.innerHTML = `<strong>Fan:</strong> ${text}`;
-            
-            // Insertar antes de la caja de texto
-            commentsSection.insertBefore(newComment, commentsSection.querySelector('.comment-input-box'));
-            input.value = '';
+    // Cambiar entre pestañas (Feed, Foro, Chat)
+    function switchTab(tabName, element) {
+        document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
+        document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+        
+        document.getElementById(tabName + '-section').classList.add('active');
+        if(element && element.classList && element.classList.contains('nav-tab')) {
+            element.classList.add('active');
         }
-    </script>
+    }
+
+    // Funcionalidad para enviar mensajes al Foro
+    function sendForo() {
+        const input = document.getElementById('foro-input');
+        const text = input.value.trim();
+        if(text === '') return;
+
+        const box = document.getElementById('foro-box');
+        const msg = document.createElement('div');
+        msg.className = 'chat-msg';
+        msg.innerHTML = `<strong>Miembro:</strong> ${text}`;
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight;
+        input.value = '';
+    }
+
+    // Funcionalidad para enviar mensajes al Chat
+    function sendChat() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if(text === '') return;
+
+        const box = document.getElementById('chat-box');
+        const msg = document.createElement('div');
+        msg.className = 'chat-msg';
+        msg.innerHTML = `<strong>Usuario:</strong> ${text}`;
+        box.appendChild(msg);
+        box.scrollTop = box.scrollHeight;
+        input.value = '';
+    }
+</script>
+
 </body>
 </html>
