@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Librería para gráficos de estadísticas -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- FIREBASE SDK (Compatibilidad para Vanilla JS) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
         body { 
             background-color: #18191a; 
@@ -398,17 +403,7 @@
     <!-- SECCIÓN 1: FEED DE NOTICIAS Y ENCUESTAS -->
     <div id="feed-section" class="content-section active">
         <div id="news-container">
-            <div class="post">
-                <div class="post-author">
-                    <i class="fa-solid fa-circle-user fa-2x" style="color: #2d88ff;"></i>
-                    <div>
-                        <strong>Admin Staff</strong> <badge>ADMIN</badge>
-                        <div style="font-size: 11px; color: #b0b3b8;">Oficial NYŪSU NEWS</div>
-                    </div>
-                </div>
-                <h3>¡Bienvenidos a NYŪSU NEWS!</h3>
-                <p>Estrenamos el nuevo portal con panel de noticias, área comunitaria y encuestas interactiva.</p>
-            </div>
+            <!-- Se carga en tiempo real desde Firebase -->
         </div>
     </div>
 
@@ -435,15 +430,15 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h4>VISITAS TOTALES</h4>
-                        <div class="number" id="stat-total">1,240</div>
+                        <div class="number" id="stat-total">0</div>
                     </div>
                     <div class="stat-card">
                         <h4>VISITAS HOY</h4>
-                        <div class="number" style="color: #00e676;" id="stat-today">185</div>
+                        <div class="number" style="color: #00e676;" id="stat-today">0</div>
                     </div>
                     <div class="stat-card">
                         <h4>PROMEDIO DIARIO</h4>
-                        <div class="number" style="color: #ff9200;" id="stat-avg">140</div>
+                        <div class="number" style="color: #ff9200;" id="stat-avg">0</div>
                     </div>
                 </div>
 
@@ -481,9 +476,7 @@
             <h3>Foro de Discusión Otaku</h3>
             <p style="font-size: 14px; color: #b0b3b8;">Espacio para que la comunidad comparta teorías y recomendaciones.</p>
             
-            <div class="chat-messages" id="foro-box">
-                <div class="chat-msg"><strong>Carlos:</strong> ¿Cuál creen que sea el mejor anime de esta temporada?</div>
-            </div>
+            <div class="chat-messages" id="foro-box"></div>
             
             <div class="chat-input-area">
                 <input type="text" id="foro-input" placeholder="Escribe un tema o respuesta en el foro...">
@@ -498,9 +491,7 @@
             <h3>Chat en Vivo de la Comunidad</h3>
             <p style="font-size: 14px; color: #b0b3b8;">Habla en tiempo real con otros visitantes y comparte ideas.</p>
             
-            <div class="chat-messages" id="chat-box">
-                <div class="chat-msg"><strong>Bot_Nyusu:</strong> ¡Bienvenidos al chat oficial de NYŪSU NEWS! ✨</div>
-            </div>
+            <div class="chat-messages" id="chat-box"></div>
             
             <div class="chat-input-area">
                 <input type="text" id="chat-input" placeholder="Escribe un mensaje en el chat...">
@@ -512,38 +503,301 @@
 </div>
 
 <script>
-    // PIN de Administrador por defecto
-    const SECRET_PIN = "nyusu123";
-    let chartRendered = false;
+    // ==========================================
+    // 1. CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+    // ==========================================
+    // Remplaza los siguientes valores con las credenciales de tu consola de Firebase
+    const firebaseConfig = {
+        apiKey: "TU_API_KEY",
+        authDomain: "TU_PROYECTO.firebaseapp.com",
+        databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
+        projectId: "TU_PROYECTO",
+        storageBucket: "TU_PROYECTO.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef"
+    };
 
-    // Verificación de Admin
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // PIN de Administrador
+    const SECRET_PIN = "nyusu123";
+    let chartInstance = null;
+
+    // Registrar visitas en tiempo real al ingresar
+    const todayKey = new Date().toISOString().split('T')[0];
+    db.ref('stats/total_visits').transaction(curr => (curr || 0) + 1);
+    db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1);
+
+    // ==========================================
+    // 2. SINCRONIZACIÓN EN TIEMPO REAL (FIREBASE)
+    // ==========================================
+
+    // Cargar Noticias y Encuestas
+    db.ref('posts').on('value', (snapshot) => {
+        const container = document.getElementById('news-container');
+        container.innerHTML = '';
+        const data = snapshot.val();
+
+        if (!data) {
+            container.innerHTML = `
+                <div class="post">
+                    <div class="post-author">
+                        <i class="fa-solid fa-circle-user fa-2x" style="color: #2d88ff;"></i>
+                        <div>
+                            <strong>Admin Staff</strong> <badge>ADMIN</badge>
+                            <div style="font-size: 11px; color: #b0b3b8;">Oficial NYŪSU NEWS</div>
+                        </div>
+                    </div>
+                    <h3>¡Bienvenidos a NYŪSU NEWS!</h3>
+                    <p>Estrenamos el nuevo portal en tiempo real con panel de noticias, área comunitaria y encuestas interactivas.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const postsArray = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+        postsArray.sort((a, b) => b.timestamp - a.timestamp); // Mostrar más reciente primero
+
+        postsArray.forEach(post => {
+            const div = document.createElement('div');
+            div.className = 'post';
+
+            if (post.type === 'news') {
+                div.innerHTML = `
+                    <div class="post-author">
+                        <i class="fa-solid fa-user-check fa-2x" style="color: #2d88ff;"></i>
+                        <div>
+                            <strong>${post.author}</strong> <badge>ADMIN</badge>
+                            <div style="font-size: 11px; color: #b0b3b8;">${new Date(post.timestamp).toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <h3>${post.title}</h3>
+                    <p>${post.content}</p>
+                `;
+            } else if (post.type === 'poll') {
+                let optionsHTML = '';
+                post.options.forEach((op, index) => {
+                    optionsHTML += `
+                        <button class="poll-option-btn" onclick="votePoll('${post.id}', ${index}, this)">
+                            <span>${op.text}</span> <strong><span>${op.votes || 0}</span> votos</strong>
+                        </button>
+                    `;
+                });
+
+                div.innerHTML = `
+                    <div class="post-author">
+                        <i class="fa-solid fa-square-poll-vertical fa-2x" style="color: #e41e3f;"></i>
+                        <div>
+                            <strong>Encuesta Oficial NYŪSU NEWS</strong> <badge style="background:#e41e3f;">ENCUESTA</badge>
+                        </div>
+                    </div>
+                    <h4>${post.question}</h4>
+                    <div class="poll-box">
+                        ${optionsHTML}
+                    </div>
+                `;
+            }
+            container.appendChild(div);
+        });
+    });
+
+    // Cargar Foro
+    db.ref('foro').limitToLast(50).on('value', (snapshot) => {
+        const box = document.getElementById('foro-box');
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if(!data) {
+            box.innerHTML = `<div class="chat-msg"><strong>Carlos:</strong> ¿Cuál creen que sea el mejor anime de esta temporada?</div>`;
+            return;
+        }
+        Object.values(data).forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+            box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    // Cargar Chat en Vivo
+    db.ref('chat').limitToLast(50).on('value', (snapshot) => {
+        const box = document.getElementById('chat-box');
+        box.innerHTML = '';
+        const data = snapshot.val();
+        if(!data) {
+            box.innerHTML = `<div class="chat-msg"><strong>Bot_Nyusu:</strong> ¡Bienvenidos al chat oficial de NYŪSU NEWS! ✨</div>`;
+            return;
+        }
+        Object.values(data).forEach(msg => {
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            div.innerHTML = `<strong>${msg.user}:</strong> ${msg.text}`;
+            box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    // ==========================================
+    // 3. FUNCIONES DE ADMINISTRACIÓN Y PUBLICACIÓN
+    // ==========================================
+
     function verifyAdminPin() {
         const pin = document.getElementById('admin-pin').value;
         if(pin === SECRET_PIN) {
             document.getElementById('admin-login-box').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
             document.getElementById('admin-error').style.display = 'none';
-            
-            // Renderizar el gráfico de visitas si no se ha creado
-            if(!chartRendered) {
-                renderVisitsChart();
-                chartRendered = true;
-            }
+            loadStats();
         } else {
             document.getElementById('admin-error').style.display = 'block';
         }
     }
 
-    // Dibujar gráfico de analítica con Chart.js
-    function renderVisitsChart() {
+    function publishNews() {
+        const title = document.getElementById('news-title').value.trim();
+        const author = document.getElementById('admin-name').value.trim() || 'Admin Staff';
+        const content = document.getElementById('news-content').value.trim();
+
+        if(!title || !content) {
+            alert('Por favor escribe un título y contenido para la noticia.');
+            return;
+        }
+
+        db.ref('posts').push({
+            type: 'news',
+            title: title,
+            author: author,
+            content: content,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        alert('¡Noticia publicada con éxito en Firebase!');
+        document.getElementById('news-title').value = '';
+        document.getElementById('news-content').value = '';
+        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+    }
+
+    function publishPoll() {
+        const question = document.getElementById('poll-title').value.trim();
+        const op1 = document.getElementById('poll-op1').value.trim();
+        const op2 = document.getElementById('poll-op2').value.trim();
+        const op3 = document.getElementById('poll-op3').value.trim();
+
+        if(!question || !op1 || !op2) {
+            alert('Agrega al menos una pregunta y dos opciones de respuesta.');
+            return;
+        }
+
+        const options = [{ text: op1, votes: 0 }, { text: op2, votes: 0 }];
+        if (op3) options.push({ text: op3, votes: 0 });
+
+        db.ref('posts').push({
+            type: 'poll',
+            question: question,
+            options: options,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+
+        alert('¡Encuesta enviada al Feed!');
+        document.getElementById('poll-title').value = '';
+        document.getElementById('poll-op1').value = '';
+        document.getElementById('poll-op2').value = '';
+        document.getElementById('poll-op3').value = '';
+        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+    }
+
+    function votePoll(postId, optionIndex, btn) {
+        db.ref(`posts/${postId}/options/${optionIndex}/votes`).transaction(curr => (curr || 0) + 1);
+        const parent = btn.parentElement;
+        const buttons = parent.querySelectorAll('.poll-option-btn');
+        buttons.forEach(b => {
+            b.disabled = true;
+            b.style.opacity = "0.7";
+            b.style.cursor = "default";
+        });
+        btn.style.border = "2px solid #2d88ff";
+    }
+
+    // ==========================================
+    // 4. ENVÍO DE CHAT Y FORO
+    // ==========================================
+
+    function sendForo() {
+        const input = document.getElementById('foro-input');
+        const text = input.value.trim();
+        if(!text) return;
+
+        db.ref('foro').push({
+            user: 'Miembro',
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    }
+
+    function sendChat() {
+        const input = document.getElementById('chat-input');
+        const text = input.value.trim();
+        if(!text) return;
+
+        db.ref('chat').push({
+            user: 'Usuario',
+            text: text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+        input.value = '';
+    }
+
+    // ==========================================
+    // 5. ESTADÍSTICAS Y NAVEGACIÓN
+    // ==========================================
+
+    function loadStats() {
+        db.ref('stats').on('value', (snapshot) => {
+            const data = snapshot.val() || {};
+            const total = data.total_visits || 0;
+            const daily = data.daily_visits || {};
+            const todayVisits = daily[todayKey] || 0;
+
+            const daysKeys = Object.keys(daily);
+            const avg = daysKeys.length ? Math.round(total / daysKeys.length) : total;
+
+            document.getElementById('stat-total').innerText = total.toLocaleString();
+            document.getElementById('stat-today').innerText = todayVisits.toLocaleString();
+            document.getElementById('stat-avg').innerText = avg.toLocaleString();
+
+            renderVisitsChart(daily);
+        });
+    }
+
+    function renderVisitsChart(dailyData) {
         const ctx = document.getElementById('visitsChart').getContext('2d');
-        new Chart(ctx, {
+        
+        // Generar etiquetas de los últimos 7 días
+        const labels = [];
+        const chartValues = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().split('T')[0];
+            const dayName = d.toLocaleDateString('es-ES', { weekday: 'short' });
+            labels.push(dayName);
+            chartValues.push(dailyData[dateStr] || 0);
+        }
+
+        if(chartInstance) {
+            chartInstance.destroy();
+        }
+
+        chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'],
+                labels: labels,
                 datasets: [{
                     label: 'Visitas Diarias',
-                    data: [120, 150, 180, 130, 210, 270, 185],
+                    data: chartValues,
                     borderColor: '#2d88ff',
                     backgroundColor: 'rgba(45, 136, 255, 0.15)',
                     borderWidth: 3,
@@ -564,103 +818,6 @@
         });
     }
 
-    // Publicar Noticia
-    function publishNews() {
-        const title = document.getElementById('news-title').value.trim();
-        const author = document.getElementById('admin-name').value.trim() || 'Admin Staff';
-        const content = document.getElementById('news-content').value.trim();
-
-        if(!title || !content) {
-            alert('Por favor escribe un título y contenido para la noticia.');
-            return;
-        }
-
-        const container = document.getElementById('news-container');
-        const newPost = document.createElement('div');
-        newPost.className = 'post';
-        newPost.innerHTML = `
-            <div class="post-author">
-                <i class="fa-solid fa-user-check fa-2x" style="color: #2d88ff;"></i>
-                <div>
-                    <strong>${author}</strong> <badge>ADMIN</badge>
-                    <div style="font-size: 11px; color: #b0b3b8;">Publicado recién</div>
-                </div>
-            </div>
-            <h3>${title}</h3>
-            <p>${content}</p>
-        `;
-
-        container.prepend(newPost);
-        alert('¡Noticia publicada con éxito!');
-        document.getElementById('news-title').value = '';
-        document.getElementById('news-content').value = '';
-        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-    }
-
-    // Lanzar Encuesta
-    function publishPoll() {
-        const question = document.getElementById('poll-title').value.trim();
-        const op1 = document.getElementById('poll-op1').value.trim();
-        const op2 = document.getElementById('poll-op2').value.trim();
-        const op3 = document.getElementById('poll-op3').value.trim();
-
-        if(!question || !op1 || !op2) {
-            alert('Agrega al menos una pregunta y dos opciones de respuesta.');
-            return;
-        }
-
-        const container = document.getElementById('news-container');
-        const pollPost = document.createElement('div');
-        pollPost.className = 'post';
-
-        let optionsHTML = `
-            <button class="poll-option-btn" onclick="vote(this)"><span>${op1}</span> <strong><span class="count">0</span> votos</strong></button>
-            <button class="poll-option-btn" onclick="vote(this)"><span>${op2}</span> <strong><span class="count">0</span> votos</strong></button>
-        `;
-
-        if(op3) {
-            optionsHTML += `<button class="poll-option-btn" onclick="vote(this)"><span>${op3}</span> <strong><span class="count">0</span> votos</strong></button>`;
-        }
-
-        pollPost.innerHTML = `
-            <div class="post-author">
-                <i class="fa-solid fa-square-poll-vertical fa-2x" style="color: #e41e3f;"></i>
-                <div>
-                    <strong>Encuesta Oficial NYŪSU NEWS</strong> <badge style="background:#e41e3f;">ENCUESTA</badge>
-                </div>
-            </div>
-            <h4>${question}</h4>
-            <div class="poll-box">
-                ${optionsHTML}
-            </div>
-        `;
-
-        container.prepend(pollPost);
-        alert('¡Encuesta enviada al Feed!');
-        document.getElementById('poll-title').value = '';
-        document.getElementById('poll-op1').value = '';
-        document.getElementById('poll-op2').value = '';
-        document.getElementById('poll-op3').value = '';
-        switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
-    }
-
-    // Votar en encuestas
-    function vote(btn) {
-        const countSpan = btn.querySelector('.count');
-        let currentVotes = parseInt(countSpan.innerText);
-        countSpan.innerText = currentVotes + 1;
-        
-        const parent = btn.parentElement;
-        const buttons = parent.querySelectorAll('.poll-option-btn');
-        buttons.forEach(b => {
-            b.disabled = true;
-            b.style.opacity = "0.7";
-            b.style.cursor = "default";
-        });
-        btn.style.border = "2px solid #2d88ff";
-    }
-
-    // Navegación entre pestañas
     function switchTab(tabName, element) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
@@ -671,7 +828,6 @@
         }
     }
 
-    // Menú desplegable
     function toggleMenu() {
         document.getElementById("dropdownMenu").classList.toggle("show");
     }
@@ -686,33 +842,6 @@
                 }
             }
         }
-    }
-
-    // Foro y Chat
-    function sendForo() {
-        const input = document.getElementById('foro-input');
-        const text = input.value.trim();
-        if(!text) return;
-        const box = document.getElementById('foro-box');
-        const msg = document.createElement('div');
-        msg.className = 'chat-msg';
-        msg.innerHTML = `<strong>Miembro:</strong> ${text}`;
-        box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
-        input.value = '';
-    }
-
-    function sendChat() {
-        const input = document.getElementById('chat-input');
-        const text = input.value.trim();
-        if(!text) return;
-        const box = document.getElementById('chat-box');
-        const msg = document.createElement('div');
-        msg.className = 'chat-msg';
-        msg.innerHTML = `<strong>Usuario:</strong> ${text}`;
-        box.appendChild(msg);
-        box.scrollTop = box.scrollHeight;
-        input.value = '';
     }
 </script>
 
