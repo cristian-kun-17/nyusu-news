@@ -26,16 +26,13 @@
             padding-bottom: 40px;
         }
 
-        /* Contenedor principal adaptable */
         .container { 
             max-width: 900px; 
             margin: auto; 
             padding: 0 15px; 
         }
 
-        /* ==========================================
-           BARRA SUPERIOR (NAVBAR)
-           ========================================== */
+        /* BARRA SUPERIOR */
         .auth-bar {
             background: #242526;
             border-bottom: 1px solid #3e4042;
@@ -72,9 +69,7 @@
             border: 1px solid #3e4042; 
         }
 
-        /* ==========================================
-           MENÚ DE USUARIO DESPLEGABLE
-           ========================================== */
+        /* MENÚ DE USUARIO DESPLEGABLE */
         .user-menu-container { position: relative; }
         .user-logged-box {
             display: flex; 
@@ -124,9 +119,7 @@
         .dropdown-item:hover { background-color: #3a3b3c; }
         .dropdown-divider { height: 1px; background: #3e4042; }
 
-        /* ==========================================
-           PORTADA Y NAVEGACIÓN
-           ========================================== */
+        /* PORTADA Y NAVEGACIÓN */
         .cover-photo { 
             width: 100%; 
             height: 250px; 
@@ -143,7 +136,7 @@
             margin-top: 15px; 
             border-radius: 8px; 
             border: 1px solid #3e4042; 
-            overflow-x: auto; /* Scroll en móviles si hay muchas pestañas */
+            overflow-x: auto; 
         }
         .nav-tabs { display: flex; gap: 20px; }
         .nav-tab { 
@@ -158,9 +151,7 @@
         .content-section { display: none; margin-top: 20px; }
         .content-section.active { display: block; }
 
-        /* ==========================================
-           PUBLICACIONES Y MULTIMEDIA
-           ========================================== */
+        /* PUBLICACIONES Y MULTIMEDIA */
         .post { 
             background: #242526; 
             margin-bottom: 20px; 
@@ -186,9 +177,7 @@
             border: none; 
         }
 
-        /* ==========================================
-           FORMULARIOS E INPUTS
-           ========================================== */
+        /* FORMULARIOS E INPUTS */
         .admin-input, .admin-select, .admin-textarea, .modal-input, .modal-select {
             width: 100%; 
             background: #3a3b3c; 
@@ -212,9 +201,7 @@
             font-size: 16px;
         }
 
-        /* ==========================================
-           MODALES (VENTANAS EMERGENTES)
-           ========================================== */
+        /* MODALES (VENTANAS EMERGENTES) */
         .modal-overlay {
             position: fixed; 
             top: 0; left: 0; 
@@ -247,9 +234,7 @@
             cursor: pointer; 
         }
 
-        /* ==========================================
-           VISTA "MI PERFIL"
-           ========================================== */
+        /* VISTA "MI PERFIL" */
         .my-profile-header { position: relative; margin-bottom: 70px; }
         .my-cover { 
             width: 100%; 
@@ -280,9 +265,7 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* ==========================================
-           ADAPTACIÓN PARA MÓVILES (Media Queries)
-           ========================================== */
+        /* ADAPTACIÓN PARA MÓVILES */
         @media (max-width: 600px) {
             .cover-photo { height: 150px; }
             .my-cover { height: 120px; }
@@ -306,14 +289,12 @@
 
         <!-- VISTA: USUARIOS LOGUEADOS -->
         <div id="auth-user-section" class="user-menu-container" style="display: none;">
-            <!-- Botón del menú -->
             <div class="user-logged-box" onclick="toggleUserMenu()">
                 <img id="top-user-avatar" class="top-avatar" src="" alt="Avatar">
                 <span id="current-user-name" style="font-weight: bold; margin: 0 5px;">Usuario</span>
                 <i class="fa-solid fa-chevron-down" style="color: #b0b3b8;"></i>
             </div>
             
-            <!-- Desplegable del menú -->
             <div id="userDropdownMenu" class="user-dropdown-content">
                 <div class="dropdown-item" onclick="viewMyProfile()"><i class="fa-solid fa-user"></i> Mi Perfil</div>
                 <div class="dropdown-item" onclick="openProfileSettings()"><i class="fa-solid fa-gear"></i> Ajustes de cuenta</div>
@@ -325,25 +306,22 @@
 </div>
 
 <div class="container">
-    <!-- NAVEGACIÓN -->
+    <!-- NAVEGACIÓN PRINCIPAL -->
     <div class="nav-bar">
         <div class="nav-tabs">
             <span class="nav-tab active" onclick="switchTab('feed', this)"><i class="fa-solid fa-newspaper"></i> Noticias</span>
             <span class="nav-tab" onclick="switchTab('foro', this)"><i class="fa-solid fa-comments"></i> Foro</span>
-            <!-- Estas pestañas solo aparecen si hay sesión iniciada -->
             <span id="tab-my-profile" class="nav-tab" onclick="switchTab('my-profile', this)" style="display: none;"><i class="fa-solid fa-address-card"></i> Mi Muro</span>
             <span id="admin-tab-nav" class="nav-tab" onclick="switchTab('admin', this)" style="display: none; color:#e41e3f;"><i class="fa-solid fa-shield"></i> Admin Panel</span>
         </div>
     </div>
 
-    <!-- SECCIÓN 1: NOTICIAS GLOBALES -->
+    <!-- SECCIÓN: NOTICIAS GLOBALES -->
     <div id="feed-section" class="content-section active">
-        <!-- Formulario exclusivo para Administradores -->
         <div id="admin-news-form" style="display: none; background:#242526; padding:20px; border-radius:8px; margin-bottom:20px; border:1px solid #2d88ff;">
             <h3 style="margin-top:0; color:#2d88ff;"><i class="fa-solid fa-bullhorn"></i> Publicar Noticia Global</h3>
             <input type="text" id="news-title" class="admin-input" placeholder="Título de la Noticia">
             
-            <!-- Selector de Multimedia -->
             <select id="news-media-type" class="admin-select" onchange="toggleMediaInput('news-media-type', 'news-media-url-cont')">
                 <option value="none">Solo texto (Sin imagen/video)</option>
                 <option value="image">Añadir Imagen (.jpg, .png)</option>
@@ -358,22 +336,18 @@
             <button class="admin-btn" onclick="publishPost('news')">Publicar Noticia</button>
         </div>
         
-        <!-- Muro donde cargan las noticias -->
         <div id="news-container"></div>
     </div>
 
-    <!-- SECCIÓN 2: MI PERFIL (PERSONAL) -->
+    <!-- SECCIÓN: MI PERFIL (PERSONAL) -->
     <div id="my-profile-section" class="content-section">
-        <!-- Cabecera del Perfil -->
         <div style="background:#242526; border-radius:8px; border:1px solid #3e4042; overflow:hidden; margin-bottom:20px;">
             <div class="my-profile-header">
                 <img id="my-cover-img" class="my-cover" src="https://via.placeholder.com/800x200/3e4042/3e4042" alt="Portada">
-                <!-- Botón para cambiar portada -->
                 <button class="edit-img-btn" style="top: 15px; right: 15px;" onclick="changeProfileImage('cover')" title="Cambiar Portada"><i class="fa-solid fa-camera"></i></button>
                 
                 <div style="position:relative; display:inline-block;">
                     <img id="my-avatar-img" class="my-avatar" src="" alt="Avatar">
-                    <!-- Botón para cambiar avatar -->
                     <button class="edit-img-btn" style="bottom: -50px; left: 110px;" onclick="changeProfileImage('avatar')" title="Cambiar Foto"><i class="fa-solid fa-camera"></i></button>
                 </div>
             </div>
@@ -384,7 +358,6 @@
             </div>
         </div>
 
-        <!-- Formulario para postear en el muro personal -->
         <div style="background:#242526; padding:20px; border-radius:8px; margin-bottom:20px; border:1px solid #3e4042;">
             <h3 style="margin-top:0;"><i class="fa-solid fa-pen"></i> Escribir en mi Muro</h3>
             <textarea id="personal-content" class="admin-textarea" rows="3" placeholder="¿Qué estás pensando?"></textarea>
@@ -402,12 +375,11 @@
             <button class="admin-btn" style="background:#00e676; color:#000;" onclick="publishPost('personal')">Publicar en mi Perfil</button>
         </div>
 
-        <!-- Historial de publicaciones personales -->
         <h3 style="border-bottom: 1px solid #3e4042; padding-bottom:10px;">Mis Publicaciones</h3>
         <div id="personal-posts-container"></div>
     </div>
 
-    <!-- SECCIÓN 3: FORO -->
+    <!-- SECCIÓN: FORO -->
     <div id="foro-section" class="content-section">
         <div style="background:#242526; padding:20px; border-radius:8px; border: 1px solid #3e4042;">
             <h3 style="margin-top:0;">Foro Comunitario</h3>
@@ -420,10 +392,10 @@
         </div>
     </div>
 
-    <!-- SECCIÓN 4: ADMIN PANEL -->
+    <!-- SECCIÓN: ADMIN PANEL -->
     <div id="admin-section" class="content-section">
         <div style="background:#242526; padding:20px; border-radius:8px; border:1px solid #e41e3f;">
-            <h3 style="color:#e41e3f; margin-top:0;"><i class="fa-solid fa-users-gear"></i> Gestión y Moderación de Usuarios</h3>
+            <h3 style="color:#e41e3f; margin-top:0;"><i class="fa-solid fa-users-gear"></i> Gestión de Usuarios</h3>
             <div style="overflow-x:auto;">
                 <table style="width:100%; border-collapse:collapse; text-align:left;">
                     <thead>
@@ -434,9 +406,7 @@
                             <th style="padding:10px; border:1px solid #3e4042;">Acción</th>
                         </tr>
                     </thead>
-                    <tbody id="users-table-body">
-                        <!-- Llenado automático -->
-                    </tbody>
+                    <tbody id="users-table-body"></tbody>
                 </table>
             </div>
         </div>
@@ -452,7 +422,6 @@
     <div class="modal-card">
         <button class="modal-close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
         
-        <!-- Pestaña: Iniciar Sesión -->
         <div id="modal-login-content">
             <h2 style="text-align:center; color:#2d88ff; margin-bottom: 25px;">Iniciar Sesión</h2>
             <input type="text" id="login-identifier" class="modal-input" placeholder="Correo electrónico o Usuario">
@@ -461,7 +430,6 @@
             <p style="text-align:center; font-size:14px; margin-top:20px;">¿No tienes cuenta? <a href="#" style="color:#2d88ff;" onclick="switchAuthTab('register')">Regístrate aquí</a></p>
         </div>
 
-        <!-- Pestaña: Registro -->
         <div id="modal-register-content" style="display:none;">
             <h2 style="text-align:center; color:#00e676; margin-bottom: 25px;">Crear Cuenta</h2>
             <input type="text" id="reg-username" class="modal-input" placeholder="Nombre de Usuario">
@@ -483,7 +451,7 @@
     </div>
 </div>
 
-<!-- Modal: Editar Perfil de Usuario -->
+<!-- Modal: Ajustes de Perfil -->
 <div id="settings-modal" class="modal-overlay">
     <div class="modal-card">
         <button class="modal-close-btn" onclick="closeModals()"><i class="fa-solid fa-xmark"></i></button>
@@ -515,10 +483,9 @@
 </div>
 
 <!-- ==========================================
-     SCRIPTS Y LÓGICA DE FIREBASE
+     SCRIPTS DE FIREBASE Y LÓGICA
      ========================================== -->
 <script>
-    // 1. CONFIGURACIÓN DE FIREBASE
     const firebaseConfig = {
         apiKey: "AIzaSyCJmYRIdGd-v7uKIm9GT-D-WuE3wZX90-k",
         authDomain: "nyusu-news.firebaseapp.com",
@@ -527,56 +494,47 @@
     };
 
     let db, auth;
-    let currentUserData = null; // Variable global para saber quién está logueado
+    let currentUserData = null;
 
-    // Inicializar Firebase una vez que la página carga
     window.addEventListener('DOMContentLoaded', () => {
         firebase.initializeApp(firebaseConfig);
         db = firebase.database();
         auth = firebase.auth();
 
-        // Escuchar si hay alguien logueado o si cerró sesión
         auth.onAuthStateChanged(handleAuthStateChange);
         
-        // Cargar las noticias y foro inmediatamente
         loadPosts('news', 'news-container');
         loadForo();
     });
 
     // ==========================================
-    // INTERFAZ DE USUARIO (UI) Y NAVEGACIÓN
+    // NAVEGACIÓN Y TABS
     // ==========================================
-    
-    // Función para cambiar entre las secciones principales (Noticias, Foro, Perfil, Admin)
     function switchTab(tabId, tabElement) {
-        // Ocultar todas las secciones
         document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         
-        // Mostrar la sección seleccionada
         document.getElementById(`${tabId}-section`).classList.add('active');
         if(tabElement) tabElement.classList.add('active');
         
-        // Si el usuario entra a su propio perfil, cargar sus publicaciones
         if (tabId === 'my-profile' && currentUserData) {
             loadPosts(`users/${auth.currentUser.uid}/posts`, 'personal-posts-container');
         }
     }
 
-    // Abrir o cerrar el menú desplegable del perfil arriba a la derecha
     function toggleUserMenu() {
         document.getElementById('userDropdownMenu').classList.toggle('show');
     }
 
-    // Control de Ventanas Emergentes (Modales)
     function openModal(type) {
         document.getElementById('auth-modal').classList.add('active');
-        switchAuthTab(type); // Mostrar login o registro según el botón presionado
+        switchAuthTab(type);
     }
 
     function closeModals() {
         document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-        document.getElementById('userDropdownMenu').classList.remove('show');
+        const menu = document.getElementById('userDropdownMenu');
+        if(menu) menu.classList.remove('show');
     }
 
     function switchAuthTab(type) {
@@ -584,7 +542,6 @@
         document.getElementById('modal-register-content').style.display = type === 'register' ? 'block' : 'none';
     }
 
-    // Cerrar menú o modales si se hace clic afuera
     window.onclick = function(event) {
         if (event.target.classList.contains('modal-overlay')) closeModals();
         if (!event.target.closest('.user-menu-container')) {
@@ -594,11 +551,9 @@
     };
 
     // ==========================================
-    // SISTEMA DE AUTENTICACIÓN Y PERFIL
+    // AUTHENTICATION
     // ==========================================
-    
     async function handleRegister() {
-        // Obtener datos de los inputs
         const username = document.getElementById('reg-username').value.trim();
         const email = document.getElementById('reg-email').value.trim();
         const age = document.getElementById('reg-age').value;
@@ -606,22 +561,18 @@
         const pass = document.getElementById('reg-pass').value;
         const btn = document.getElementById('btn-register-submit');
 
-        if(!username || !email || !age || !pass) return alert('Por favor, llena todos los campos requeridos.');
+        if(!username || !email || !age || !pass) return alert('Por favor, llena todos los campos.');
         
         btn.disabled = true; 
         btn.innerText = 'Creando cuenta...';
 
         try {
-            // Crear usuario en Firebase Authentication
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
             const credential = await auth.createUserWithEmailAndPassword(email, pass);
             
-            // Si el correo contiene tu nombre, le asignamos rol de admin automáticamente
             const userRole = email.includes('cristianjembuel') ? 'admin' : 'user';
-            
-            // Avatar por defecto usando las iniciales del nombre
             const defaultAvatar = `https://ui-avatars.com/api/?name=${username}&background=2d88ff&color=fff&size=150`;
 
-            // Guardar el resto de la información en Realtime Database
             await db.ref(`users/${credential.user.uid}`).set({
                 uid: credential.user.uid, 
                 username: username, 
@@ -637,6 +588,9 @@
             
             alert('¡Registro exitoso!');
             closeModals();
+            // Mantenerse en la página de noticias al registrarse
+            switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+
         } catch (error) { 
             alert('Error en registro: ' + error.message); 
         } finally { 
@@ -658,29 +612,31 @@
         try {
             let emailToAuth = identifier;
             
-            // Si el usuario escribe su "username" en lugar de un correo, lo buscamos en la base de datos
             if(!identifier.includes('@')) {
                 const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
-                if(!snapshot.val()) throw new Error('Nombre de usuario no encontrado.');
-                emailToAuth = Object.values(snapshot.val())[0].email; // Obtener el correo asociado a ese username
+                if(!snapshot.val()) throw new Error('Nombre de usuario no encontrado en la base de datos.');
+                emailToAuth = Object.values(snapshot.val())[0].email;
             }
             
-            // Iniciar sesión
+            await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
             await auth.signInWithEmailAndPassword(emailToAuth, pass);
+            
             closeModals();
+            
+            // Forzar que se mantenga en la página principal "Noticias"
+            switchTab('feed', document.querySelectorAll('.nav-tab')[0]);
+            
         } catch (error) { 
-            alert('Error al iniciar sesión: Verifique sus credenciales.'); 
+            // Mostrar error real de Firebase (Contraseña incorrecta, etc)
+            alert('Error al iniciar sesión: ' + error.message); 
         } finally { 
             btn.disabled = false; 
             btn.innerText = 'Entrar'; 
         }
     }
 
-    function handleLogout() { 
-        auth.signOut(); 
-    }
+    function handleLogout() { auth.signOut(); }
 
-    // Esta función se ejecuta automáticamente cada vez que alguien inicia o cierra sesión
     function handleAuthStateChange(user) {
         const guestSection = document.getElementById('auth-guest-section');
         const userSection = document.getElementById('auth-user-section');
@@ -689,64 +645,52 @@
         const adminNewsForm = document.getElementById('admin-news-form');
 
         if (user) {
-            // Usuario inició sesión: Descargar su perfil desde la base de datos
             db.ref(`users/${user.uid}`).on('value', snapshot => {
                 currentUserData = snapshot.val();
                 
-                // Si un administrador bloqueó esta cuenta, cerrarla inmediatamente
                 if(currentUserData && currentUserData.isBlocked) {
                     alert('Tu cuenta ha sido suspendida.');
                     return handleLogout();
                 }
 
-                // Ocultar botones de login y mostrar menú de usuario
                 guestSection.style.display = 'none';
                 userSection.style.display = 'block';
                 profileTab.style.display = 'inline-block';
                 
-                // Actualizar barra superior con sus datos
                 document.getElementById('current-user-name').innerText = currentUserData.username;
                 document.getElementById('top-user-avatar').src = currentUserData.avatarUrl;
 
-                // Privilegios especiales para Administradores
                 if(currentUserData.role === 'admin') {
                     adminTab.style.display = 'inline-block';
                     adminNewsForm.style.display = 'block';
-                    loadUsersAdminTable(); // Cargar la tabla de moderación
+                    loadUsersAdminTable();
                 } else {
                     adminTab.style.display = 'none';
                     adminNewsForm.style.display = 'none';
                 }
             });
         } else {
-            // No hay sesión iniciada
             currentUserData = null;
             guestSection.style.display = 'flex';
             userSection.style.display = 'none';
             profileTab.style.display = 'none';
             adminTab.style.display = 'none';
             adminNewsForm.style.display = 'none';
-            
-            // Redirigir a "Noticias" si estaba en una pestaña privada
-            switchTab('feed', document.querySelector('.nav-tab'));
         }
     }
 
     // ==========================================
-    // LÓGICA DE LA VISTA "MI PERFIL"
+    // MI PERFIL Y EDICIÓN
     // ==========================================
-    
     function viewMyProfile() {
         closeModals();
         if(!currentUserData) return;
 
-        // Cargar imágenes y textos en la cabecera del perfil
         document.getElementById('my-cover-img').src = currentUserData.coverUrl;
         document.getElementById('my-avatar-img').src = currentUserData.avatarUrl;
         document.getElementById('my-profile-name').innerText = currentUserData.username;
         document.getElementById('my-profile-info').innerText = `${currentUserData.age} años • Género: ${currentUserData.gender} • ROL: ${currentUserData.role.toUpperCase()}`;
         
-        // Cambiar a la pestaña de Mi Perfil
         switchTab('my-profile', document.getElementById('tab-my-profile'));
     }
 
@@ -754,7 +698,6 @@
         closeModals();
         if(!currentUserData) return;
         
-        // Llenar el modal de configuración con los datos actuales
         document.getElementById('set-username').value = currentUserData.username;
         document.getElementById('set-email').value = currentUserData.email;
         document.getElementById('set-age').value = currentUserData.age;
@@ -778,45 +721,36 @@
             });
             alert('¡Perfil actualizado correctamente!');
             closeModals();
-            
-            // Recargar la vista de perfil si estamos parados allí
-            if(document.getElementById('my-profile-section').classList.contains('active')) {
-                viewMyProfile();
-            }
+            if(document.getElementById('my-profile-section').classList.contains('active')) viewMyProfile();
         } catch(error) {
             alert('Error al guardar: ' + error.message);
         }
     }
 
     async function changeProfileImage(imageType) {
-        // Pedimos la URL al usuario (En apps reales se sube el archivo, pero Realtime DB usa URLs)
         const typeText = imageType === 'avatar' ? 'nueva Foto de Perfil' : 'nueva Portada';
         const url = prompt(`Pega el enlace (URL web) de tu ${typeText}:\n\nFormatos recomendados: .jpg, .png`);
         
-        if(!url) return; // Si el usuario cancela
+        if(!url) return; 
         
         const updateData = imageType === 'avatar' ? { avatarUrl: url } : { coverUrl: url };
-        
         try {
             await db.ref(`users/${auth.currentUser.uid}`).update(updateData);
             alert('Imagen actualizada con éxito.');
-            viewMyProfile(); // Recargar imágenes en pantalla
+            viewMyProfile(); 
         } catch(error) {
             alert('Error al cambiar la imagen.');
         }
     }
 
     // ==========================================
-    // SISTEMA DE PUBLICACIONES (TEXTO, JPG, MP4, YOUTUBE)
+    // PUBLICACIONES MULTIMEDIA
     // ==========================================
-    
-    // Muestra u oculta la caja de URL dependiendo de si se elige agregar imagen o video
     function toggleMediaInput(selectId, containerId) {
         const isMedia = document.getElementById(selectId).value !== 'none';
         document.getElementById(containerId).style.display = isMedia ? 'block' : 'none';
     }
 
-    // Adapta links normales de YouTube al formato "embed" necesario para iframes
     function formatYouTubeEmbed(url) {
         if(!url) return '';
         if(url.includes('youtube.com/watch?v=')) {
@@ -827,18 +761,15 @@
             const videoId = url.split('youtu.be/')[1].split('?')[0];
             return `https://www.youtube.com/embed/${videoId}`;
         }
-        return url; // Retorna normal si es un archivo .mp4
+        return url; 
     }
 
     async function publishPost(targetLocation) {
-        // targetLocation determina si va al "news" (global) o al "personal" (Muro)
         const prefix = targetLocation === 'news' ? 'news' : 'personal';
-        
         const contentText = document.getElementById(`${prefix}-content`).value.trim();
         const mediaType = document.getElementById(`${prefix}-media-type`).value;
         const mediaUrlRaw = document.getElementById(`${prefix}-media-url`).value.trim();
         
-        // Título solo aplica para las noticias globales
         let titleText = '';
         if(targetLocation === 'news') {
             titleText = document.getElementById('news-title').value.trim();
@@ -847,7 +778,6 @@
 
         if(!contentText) return alert('El contenido no puede estar vacío.');
 
-        // Preparar el paquete de datos a subir
         const postData = {
             author: currentUserData.username,
             avatar: currentUserData.avatarUrl,
@@ -859,14 +789,12 @@
         
         if(titleText) postData.title = titleText;
 
-        // Definir la ruta en la base de datos
         const dbPath = targetLocation === 'news' ? 'news' : `users/${auth.currentUser.uid}/posts`;
         
         try {
             await db.ref(dbPath).push(postData);
             alert('¡Publicado con éxito!');
             
-            // Limpiar los formularios
             document.getElementById(`${prefix}-content`).value = '';
             document.getElementById(`${prefix}-media-type`).value = 'none';
             document.getElementById(`${prefix}-media-url`).value = '';
@@ -878,7 +806,6 @@
         }
     }
 
-    // Carga las publicaciones dinámicamente según la ruta que le pasemos
     function loadPosts(databasePath, containerId) {
         db.ref(databasePath).on('value', snapshot => {
             const container = document.getElementById(containerId);
@@ -889,10 +816,7 @@
                 return;
             }
 
-            // Renderizar desde el último hasta el primero
             Object.values(snapshot.val()).reverse().forEach(post => {
-                
-                // Construir bloque multimedia si existe
                 let mediaHtml = '';
                 if(post.mediaType === 'image' && post.mediaUrl) {
                     mediaHtml = `<div class="post-media"><img src="${post.mediaUrl}" loading="lazy" alt="Imagen post"></div>`;
@@ -906,7 +830,6 @@
 
                 const postHtml = `
                     <div class="post">
-                        <!-- Cabecera de Autor -->
                         <div style="display:flex; align-items:center; gap:12px; margin-bottom:15px;">
                             <img src="${post.avatar}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                             <div style="display:flex; flex-direction:column;">
@@ -914,25 +837,19 @@
                                 <span style="color:#b0b3b8; font-size:12px;">Publicado recientemente</span>
                             </div>
                         </div>
-                        
-                        <!-- Contenido -->
                         ${post.title ? `<h3 style="margin:0 0 10px 0; color:#2d88ff; font-size:20px;">${post.title}</h3>` : ''}
                         <p style="margin:0; white-space:pre-line; font-size:15px; line-height:1.5;">${post.content}</p>
-                        
-                        <!-- Multimedia -->
                         ${mediaHtml}
                     </div>
                 `;
-                
                 container.innerHTML += postHtml;
             });
         });
     }
 
     // ==========================================
-    // FORO COMUNITARIO Y ADMINISTRACIÓN
+    // FORO Y ADMIN
     // ==========================================
-    
     function sendForo() {
         const input = document.getElementById('foro-input');
         if(!currentUserData || !input.value.trim()) return alert('Escribe un mensaje válido.');
@@ -941,11 +858,10 @@
             user: currentUserData.username, 
             message: input.value.trim() 
         });
-        input.value = ''; // Limpiar cajón
+        input.value = '';
     }
 
     function loadForo() {
-        // Cargar solo los últimos 40 mensajes para no colapsar teléfonos móviles
         db.ref('foro').limitToLast(40).on('value', snapshot => {
             const chatBox = document.getElementById('foro-box');
             chatBox.innerHTML = '';
@@ -959,12 +875,11 @@
                         </div>
                     `;
                 });
-                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll hacia abajo
+                chatBox.scrollTop = chatBox.scrollHeight;
             }
         });
     }
 
-    // Tabla de administración de usuarios
     function loadUsersAdminTable() {
         db.ref('users').on('value', snapshot => {
             const tbody = document.getElementById('users-table-body');
@@ -973,7 +888,7 @@
             
             Object.keys(snapshot.val()).forEach(uid => {
                 const user = snapshot.val()[uid];
-                const blockColor = user.isBlocked ? '#00e676' : '#e41e3f'; // Verde para desbloquear, Rojo para bloquear
+                const blockColor = user.isBlocked ? '#00e676' : '#e41e3f';
                 const blockText = user.isBlocked ? 'Desbloquear' : 'Bloquear';
                 
                 tbody.innerHTML += `
