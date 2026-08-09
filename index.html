@@ -1,3 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a12">
+    <title>NYŪSU NEWS | Anime & Cultura Japonesa</title>
+
+    <!-- Librerías Externas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FIREBASE SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    
+    <style>
+        :root {
+            --bg-void: #0a0a12;
+            --bg-surface: #16171f;
+            --bg-surface-alt: #1d1f2a;
+            --bg-input: #1c1e28;
+            --border: #2b2d3a;
+            --text-primary: #f2f0fa;
+            --text-secondary: #a5a3bd;
+            --text-muted: #6f6d87;
+            --accent-primary: #8b7cf6;
+            --accent-pink: #ff5c8a;
+            --accent-gold: #ffb703;
+            --accent-crimson: #ef3b56;
+            --accent-success: #2ee6a6;
+            --gradient-brand: linear-gradient(135deg, #8b7cf6 0%, #ff5c8a 100%);
+            --gradient-admin: linear-gradient(135deg, #ef3b56 0%, #ff9d4d 100%);
+            --shadow-md: 0 10px 26px rgba(0,0,0,0.4);
+            --font-display: 'Anton', sans-serif;
+            --font-heading: 'Poppins', sans-serif;
+            --font-jp: 'Noto Sans JP', sans-serif;
         }
         * { box-sizing: border-box; }
         body {
@@ -300,6 +341,26 @@
                 ¿Ya tienes una cuenta? <a href="#" onclick="switchModalTab('login')">Inicia sesión</a>
             </div>
         </div>
+        <!-- POLÍTICA DE PRIVACIDAD MODAL -->
+        <div id="modal-privacy-content" style="display: none; text-align: left; overflow-y: auto; padding-right: 10px;">
+            <h2 class="modal-title" style="color: var(--accent-primary);"><i class="fa-solid fa-shield-halved"></i> Política de Privacidad</h2>
+            <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+                <p><strong>Última actualización: 9 de agosto de 2026</strong></p>
+                <p>En NYŪSU NEWS respetamos la privacidad de nuestros visitantes. Esta Política de Privacidad explica de manera breve qué información puede recopilar nuestro sitio y cómo puede utilizarse.</p>
+                
+                <h4 style="color: var(--text-primary); margin-bottom: 4px;">1. Información recopilada</h4>
+                <p style="margin-top: 0;">Recopilamos información técnica básica (IP, dispositivo, navegador) con fines estadísticos y de seguridad. Si usas formularios o te registras, solo guardamos los datos que decides proporcionar.</p>
+                
+                <h4 style="color: var(--text-primary); margin-bottom: 4px;">2. Uso de la información</h4>
+                <p style="margin-top: 0;">Se utiliza para mejorar NYŪSU NEWS, analizar visitas, mantener la seguridad y gestionar tu cuenta. <strong>No vendemos ni comercializamos tu información personal.</strong></p>
+                
+                <h4 style="color: var(--text-primary); margin-bottom: 4px;">3. Cookies</h4>
+                <p style="margin-top: 0;">Podemos usar cookies para mejorar la navegación o mostrar contenido relevante. Puedes desactivarlas en tu navegador.</p>
+                
+                <h4 style="color: var(--text-primary); margin-bottom: 4px;">4. Enlaces externos y Cambios</h4>
+                <p style="margin-top: 0;">No somos responsables de las políticas de sitios externos enlazados. Esta política puede actualizarse para reflejar cambios en la normativa.</p>
+            </div>
+        </div>
     </div>
 </div>
 <div class="container">
@@ -434,6 +495,11 @@
             </div>
         </div>
     </div>
+    <!-- PIE DE PÁGINA -->
+    <footer style="text-align: center; padding: 25px 15px; margin-top: 30px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted);">
+        &copy; 2026 NYŪSU NEWS. Todos los derechos reservados.<br>
+        <a href="#" onclick="openModal('privacy')" style="color: var(--accent-primary); text-decoration: none; margin-top: 10px; display: inline-block; font-weight: 600;">Leer Política de Privacidad</a>
+    </footer>
 </div>
 <!-- SCRIPT FIREBASE Y LÓGICA DE NEGOCIO SANITIZADA -->
 <script>
@@ -510,12 +576,16 @@
         document.getElementById('auth-modal').classList.remove('active');
     }
     function switchModalTab(type) {
+        document.getElementById('modal-login-content').style.display = 'none';
+        document.getElementById('modal-register-content').style.display = 'none';
+        if(document.getElementById('modal-privacy-content')) document.getElementById('modal-privacy-content').style.display = 'none';
+
         if (type === 'login') {
             document.getElementById('modal-login-content').style.display = 'block';
-            document.getElementById('modal-register-content').style.display = 'none';
-        } else {
-            document.getElementById('modal-login-content').style.display = 'none';
+        } else if (type === 'register') {
             document.getElementById('modal-register-content').style.display = 'block';
+        } else if (type === 'privacy') {
+            document.getElementById('modal-privacy-content').style.display = 'block';
         }
     }
     function toggleMenu() {
