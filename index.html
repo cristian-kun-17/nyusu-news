@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FIREBASE SDK -->
+    <!-- FIREBASE SDK (sin "defer": deben ejecutarse antes que el script inline del final del body) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -150,16 +150,15 @@
         .content-section { display: none; }
         .content-section.active { display: block; }
         
-        /* PUBLICACIONES / NOTICIAS (GRID RESPONSIVO) */
+        /* PUBLICACIONES / NOTICIAS (GRID INTELIGENTE) */
         #news-container { 
             padding: 0; 
             margin-top: 20px; 
             display: grid; 
-            grid-template-columns: 1fr; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
             gap: 20px; 
+            align-items: start;
         }
-        @media (min-width: 680px) { #news-container { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1024px) { #news-container { grid-template-columns: repeat(3, 1fr); } }
         
         .post {
             background: var(--bg-surface); border-radius: 16px; border: 1px solid var(--border);
