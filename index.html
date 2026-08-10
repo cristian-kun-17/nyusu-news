@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- FIREBASE SDK (sin "defer": deben ejecutarse antes que el script inline del final del body) -->
+    <!-- FIREBASE SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -96,10 +96,16 @@
             box-shadow: 0 6px 16px rgba(139,124,246,0.35); transition: transform 0.15s;
         }
         .modal-submit-btn:hover { transform: translateY(-1px); }
-        /* CONTENEDOR PRINCIPAL */
-        .container { max-width: 720px; margin: 0 auto; }
+        
+        /* CONTENEDOR PRINCIPAL ADAPTATIVO */
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 0 16px;
+        }
+        
         /* PORTADA Y MASTHEAD */
-        .cover-photo { width: 100%; height: clamp(200px, 40vw, 320px); position: relative; overflow: hidden; background: linear-gradient(135deg, #1b1c2b, #2a1f3d); }
+        .cover-photo { width: 100%; height: clamp(200px, 30vw, 360px); position: relative; overflow: hidden; border-radius: 0 0 20px 20px; background: linear-gradient(135deg, #1b1c2b, #2a1f3d); }
         .cover-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .cover-photo::after {
             content: ""; position: absolute; inset: 0;
@@ -108,12 +114,12 @@
         .profile-section { padding: 0 20px; margin-top: -84px; position: relative; z-index: 2; text-align: center; }
         .masthead-kicker { font-family: var(--font-jp); font-size: 11px; letter-spacing: 3px; color: var(--accent-gold); text-transform: uppercase; margin-bottom: 8px; font-weight: 600; }
         .profile-pic {
-            width: 76px; height: 76px; border-radius: 50%; border: 3px solid var(--bg-void);
+            width: 84px; height: 84px; border-radius: 50%; border: 3px solid var(--bg-void);
             background: var(--gradient-brand); object-fit: cover;
             box-shadow: 0 0 0 2px var(--accent-primary), 0 6px 18px rgba(0,0,0,0.4);
         }
         .profile-info h1 {
-            font-family: var(--font-display); font-size: clamp(28px, 8vw, 42px); letter-spacing: 2px;
+            font-family: var(--font-display); font-size: clamp(28px, 6vw, 46px); letter-spacing: 2px;
             margin: 12px 0 4px; text-transform: uppercase;
             background: var(--gradient-brand); -webkit-background-clip: text; background-clip: text; color: transparent;
         }
@@ -129,8 +135,9 @@
         .social-links a:hover { color: #fff; background: var(--gradient-brand); border-color: transparent; transform: translateY(-2px); }
         .visitor-counter { margin-top: 4px; display: inline-flex; align-items: center; background: var(--bg-surface-alt); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); }
         .visitor-counter img { display: block; height: 20px; border-radius: 4px; }
-        /* NAVEGACIÓN (solo visible para admin autenticado) */
-        .nav-bar { display: flex; justify-content: center; align-items: center; background: var(--bg-surface); padding: 8px; margin: 16px 16px 0; border-radius: 999px; border: 1px solid var(--border); }
+        
+        /* NAVEGACIÓN */
+        .nav-bar { display: flex; justify-content: center; align-items: center; background: var(--bg-surface); padding: 8px; margin: 20px 0 0; border-radius: 999px; border: 1px solid var(--border); }
         .nav-tabs { display: flex; gap: 4px; }
         .nav-tab {
             color: var(--text-secondary); font-weight: 600; font-size: 13px; cursor: pointer;
@@ -142,26 +149,35 @@
         .admin-tab.active, .admin-tab:hover { color: #fff; background: var(--gradient-admin); }
         .content-section { display: none; }
         .content-section.active { display: block; }
-        /* PUBLICACIONES / NOTICIAS */
-        #news-container { padding: 4px 16px 0; margin-top: 14px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+        
+        /* PUBLICACIONES / NOTICIAS (GRID RESPONSIVO) */
+        #news-container { 
+            padding: 0; 
+            margin-top: 20px; 
+            display: grid; 
+            grid-template-columns: 1fr; 
+            gap: 20px; 
+        }
         @media (min-width: 680px) { #news-container { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1000px) { #news-container { grid-template-columns: repeat(3, 1fr); } }
+        @media (min-width: 1024px) { #news-container { grid-template-columns: repeat(3, 1fr); } }
+        
         .post {
             background: var(--bg-surface); border-radius: 16px; border: 1px solid var(--border);
-            padding: 16px 16px 18px; position: relative; transition: transform 0.2s, box-shadow 0.2s; overflow: hidden;
+            padding: 20px; position: relative; transition: transform 0.2s, box-shadow 0.2s; overflow: hidden;
+            display: flex; flex-direction: column;
         }
         .post::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient-brand); }
         .post:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-        .post-title { font-family: var(--font-heading); font-weight: 700; font-size: clamp(16px, 4.4vw, 19px); line-height: 1.35; margin: 6px 0 4px; color: var(--text-primary); }
+        .post-title { font-family: var(--font-heading); font-weight: 700; font-size: 18px; line-height: 1.35; margin: 6px 0 4px; color: var(--text-primary); }
         .post-meta { margin: 0; }
         .post-byline { color: var(--accent-gold); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; }
         .post-media { margin-top: 12px; width: 100%; border-radius: 10px; overflow: hidden; background: var(--bg-void); aspect-ratio: 16 / 9; }
         .post-media img, .post-media video { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.4s; }
         .post:hover .post-media img { transform: scale(1.04); }
         .post-media iframe { width: 100%; height: 100%; border: none; display: block; }
-        .post-content { margin-top: 14px; line-height: 1.7; font-size: 14.5px; color: var(--text-secondary); }
+        .post-content { margin-top: 14px; line-height: 1.6; font-size: 14px; color: var(--text-secondary); flex-grow: 1; }
         .post-content::first-letter { font-family: var(--font-display); font-size: 2.2em; float: left; line-height: 0.8; padding: 4px 6px 0 0; color: var(--accent-primary); }
-        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
         .post-age { font-size: 11px; color: var(--text-muted); }
         .post-age-old { color: var(--accent-gold); font-weight: 600; }
         .post-delete-btn {
@@ -170,8 +186,9 @@
             display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; margin-left: auto;
         }
         .post-delete-btn:hover { background: var(--accent-crimson); color: white; }
+        
         /* ADMIN PANEL */
-        .admin-panel-card { background: var(--bg-surface); padding: 20px; border-radius: 16px; margin: 16px 16px 20px; border: 1px solid var(--accent-crimson); }
+        .admin-panel-card { background: var(--bg-surface); padding: 24px; border-radius: 16px; margin: 20px 0; border: 1px solid var(--accent-crimson); }
         .admin-panel-card h3 { font-family: var(--font-heading); display: flex; flex-direction: column; gap: 2px; }
         .section-jp { font-family: var(--font-jp); font-size: 11px; color: var(--accent-gold); letter-spacing: 2px; font-weight: 600; }
         .admin-input, .admin-textarea {
@@ -186,10 +203,10 @@
         }
         .admin-btn { background: var(--gradient-admin); color: white; border: none; padding: 11px 20px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; box-shadow: 0 6px 16px rgba(239,59,86,0.3); }
         .admin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
         .stat-card { background: var(--bg-void); border: 1px solid var(--border); padding: 16px; border-radius: 14px; text-align: center; }
         .stat-card h4 { margin: 0 0 8px; font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.6px; font-weight: 600; }
-        .stat-card .number { font-size: 24px; font-weight: 800; font-family: var(--font-heading); color: var(--accent-primary); }
+        .stat-card .number { font-size: 26px; font-weight: 800; font-family: var(--font-heading); color: var(--accent-primary); }
     </style>
 </head>
 <body>
@@ -265,7 +282,7 @@
     <!-- SECCIÓN: ADMIN PANEL -->
     <div id="admin-section" class="content-section">
         <div id="admin-dashboard" style="display: none;">
-            <div style="display:flex; justify-content:flex-end; margin: 0 16px 4px;">
+            <div style="display:flex; justify-content:flex-end; margin: 0 0 10px;">
                 <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
             </div>
             <div class="admin-panel-card" style="border-color: var(--accent-primary);">
@@ -292,13 +309,13 @@
                 <input type="text" id="admin-name" class="admin-input" placeholder="Tu Nombre o Autor">
                 <input type="file" id="news-media-file" class="admin-input" accept="image/*, video/mp4">
                 <p style="font-size: 11px; color: var(--text-muted); margin: -6px 0 12px;">Imagen o video MP4, opcional, máx. 50MB.</p>
-                <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Escribe el contenido de la noticia..."></textarea>
+                <textarea id="news-content" class="admin-textarea" rows="5" placeholder="Escribe el contenido de la noticia..."></textarea>
                 <button id="btn-publish-news" class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
             </div>
         </div>
     </div>
     <!-- PIE DE PÁGINA -->
-    <footer style="text-align: center; padding: 25px 15px; margin-top: 30px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted);">
+    <footer style="text-align: center; padding: 30px 15px; margin-top: 40px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted);">
         <span onclick="openModal('login')" style="cursor: pointer;">&copy; 2026 NYŪSU NEWS. Todos los derechos reservados.</span><br>
         <a href="#" onclick="openModal('privacy')" style="color: var(--accent-primary); text-decoration: none; margin-top: 10px; display: inline-block; font-weight: 600;">Leer Política de Privacidad</a>
     </footer>
@@ -325,7 +342,7 @@
     let latestNewsData = null;
 
     // ==========================================
-    // 1.5. FECHA DE EDICIÓN (Masthead estilo periódico)
+    // 1.5. FECHA DE EDICIÓN
     // ==========================================
     (function setMastheadDate() {
         const dateEl = document.getElementById('masthead-date');
@@ -366,7 +383,7 @@
     }
 
     // ==========================================
-    // 3. AUTENTICACIÓN (solo Admin, sin registro público)
+    // 3. AUTENTICACIÓN
     // ==========================================
     async function handleLogin(e) {
         e.preventDefault();
@@ -392,17 +409,14 @@
     }
 
     // ==========================================
-    // 4. ESTADO DE SESIÓN Y ESTADÍSTICAS DE VISITAS
+    // 4. ESTADO DE SESIÓN Y VISITAS
     // ==========================================
     auth.onAuthStateChanged((user) => {
-        // Higiene: si por alguna vía externa quedó autenticada una cuenta que no es
-        // la del admin, se cierra la sesión de inmediato (no tiene ningún uso en este sitio).
         if (user && user.email !== ADMIN_EMAIL) {
             auth.signOut();
             return;
         }
 
-        // Incremento de estadísticas de visitas (protegidas por validaciones en las Rules)
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
             const todayKey = new Date().toISOString().split('T')[0];
@@ -423,14 +437,13 @@
         if (isAdminLoggedIn) {
             loadStats();
         } else if (document.getElementById('admin-section').classList.contains('active')) {
-            // Si cerró sesión estando en el panel, regresa al feed público
             switchTab('feed', document.querySelector('.nav-tab'));
         }
-        renderNewsFeed(); // Redibuja el feed para mostrar/ocultar los botones de eliminar
+        renderNewsFeed();
     });
 
     // ==========================================
-    // 5. ESTADÍSTICAS Y GRÁFICO (ADMIN)
+    // 5. ESTADÍSTICAS Y GRÁFICO
     // ==========================================
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
@@ -478,7 +491,7 @@
     }
 
     // ==========================================
-    // 6. SUBIDA DE ARCHIVOS A FIREBASE STORAGE
+    // 6. SUBIDA A STORAGE
     // ==========================================
     function uploadMediaFile(file, progressBtn) {
         return new Promise((resolve, reject) => {
@@ -503,7 +516,7 @@
     }
 
     // ==========================================
-    // 7. PUBLICACIÓN, RENDERIZADO Y BORRADO DE NOTICIAS
+    // 7. PUBLICACIÓN Y BORRADO
     // ==========================================
     async function publishNews() {
         const title = document.getElementById('news-title').value.trim();
@@ -539,7 +552,6 @@
                 mediaPath = uploaded.path;
             }
 
-            // El backend valida authorUid === auth.uid
             await db.ref('news').push({
                 authorUid: auth.currentUser.uid,
                 title: title,
@@ -571,7 +583,6 @@
         try {
             await db.ref(`news/${newsId}`).remove();
             if (mediaPath) {
-                // Borrado del archivo en Storage: best-effort, no bloquea si ya no existe
                 storage.ref(mediaPath).delete().catch((err) => {
                     console.warn('No se pudo borrar el archivo de Storage:', err);
                 });
@@ -582,7 +593,6 @@
         }
     }
 
-    // Reconstrucción segura del DOM a partir de los datos más recientes de /news
     function renderNewsFeed() {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
@@ -608,7 +618,6 @@
             div.appendChild(h3);
             div.appendChild(pAuthor);
 
-            // Multimedia (imagen/video subidos a Storage, o iframe de YouTube de publicaciones antiguas)
             if (item.mediaType === 'image' && item.mediaUrl) {
                 const mediaDiv = document.createElement('div');
                 mediaDiv.className = 'post-media';
@@ -639,7 +648,6 @@
             pContent.textContent = item.content;
             div.appendChild(pContent);
 
-            // Pie del artículo: antigüedad + botón de eliminar (solo admin)
             const footer = document.createElement('div');
             footer.className = 'post-footer';
             if (item.timestamp) {
