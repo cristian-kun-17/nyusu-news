@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a0a12">
     <title>NYŪSU NEWS | Anime & Cultura Japonesa</title>
-
     <!-- Librerías Externas -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Poppins:wght@400;500;600;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- FIREBASE SDK -->
+    <!-- FIREBASE SDK (sin "defer": deben ejecutarse antes que el script inline del final del body) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
     <style>
         :root {
             --bg-void: #0a0a12;
@@ -53,63 +51,12 @@
             -webkit-font-smoothing: antialiased;
             -webkit-tap-highlight-color: transparent;
         }
-        /* BARRA SUPERIOR DE AUTENTICACIÓN */
-        .auth-bar {
-            background: rgba(12,13,20,0.85);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border);
-            padding: 10px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 90;
-            width: 100%;
-        }
-        .auth-brand {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: var(--font-display);
-            letter-spacing: 1px;
-            font-size: 15px;
-            color: var(--text-primary);
-        }
-        .auth-brand .brand-mark {
-            width: 26px; height: 26px; border-radius: 8px;
-            background: var(--gradient-brand);
-            display: flex; align-items: center; justify-content: center;
-            font-family: var(--font-jp); font-size: 12px; font-weight: 700; color: #fff;
-            flex-shrink: 0;
-        }
-        .auth-container { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-        .auth-open-btn {
-            background: var(--gradient-brand);
-            color: white; border: none; padding: 9px 16px; border-radius: 999px;
-            font-weight: 600; cursor: pointer; font-size: 13px;
-            display: inline-flex; align-items: center; gap: 6px;
-            box-shadow: 0 4px 14px rgba(139,124,246,0.35);
-            transition: transform 0.15s, box-shadow 0.15s;
-        }
-        .auth-open-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(139,124,246,0.45); }
-        .auth-open-btn.secondary { background: transparent; color: var(--text-primary); border: 1.5px solid var(--border); box-shadow: none; }
-        .auth-open-btn.secondary:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
-        /* PERFIL EN BARRA SUPERIOR */
-        .user-logged-box {
-            display: flex; align-items: center; gap: 10px; font-size: 13px;
-            background: var(--bg-surface-alt); padding: 5px 6px 5px 12px; border-radius: 999px;
-            border: 1px solid var(--border);
-        }
         .btn-logout {
-            background: transparent; border: none; color: var(--text-secondary);
-            padding: 6px 10px; border-radius: 999px; cursor: pointer; font-size: 12px;
+            background: transparent; border: 1px solid var(--border); color: var(--text-secondary);
+            padding: 6px 12px; border-radius: 999px; cursor: pointer; font-size: 12px;
             display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s;
         }
-        .btn-logout:hover { background: rgba(239,59,86,0.15); color: var(--accent-crimson); }
-        .badge-role { background: var(--gradient-admin); color: white; font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700; letter-spacing: 0.4px; }
-        .badge-user { background: var(--bg-input); color: var(--text-secondary); border: 1px solid var(--border); font-size: 10px; padding: 3px 8px; border-radius: 999px; font-weight: 700; letter-spacing: 0.4px; }
+        .btn-logout:hover { background: rgba(239,59,86,0.15); color: var(--accent-crimson); border-color: var(--accent-crimson); }
         /* VENTANA MODAL GENERAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -137,22 +84,18 @@
         .modal-title { margin: 6px 0 20px; font-size: 21px; font-family: var(--font-heading); font-weight: 700; color: var(--accent-primary); text-align: center; }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 11px; color: var(--text-secondary); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; }
-        .modal-input, .modal-select {
+        .modal-input {
             width: 100%; background: var(--bg-input); border: 1.5px solid var(--border); color: white;
             padding: 11px 12px; border-radius: 10px; font-size: 14px; box-sizing: border-box; font-family: var(--font-heading);
             transition: border-color 0.2s;
         }
-        .modal-input:focus, .modal-select:focus { border-color: var(--accent-primary); outline: none; }
-        .form-row { display: flex; gap: 10px; }
-        .form-row .form-group { flex: 1; }
+        .modal-input:focus { border-color: var(--accent-primary); outline: none; }
         .modal-submit-btn {
             width: 100%; background: var(--gradient-brand); color: white; border: none; padding: 13px;
             border-radius: 10px; font-weight: 700; font-size: 15px; cursor: pointer; margin-top: 8px;
             box-shadow: 0 6px 16px rgba(139,124,246,0.35); transition: transform 0.15s;
         }
         .modal-submit-btn:hover { transform: translateY(-1px); }
-        .modal-footer-text { text-align: center; font-size: 13px; color: var(--text-secondary); margin-top: 16px; }
-        .modal-footer-text a { color: var(--accent-primary); text-decoration: none; font-weight: 600; }
         /* CONTENEDOR PRINCIPAL */
         .container { max-width: 720px; margin: 0 auto; }
         /* PORTADA Y MASTHEAD */
@@ -186,10 +129,9 @@
         .social-links a:hover { color: #fff; background: var(--gradient-brand); border-color: transparent; transform: translateY(-2px); }
         .visitor-counter { margin-top: 4px; display: inline-flex; align-items: center; background: var(--bg-surface-alt); padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); }
         .visitor-counter img { display: block; height: 20px; border-radius: 4px; }
-        /* NAVEGACIÓN */
-        .nav-bar { display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface); padding: 8px; margin: 16px 16px 0; border-radius: 999px; border: 1px solid var(--border); }
-        .nav-tabs { display: flex; gap: 4px; overflow-x: auto; }
-        .nav-tabs::-webkit-scrollbar { display: none; }
+        /* NAVEGACIÓN (solo visible para admin autenticado) */
+        .nav-bar { display: flex; justify-content: center; align-items: center; background: var(--bg-surface); padding: 8px; margin: 16px 16px 0; border-radius: 999px; border: 1px solid var(--border); }
+        .nav-tabs { display: flex; gap: 4px; }
         .nav-tab {
             color: var(--text-secondary); font-weight: 600; font-size: 13px; cursor: pointer;
             padding: 9px 16px; border-radius: 999px; white-space: nowrap; transition: all 0.2s;
@@ -198,15 +140,6 @@
         .nav-tab.active, .nav-tab:hover { color: #fff; background: var(--gradient-brand); }
         .admin-tab { color: var(--accent-crimson); }
         .admin-tab.active, .admin-tab:hover { color: #fff; background: var(--gradient-admin); }
-        .menu-dropdown-container { position: relative; }
-        .menu-btn { background: var(--bg-surface-alt); color: var(--text-primary); border: 1px solid var(--border); padding: 9px 14px; border-radius: 999px; cursor: pointer; font-size: 13px; font-weight: 600; }
-        .dropdown-content {
-            display: none; position: absolute; left: 0; top: 46px; background-color: var(--bg-surface); min-width: 190px;
-            box-shadow: var(--shadow-md); z-index: 10; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; padding: 6px;
-        }
-        .dropdown-content a { color: var(--text-primary); padding: 10px 12px; text-decoration: none; display: flex; align-items: center; gap: 10px; font-size: 13px; border-radius: 8px; }
-        .dropdown-content a:hover { background-color: var(--bg-surface-alt); color: var(--accent-primary); }
-        .show { display: block; }
         .content-section { display: none; }
         .content-section.active { display: block; }
         /* PUBLICACIONES / NOTICIAS */
@@ -228,71 +161,48 @@
         .post-media iframe { width: 100%; height: 100%; border: none; display: block; }
         .post-content { margin-top: 14px; line-height: 1.7; font-size: 14.5px; color: var(--text-secondary); }
         .post-content::first-letter { font-family: var(--font-display); font-size: 2.2em; float: left; line-height: 0.8; padding: 4px 6px 0 0; color: var(--accent-primary); }
+        .post-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .post-age { font-size: 11px; color: var(--text-muted); }
+        .post-age-old { color: var(--accent-gold); font-weight: 600; }
+        .post-delete-btn {
+            background: transparent; border: 1px solid var(--accent-crimson); color: var(--accent-crimson);
+            padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 5px; transition: all 0.15s; margin-left: auto;
+        }
+        .post-delete-btn:hover { background: var(--accent-crimson); color: white; }
         /* ADMIN PANEL */
         .admin-panel-card { background: var(--bg-surface); padding: 20px; border-radius: 16px; margin: 16px 16px 20px; border: 1px solid var(--accent-crimson); }
         .admin-panel-card h3 { font-family: var(--font-heading); display: flex; flex-direction: column; gap: 2px; }
         .section-jp { font-family: var(--font-jp); font-size: 11px; color: var(--accent-gold); letter-spacing: 2px; font-weight: 600; }
-        .admin-input, .admin-textarea, .admin-select {
+        .admin-input, .admin-textarea {
             width: 100%; background: var(--bg-input); border: 1.5px solid var(--border); color: white; padding: 11px 12px;
             border-radius: 10px; margin-bottom: 12px; box-sizing: border-box; font-size: 14px; font-family: var(--font-heading);
         }
-        .admin-input:focus, .admin-textarea:focus, .admin-select:focus { outline: none; border-color: var(--accent-crimson); }
+        .admin-input:focus, .admin-textarea:focus { outline: none; border-color: var(--accent-crimson); }
+        .admin-input[type="file"] { padding: 9px 12px; color: var(--text-secondary); }
+        .admin-input[type="file"]::file-selector-button {
+            background: var(--gradient-brand); color: white; border: none; border-radius: 999px;
+            padding: 7px 14px; margin-right: 10px; font-weight: 600; font-size: 12px; cursor: pointer;
+        }
         .admin-btn { background: var(--gradient-admin); color: white; border: none; padding: 11px 20px; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 14px; box-shadow: 0 6px 16px rgba(239,59,86,0.3); }
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; }
-        .users-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12.5px; min-width: 560px; }
-        .users-table th, .users-table td { border: 1px solid var(--border); padding: 9px 10px; text-align: left; }
-        .users-table th { background: var(--bg-void); color: var(--accent-primary); text-transform: uppercase; font-size: 11px; letter-spacing: 0.4px; }
+        .admin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
         .stat-card { background: var(--bg-void); border: 1px solid var(--border); padding: 16px; border-radius: 14px; text-align: center; }
         .stat-card h4 { margin: 0 0 8px; font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.6px; font-weight: 600; }
         .stat-card .number { font-size: 24px; font-weight: 800; font-family: var(--font-heading); color: var(--accent-primary); }
-        /* COMUNIDAD */
-        .community-box { background: var(--bg-surface); margin: 16px 16px 20px; padding: 18px; border-radius: 16px; border: 1px solid var(--border); }
-        .community-box h3 { font-family: var(--font-heading); margin-top: 0; display: flex; flex-direction: column; gap: 2px; }
-        .chat-messages { background: var(--bg-void); height: 280px; border-radius: 12px; padding: 12px; overflow-y: auto; margin-bottom: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
-        .chat-messages::-webkit-scrollbar { width: 6px; }
-        .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
-        .chat-msg { background: var(--bg-surface-alt); padding: 9px 12px; border-radius: 10px; font-size: 13.5px; max-width: 88%; align-self: flex-start; }
-        .chat-msg strong { color: var(--accent-primary); display: block; font-size: 11px; margin-bottom: 2px; }
-        .msg-text { color: var(--text-primary); word-break: break-word; }
-        .chat-input-area { display: flex; gap: 8px; }
-        .chat-input-area input { flex: 1; background: var(--bg-input); border: 1.5px solid var(--border); padding: 11px 14px; border-radius: 999px; color: white; font-size: 14px; }
-        .chat-input-area input:focus { outline: none; border-color: var(--accent-primary); }
-        .chat-input-area button { background: var(--gradient-brand); color: white; border: none; padding: 11px 18px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 13px; }
     </style>
 </head>
 <body>
-<!-- BARRA SUPERIOR -->
-<div class="auth-bar">
-    <div class="auth-brand"><span class="brand-mark">日</span>NYŪSU</div>
-    <div class="auth-container">
-        <!-- VISTA INVITADO -->
-        <div id="auth-guest-section" style="display: flex; gap: 10px;">
-            <button class="auth-open-btn secondary" onclick="openModal('login')"><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</button>
-            <button class="auth-open-btn" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> Registrarse</button>
-        </div>
-        <!-- VISTA USUARIO -->
-        <div id="auth-user-section" class="user-logged-box" style="display: none;">
-            <div>
-                <i class="fa-solid fa-user-check" style="color: var(--accent-success);"></i>
-                <span id="current-user-name" style="font-weight: bold; margin-left: 5px;">Usuario</span>
-                <span id="current-user-role" class="badge-user">USER</span>
-            </div>
-            <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
-        </div>
-    </div>
-</div>
-<!-- MODAL LOGIN/REGISTRO -->
+<!-- MODAL LOGIN / PRIVACIDAD -->
 <div id="auth-modal" class="modal-overlay">
     <div class="modal-card">
         <button class="modal-close-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-
         <div id="modal-login-content">
-            <h2 class="modal-title"><i class="fa-solid fa-user-lock"></i> Iniciar Sesión</h2>
+            <h2 class="modal-title"><i class="fa-solid fa-lock"></i> Acceso Privado</h2>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label>Correo o Usuario</label>
-                    <input type="text" id="login-identifier" class="modal-input" placeholder="ejemplo@correo.com o tu usuario" required>
+                    <label>Correo</label>
+                    <input type="email" id="login-email" class="modal-input" placeholder="correo@ejemplo.com" required>
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
@@ -300,63 +210,19 @@
                 </div>
                 <button type="submit" id="btn-login-submit" class="modal-submit-btn">Entrar</button>
             </form>
-            <div class="modal-footer-text">
-                ¿Aún no tienes cuenta? <a href="#" onclick="switchModalTab('register')">Regístrate aquí</a>
-            </div>
         </div>
-        <div id="modal-register-content" style="display: none;">
-            <h2 class="modal-title" style="color: var(--accent-gold);"><i class="fa-solid fa-user-plus"></i> Crear Cuenta</h2>
-            <form onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label>Nombre de Usuario</label>
-                    <input type="text" id="reg-username" class="modal-input" placeholder="Tu apodo o nombre" required>
-                </div>
-                <div class="form-group">
-                    <label>Correo Electrónico</label>
-                    <input type="email" id="reg-email" class="modal-input" placeholder="correo@ejemplo.com" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Edad</label>
-                        <input type="number" id="reg-age" class="modal-input" placeholder="Ej: 21" min="10" max="100" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Género</label>
-                        <select id="reg-gender" class="modal-select" required>
-                            <option value="" disabled selected>Selecciona</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                            <option value="Otro">Otro</option>
-                            <option value="Prefiero no decirlo">Prefiero no decirlo</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Contraseña</label>
-                    <input type="password" id="reg-pass" class="modal-input" placeholder="Mínimo 6 caracteres" required>
-                </div>
-                <button type="submit" id="btn-register-submit" class="modal-submit-btn" style="background: var(--accent-gold); color: #1a1200;">Registrarme</button>
-            </form>
-            <div class="modal-footer-text">
-                ¿Ya tienes una cuenta? <a href="#" onclick="switchModalTab('login')">Inicia sesión</a>
-            </div>
-        </div>
-        <!-- POLÍTICA DE PRIVACIDAD MODAL -->
+        <!-- POLÍTICA DE PRIVACIDAD -->
         <div id="modal-privacy-content" style="display: none; text-align: left; overflow-y: auto; padding-right: 10px;">
             <h2 class="modal-title" style="color: var(--accent-primary);"><i class="fa-solid fa-shield-halved"></i> Política de Privacidad</h2>
             <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
                 <p><strong>Última actualización: 9 de agosto de 2026</strong></p>
                 <p>En NYŪSU NEWS respetamos la privacidad de nuestros visitantes. Esta Política de Privacidad explica de manera breve qué información puede recopilar nuestro sitio y cómo puede utilizarse.</p>
-                
                 <h4 style="color: var(--text-primary); margin-bottom: 4px;">1. Información recopilada</h4>
-                <p style="margin-top: 0;">Recopilamos información técnica básica (IP, dispositivo, navegador) con fines estadísticos y de seguridad. Si usas formularios o te registras, solo guardamos los datos que decides proporcionar.</p>
-                
+                <p style="margin-top: 0;">Recopilamos información técnica básica (IP, dispositivo, navegador) con fines estadísticos y de seguridad.</p>
                 <h4 style="color: var(--text-primary); margin-bottom: 4px;">2. Uso de la información</h4>
-                <p style="margin-top: 0;">Se utiliza para mejorar NYŪSU NEWS, analizar visitas, mantener la seguridad y gestionar tu cuenta. <strong>No vendemos ni comercializamos tu información personal.</strong></p>
-                
+                <p style="margin-top: 0;">Se utiliza para mejorar NYŪSU NEWS, analizar visitas y mantener la seguridad del sitio. <strong>No vendemos ni comercializamos tu información personal.</strong></p>
                 <h4 style="color: var(--text-primary); margin-bottom: 4px;">3. Cookies</h4>
                 <p style="margin-top: 0;">Podemos usar cookies para mejorar la navegación o mostrar contenido relevante. Puedes desactivarlas en tu navegador.</p>
-                
                 <h4 style="color: var(--text-primary); margin-bottom: 4px;">4. Enlaces externos y Cambios</h4>
                 <p style="margin-top: 0;">No somos responsables de las políticas de sitios externos enlazados. Esta política puede actualizarse para reflejar cambios en la normativa.</p>
             </div>
@@ -385,21 +251,11 @@
             </div>
         </div>
     </div>
-    <!-- NAVEGACIÓN PRINCIPAL -->
-    <div class="nav-bar">
-        <div class="menu-dropdown-container">
-            <button onclick="toggleMenu()" class="menu-btn"><i class="fa-solid fa-bars"></i> Menú</button>
-            <div id="dropdownMenu" class="dropdown-content">
-                <a href="#" onclick="switchTab('chat', null)"><i class="fa-solid fa-comments"></i> Chat en Vivo</a>
-                <a href="#" onclick="switchTab('foro', null)"><i class="fa-solid fa-users"></i> Foro Comunitario</a>
-                <a href="#" onclick="switchTab('feed', null)"><i class="fa-solid fa-newspaper"></i> Ver Noticias</a>
-                <a href="#" id="admin-menu-link" onclick="switchTab('admin', null)" style="color: var(--accent-crimson); display: none;"><i class="fa-solid fa-key"></i> Panel de Control</a>
-            </div>
-        </div>
+    <!-- NAVEGACIÓN (oculta hasta iniciar sesión como admin) -->
+    <div id="nav-bar" class="nav-bar" style="display: none;">
         <div class="nav-tabs">
             <span class="nav-tab active" onclick="switchTab('feed', this)">Noticias</span>
-            <span class="nav-tab" onclick="switchTab('foro', this)">Foro</span>
-            <span id="admin-tab-nav" class="nav-tab admin-tab" onclick="switchTab('admin', this)" style="display: none;"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
+            <span id="admin-tab-nav" class="nav-tab admin-tab" onclick="switchTab('admin', this)"><i class="fa-solid fa-user-shield"></i> Admin Panel</span>
         </div>
     </div>
     <!-- SECCIÓN: NOTICIAS GLOBALES -->
@@ -409,6 +265,9 @@
     <!-- SECCIÓN: ADMIN PANEL -->
     <div id="admin-section" class="content-section">
         <div id="admin-dashboard" style="display: none;">
+            <div style="display:flex; justify-content:flex-end; margin: 0 16px 4px;">
+                <button onclick="handleLogout()" class="btn-logout"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+            </div>
             <div class="admin-panel-card" style="border-color: var(--accent-primary);">
                 <h3><span class="section-jp">統計</span>Estadísticas de Visitas</h3>
                 <div class="stats-grid">
@@ -420,38 +279,10 @@
                         <h4>VISITAS HOY</h4>
                         <div class="number" style="color: var(--accent-success);" id="stat-today">0</div>
                     </div>
-                    <div class="stat-card">
-                        <h4>USUARIOS REGISTRADOS</h4>
-                        <div class="number" style="color: var(--accent-primary);" id="stat-registered">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <h4>VISITANTES ANÓNIMOS</h4>
-                        <div class="number" style="color: var(--accent-gold);" id="stat-anonymous">0</div>
-                    </div>
                 </div>
                 <div style="background: var(--bg-void); padding: 15px; border-radius: 12px;">
                     <h4 style="margin-top:0;">Tendencia de Tráfico</h4>
                     <canvas id="visitsChart" height="140"></canvas>
-                </div>
-            </div>
-            <!-- MODERACIÓN -->
-            <div class="admin-panel-card" style="border-color: var(--accent-gold);">
-                <h3><span class="section-jp">管理</span>Moderación de Usuarios</h3>
-                <div class="table-scroll">
-                    <table class="users-table">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Correo</th>
-                                <th>Edad</th>
-                                <th>Género</th>
-                                <th>Rol</th>
-                                <th>Estado</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="users-table-body"></tbody>
-                    </table>
                 </div>
             </div>
             <!-- PUBLICAR NOTICIA -->
@@ -459,49 +290,20 @@
                 <h3><span class="section-jp">編集部</span>Publicar Noticia o Artículo</h3>
                 <input type="text" id="news-title" class="admin-input" placeholder="Título de la noticia">
                 <input type="text" id="admin-name" class="admin-input" placeholder="Tu Nombre o Autor">
-
-                <select id="news-media-type" class="admin-select" onchange="toggleMediaInput()">
-                    <option value="none">Solo Texto</option>
-                    <option value="image">Imagen JPG/PNG (URL o Enlace)</option>
-                    <option value="video">Vídeo MP4 o YouTube (Enlace)</option>
-                </select>
-                <div id="media-url-container" style="display: none; margin-bottom: 12px;">
-                    <input type="text" id="news-media-url" class="admin-input" placeholder="Pega el enlace web del archivo .jpg, .mp4 o YouTube">
-                </div>
+                <input type="file" id="news-media-file" class="admin-input" accept="image/*, video/mp4">
+                <p style="font-size: 11px; color: var(--text-muted); margin: -6px 0 12px;">Imagen o video MP4, opcional, máx. 50MB.</p>
                 <textarea id="news-content" class="admin-textarea" rows="4" placeholder="Escribe el contenido de la noticia..."></textarea>
-                <button class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
-            </div>
-        </div>
-    </div>
-    <!-- SECCIÓN: FORO -->
-    <div id="foro-section" class="content-section">
-        <div class="community-box">
-            <h3><span class="section-jp">フォーラム</span>Foro de Discusión</h3>
-            <div class="chat-messages" id="foro-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="foro-input" placeholder="Escribe algo en el foro...">
-                <button onclick="sendForo()">Publicar</button>
-            </div>
-        </div>
-    </div>
-    <!-- SECCIÓN: CHAT -->
-    <div id="chat-section" class="content-section">
-        <div class="community-box">
-            <h3><span class="section-jp">チャット</span>Chat en Vivo</h3>
-            <div class="chat-messages" id="chat-box"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Escribe un mensaje...">
-                <button onclick="sendChat()">Enviar</button>
+                <button id="btn-publish-news" class="admin-btn" onclick="publishNews()">Publicar Noticia</button>
             </div>
         </div>
     </div>
     <!-- PIE DE PÁGINA -->
     <footer style="text-align: center; padding: 25px 15px; margin-top: 30px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted);">
-        &copy; 2026 NYŪSU NEWS. Todos los derechos reservados.<br>
+        <span onclick="openModal('login')" style="cursor: pointer;">&copy; 2026 NYŪSU NEWS. Todos los derechos reservados.</span><br>
         <a href="#" onclick="openModal('privacy')" style="color: var(--accent-primary); text-decoration: none; margin-top: 10px; display: inline-block; font-weight: 600;">Leer Política de Privacidad</a>
     </footer>
 </div>
-<!-- SCRIPT FIREBASE Y LÓGICA DE NEGOCIO SANITIZADA -->
+<!-- SCRIPT FIREBASE Y LÓGICA DE NEGOCIO -->
 <script>
     // ==========================================
     // 1. CONFIGURACIÓN FIREBASE
@@ -515,8 +317,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const auth = firebase.auth();
+    const storage = firebase.storage();
+    const ADMIN_EMAIL = 'cristianjembuel@gmail.com';
     let chartInstance = null;
-    let currentUserData = null;
+    let isAdminLoggedIn = false;
+    let latestNewsData = null;
 
     // ==========================================
     // 1.5. FECHA DE EDICIÓN (Masthead estilo periódico)
@@ -530,43 +335,7 @@
     })();
 
     // ==========================================
-    // 2. UTILIDADES DE SEGURIDAD (XSS y Validación)
-    // ==========================================
-
-    // Convertir texto a texto seguro para el DOM
-    function sanitizeText(str) {
-        if (!str) return '';
-        const temp = document.createElement('div');
-        temp.textContent = str;
-        return temp.innerHTML;
-    }
-    // Validación estricta de esquemas URL
-    function getSafeMediaUrl(inputUrl, mediaType) {
-        if (!inputUrl) return '';
-        try {
-            const urlObj = new URL(inputUrl.trim());
-            // Rechazar esquemas peligrosos como javascript:, data:, etc.
-            if (urlObj.protocol !== 'http:' && urlObj.protocol !== 'https:') return '';
-
-            if (mediaType === 'video') {
-                const host = urlObj.hostname.toLowerCase();
-                // Validar YouTube explícitamente para IFrames
-                if (host.includes('youtube.com')) {
-                    const videoId = urlObj.searchParams.get('v');
-                    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
-                }
-                if (host.includes('youtu.be')) {
-                    const videoId = urlObj.pathname.slice(1);
-                    return videoId ? `https://www.youtube.com/embed/${videoId}` : '';
-                }
-            }
-            return urlObj.href;
-        } catch (e) {
-            return ''; // Si la URL es inválida o malformada, retornar vacío
-        }
-    }
-    // ==========================================
-    // 3. UI Y NAVEGACIÓN ESTÁTICA
+    // 2. UI Y NAVEGACIÓN
     // ==========================================
     function openModal(type) {
         document.getElementById('auth-modal').classList.add('active');
@@ -577,113 +346,37 @@
     }
     function switchModalTab(type) {
         document.getElementById('modal-login-content').style.display = 'none';
-        document.getElementById('modal-register-content').style.display = 'none';
-        if(document.getElementById('modal-privacy-content')) document.getElementById('modal-privacy-content').style.display = 'none';
-
+        document.getElementById('modal-privacy-content').style.display = 'none';
         if (type === 'login') {
             document.getElementById('modal-login-content').style.display = 'block';
-        } else if (type === 'register') {
-            document.getElementById('modal-register-content').style.display = 'block';
         } else if (type === 'privacy') {
             document.getElementById('modal-privacy-content').style.display = 'block';
         }
     }
-    function toggleMenu() {
-        document.getElementById("dropdownMenu").classList.toggle("show");
-    }
     window.onclick = function(event) {
         const modal = document.getElementById('auth-modal');
         if (event.target === modal) closeModal();
-        if (!event.target.matches('.menu-btn') && !event.target.closest('.menu-btn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            for (let i = 0; i < dropdowns.length; i++) {
-                if (dropdowns[i].classList.contains('show')) {
-                    dropdowns[i].classList.remove('show');
-                }
-            }
-        }
     }
     function switchTab(tabId, element) {
         document.querySelectorAll('.content-section').forEach(sec => sec.classList.remove('active'));
         document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
         document.getElementById(tabId + '-section').classList.add('active');
         if (element) element.classList.add('active');
-        document.getElementById("dropdownMenu").classList.remove("show");
     }
-    function toggleMediaInput() {
-        const type = document.getElementById('news-media-type').value;
-        const container = document.getElementById('media-url-container');
-        if (type === 'none') {
-            container.style.display = 'none';
-        } else {
-            container.style.display = 'block';
-        }
-    }
+
     // ==========================================
-    // 4. AUTENTICACIÓN
+    // 3. AUTENTICACIÓN (solo Admin, sin registro público)
     // ==========================================
-    async function handleRegister(e) {
-        e.preventDefault();
-        const username = document.getElementById('reg-username').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const age = parseInt(document.getElementById('reg-age').value.trim(), 10);
-        const gender = document.getElementById('reg-gender').value;
-        const pass = document.getElementById('reg-pass').value.trim();
-        const btn = document.getElementById('btn-register-submit');
-        if (!username || !email || isNaN(age) || !gender || !pass) {
-            return alert('Por favor llena todos los campos correctamente.');
-        }
-        try {
-            btn.innerText = 'Creando cuenta...';
-            btn.disabled = true;
-            const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
-            const user = userCredential.user;
-            // Seguridad: El Frontend ASIGNA 'user'. El backend valida si es Admin a través de Rules.
-            const assignedRole = (email.toLowerCase() === 'cristianjembuel@gmail.com') ? 'admin' : 'user';
-            const userData = {
-                uid: user.uid,
-                username: username,
-                email: email,
-                age: age,
-                gender: gender,
-                role: assignedRole,
-                isBlocked: false,
-                createdAt: firebase.database.ServerValue.TIMESTAMP
-            };
-            await db.ref(`users/${user.uid}`).set(userData);
-            alert('¡Registro exitoso! Bienvenido.');
-            closeModal();
-        } catch (error) {
-            console.error("Error al registrar:", error);
-            alert('Error en el registro: ' + error.message);
-        } finally {
-            btn.innerText = 'Registrarme';
-            btn.disabled = false;
-        }
-    }
     async function handleLogin(e) {
         e.preventDefault();
-        const identifier = document.getElementById('login-identifier').value.trim();
+        const email = document.getElementById('login-email').value.trim();
         const pass = document.getElementById('login-pass').value.trim();
         const btn = document.getElementById('btn-login-submit');
-        if (!identifier || !pass) return alert('Ingresa tu usuario/correo y contraseña.');
-        let emailToAuth = identifier;
+        if (!email || !pass) return alert('Ingresa correo y contraseña.');
         try {
             btn.innerText = 'Entrando...';
             btn.disabled = true;
-            // Consultar DB si se ingresó Username (La lectura global permite esto en las reglas)
-            if (!identifier.includes('@')) {
-                const snapshot = await db.ref('users').orderByChild('username').equalTo(identifier).once('value');
-                const users = snapshot.val();
-                if (users) {
-                    const firstKey = Object.keys(users)[0];
-                    emailToAuth = users[firstKey].email;
-                } else {
-                    alert('No existe un usuario con ese nombre.');
-                    return;
-                }
-            }
-            await auth.signInWithEmailAndPassword(emailToAuth, pass);
+            await auth.signInWithEmailAndPassword(email, pass);
             closeModal();
         } catch (error) {
             console.error("Error en login:", error);
@@ -696,15 +389,22 @@
     function handleLogout() {
         auth.signOut();
     }
+
     // ==========================================
-    // 5. MANEJO DE ESTADO Y ESTADÍSTICAS
+    // 4. ESTADO DE SESIÓN Y ESTADÍSTICAS DE VISITAS
     // ==========================================
     auth.onAuthStateChanged((user) => {
-        // Lógica de Incremento de Estadísticas (Protegidas por validaciones backend en +1)
+        // Higiene: si por alguna vía externa quedó autenticada una cuenta que no es
+        // la del admin, se cierra la sesión de inmediato (no tiene ningún uso en este sitio).
+        if (user && user.email !== ADMIN_EMAIL) {
+            auth.signOut();
+            return;
+        }
+
+        // Incremento de estadísticas de visitas (protegidas por validaciones en las Rules)
         if (!sessionStorage.getItem('visit_counted')) {
             sessionStorage.setItem('visit_counted', 'true');
             const todayKey = new Date().toISOString().split('T')[0];
-
             try {
                 db.ref('stats/total_visits').transaction(curr => (curr || 0) + 1).catch(() => {});
                 db.ref(`stats/daily_visits/${todayKey}`).transaction(curr => (curr || 0) + 1).catch(() => {});
@@ -714,53 +414,22 @@
                 console.warn('Silencio transacciones fallidas de stats', e);
             }
         }
-        if (user) {
-            db.ref(`users/${user.uid}`).on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data) {
-                    // Check de seguridad
-                    if (data.isBlocked) {
-                        alert('Tu cuenta ha sido bloqueada/suspendida.');
-                        handleLogout();
-                        return;
-                    }
 
-                    currentUserData = data;
+        isAdminLoggedIn = !!user;
+        document.getElementById('nav-bar').style.display = isAdminLoggedIn ? 'flex' : 'none';
+        document.getElementById('admin-dashboard').style.display = isAdminLoggedIn ? 'block' : 'none';
 
-                    // UI adjustments
-                    document.getElementById('auth-guest-section').style.display = 'none';
-                    document.getElementById('auth-user-section').style.display = 'flex';
-                    document.getElementById('current-user-name').textContent = data.username; // Uso seguro textContent
-                    const roleBadge = document.getElementById('current-user-role');
-                    roleBadge.textContent = data.role.toUpperCase();
-                    roleBadge.className = data.role === 'admin' ? 'badge-role' : 'badge-user';
-                    // Los roles aquí se usan solo para mostrar/ocultar UI. La seguridad está en el backend.
-                    if (data.role === 'admin') {
-                        document.getElementById('admin-tab-nav').style.display = 'inline-block';
-                        document.getElementById('admin-menu-link').style.display = 'flex';
-                        document.getElementById('admin-dashboard').style.display = 'block';
-                        loadStats();
-                        loadUsersList();
-                    } else {
-                        document.getElementById('admin-tab-nav').style.display = 'none';
-                        document.getElementById('admin-menu-link').style.display = 'none';
-                        document.getElementById('admin-dashboard').style.display = 'none';
-                    }
-                }
-            }, (error) => {
-                console.error("Error cargando perfil (posible PERMISSION_DENIED):", error);
-            });
-        } else {
-            currentUserData = null;
-            document.getElementById('auth-guest-section').style.display = 'flex';
-            document.getElementById('auth-user-section').style.display = 'none';
-            document.getElementById('admin-tab-nav').style.display = 'none';
-            document.getElementById('admin-menu-link').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'none';
+        if (isAdminLoggedIn) {
+            loadStats();
+        } else if (document.getElementById('admin-section').classList.contains('active')) {
+            // Si cerró sesión estando en el panel, regresa al feed público
+            switchTab('feed', document.querySelector('.nav-tab'));
         }
+        renderNewsFeed(); // Redibuja el feed para mostrar/ocultar los botones de eliminar
     });
+
     // ==========================================
-    // 6. CARGA DE ESTADÍSTICAS Y USUARIOS (ADMIN)
+    // 5. ESTADÍSTICAS Y GRÁFICO (ADMIN)
     // ==========================================
     function loadStats() {
         db.ref('stats').on('value', (snapshot) => {
@@ -768,21 +437,18 @@
             document.getElementById('stat-total').textContent = stats.total_visits || 0;
             const todayKey = new Date().toISOString().split('T')[0];
             document.getElementById('stat-today').textContent = (stats.daily_visits && stats.daily_visits[todayKey]) || 0;
-            document.getElementById('stat-registered').textContent = (stats.visits && stats.visits.registered) || 0;
-            document.getElementById('stat-anonymous').textContent = (stats.visits && stats.visits.anonymous) || 0;
             if (stats.daily_visits) updateVisitsChart(stats.daily_visits);
         }, (err) => console.log('Stats Error:', err));
     }
+
     function updateVisitsChart(dailyVisits) {
         const dates = Object.keys(dailyVisits).sort().slice(-7);
         const counts = dates.map(d => dailyVisits[d]);
         const ctx = document.getElementById('visitsChart').getContext('2d');
         if (chartInstance) chartInstance.destroy();
-
         const gradient = ctx.createLinearGradient(0, 0, 0, 160);
         gradient.addColorStop(0, 'rgba(139, 124, 246, 0.45)');
         gradient.addColorStop(1, 'rgba(139, 124, 246, 0)');
-
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -809,86 +475,77 @@
             }
         });
     }
-    function loadUsersList() {
-        db.ref('users').on('value', (snapshot) => {
-            const users = snapshot.val() || {};
-            const tbody = document.getElementById('users-table-body');
-            tbody.innerHTML = ''; // Limpiar de forma segura, el renderizado es DOM Creation
-            Object.keys(users).forEach(uid => {
-                const u = users[uid];
 
-                const tr = document.createElement('tr');
-
-                // Creación Segura de Columnas para Prevenir XSS
-                const tdUser = document.createElement('td'); tdUser.textContent = u.username || 'Sin nombre';
-                const tdEmail = document.createElement('td'); tdEmail.textContent = u.email || '';
-                const tdAge = document.createElement('td'); tdAge.textContent = u.age || 'N/A';
-                const tdGender = document.createElement('td'); tdGender.textContent = u.gender || 'N/A';
-
-                const tdRole = document.createElement('td');
-                const spanRole = document.createElement('span');
-                spanRole.className = u.role === 'admin' ? 'badge-role' : 'badge-user';
-                spanRole.textContent = (u.role || '').toUpperCase();
-                tdRole.appendChild(spanRole);
-                const tdState = document.createElement('td');
-                const spanState = document.createElement('span');
-                spanState.style.color = u.isBlocked ? 'var(--accent-crimson)' : 'var(--accent-success)';
-                spanState.textContent = u.isBlocked ? 'Bloqueado' : 'Activo';
-                tdState.appendChild(spanState);
-                const tdAction = document.createElement('td');
-                if (u.role !== 'admin') {
-                    const btn = document.createElement('button');
-                    btn.className = 'admin-btn';
-                    btn.style.padding = '4px 8px';
-                    btn.style.fontSize = '11px';
-                    btn.style.background = u.isBlocked ? 'var(--accent-success)' : 'var(--accent-crimson)';
-                    btn.textContent = u.isBlocked ? 'Desbloquear' : 'Bloquear';
-
-                    // Asignación segura del evento de bloqueo
-                    btn.addEventListener('click', async () => {
-                        try {
-                            await db.ref(`users/${uid}/isBlocked`).set(!u.isBlocked);
-                        } catch (error) {
-                            alert("Permiso Denegado. No eres Administrador.");
-                        }
-                    });
-                    tdAction.appendChild(btn);
-                } else {
-                    tdAction.textContent = 'N/A';
-                }
-                tr.appendChild(tdUser);
-                tr.appendChild(tdEmail);
-                tr.appendChild(tdAge);
-                tr.appendChild(tdGender);
-                tr.appendChild(tdRole);
-                tr.appendChild(tdState);
-                tr.appendChild(tdAction);
-                tbody.appendChild(tr);
-            });
-        }, (err) => console.log('Users Error:', err));
-    }
     // ==========================================
-    // 7. PUBLICACIÓN Y RENDERIZADO DE NOTICIAS
+    // 6. SUBIDA DE ARCHIVOS A FIREBASE STORAGE
+    // ==========================================
+    function uploadMediaFile(file, progressBtn) {
+        return new Promise((resolve, reject) => {
+            const filePath = `news_media/${Date.now()}_${file.name}`;
+            const uploadTask = storage.ref(filePath).put(file);
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const pct = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    if (progressBtn) progressBtn.innerText = `Subiendo... ${pct}%`;
+                },
+                (error) => reject(error),
+                async () => {
+                    try {
+                        const url = await uploadTask.snapshot.ref.getDownloadURL();
+                        resolve({ url, path: filePath });
+                    } catch (err) {
+                        reject(err);
+                    }
+                }
+            );
+        });
+    }
+
+    // ==========================================
+    // 7. PUBLICACIÓN, RENDERIZADO Y BORRADO DE NOTICIAS
     // ==========================================
     async function publishNews() {
         const title = document.getElementById('news-title').value.trim();
         const authorName = document.getElementById('admin-name').value.trim();
-        const mediaType = document.getElementById('news-media-type').value;
-        const mediaUrlRaw = document.getElementById('news-media-url').value.trim();
         const content = document.getElementById('news-content').value.trim();
+        const fileInput = document.getElementById('news-media-file');
+        const file = fileInput.files[0];
+        const btn = document.getElementById('btn-publish-news');
+
         if (!title || !authorName || !content) {
             return alert('Por favor llena los campos de título, autor y contenido.');
         }
-        const safeMediaUrl = getSafeMediaUrl(mediaUrlRaw, mediaType);
+
+        if (file) {
+            const isImage = file.type.startsWith('image/');
+            const isMp4 = file.type === 'video/mp4';
+            if (!isImage && !isMp4) return alert('Solo se permiten imágenes o videos MP4.');
+            if (file.size > 50 * 1024 * 1024) return alert('El archivo no puede superar 50MB.');
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'Publicando...';
 
         try {
+            let mediaType = 'none';
+            let mediaUrl = '';
+            let mediaPath = '';
+
+            if (file) {
+                mediaType = file.type.startsWith('video/') ? 'video' : 'image';
+                const uploaded = await uploadMediaFile(file, btn);
+                mediaUrl = uploaded.url;
+                mediaPath = uploaded.path;
+            }
+
             // El backend valida authorUid === auth.uid
             await db.ref('news').push({
-                authorUid: auth.currentUser.uid, // OBLIGATORIO PARA AUTORIZACIÓN
+                authorUid: auth.currentUser.uid,
                 title: title,
-                author: authorName, // Mantenido por visualización de la UI
+                author: authorName,
                 mediaType: mediaType,
-                mediaUrl: safeMediaUrl,
+                mediaUrl: mediaUrl,
+                mediaPath: mediaPath,
                 content: content,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
@@ -896,130 +553,119 @@
             alert('¡Noticia publicada con éxito!');
             document.getElementById('news-title').value = '';
             document.getElementById('admin-name').value = '';
-            document.getElementById('news-media-url').value = '';
-            document.getElementById('news-media-type').value = 'none';
-            document.getElementById('media-url-container').style.display = 'none';
             document.getElementById('news-content').value = '';
-
+            fileInput.value = '';
             switchTab('feed', document.querySelector('.nav-tab'));
         } catch (error) {
-            alert('PERMISSION_DENIED: Solo los administradores pueden publicar noticias.');
+            console.error('Error al publicar:', error);
+            alert('No se pudo publicar la noticia: ' + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = 'Publicar Noticia';
         }
     }
-    // Cargar Noticias en Tiempo Real (Reconstrucción Segura del DOM)
-    db.ref('news').on('value', (snapshot) => {
+
+    async function deleteNewsItem(newsId, mediaPath) {
+        if (!confirm('¿Eliminar esta noticia de forma permanente?')) return;
+        try {
+            await db.ref(`news/${newsId}`).remove();
+            if (mediaPath) {
+                // Borrado del archivo en Storage: best-effort, no bloquea si ya no existe
+                storage.ref(mediaPath).delete().catch((err) => {
+                    console.warn('No se pudo borrar el archivo de Storage:', err);
+                });
+            }
+        } catch (error) {
+            console.error('Error al eliminar noticia:', error);
+            alert('No se pudo eliminar la noticia. Verifica tu sesión de administrador.');
+        }
+    }
+
+    // Reconstrucción segura del DOM a partir de los datos más recientes de /news
+    function renderNewsFeed() {
         const container = document.getElementById('news-container');
         container.innerHTML = '';
+        const data = latestNewsData;
+        if (!data) return;
 
-        const data = snapshot.val();
-        if (data) {
-            Object.keys(data).reverse().forEach(key => {
-                const item = data[key];
+        Object.keys(data).reverse().forEach(key => {
+            const item = data[key];
+            const div = document.createElement('div');
+            div.className = 'post';
 
-                const div = document.createElement('div');
-                div.className = 'post';
-                // Título
-                const h3 = document.createElement('h3');
-                h3.className = 'post-title';
-                h3.textContent = item.title;
+            const h3 = document.createElement('h3');
+            h3.className = 'post-title';
+            h3.textContent = item.title;
 
-                // Autor
-                const pAuthor = document.createElement('p');
-                pAuthor.className = 'post-meta';
-                const smallAuthor = document.createElement('small');
-                smallAuthor.className = 'post-byline';
-                smallAuthor.textContent = `Por ${item.author || 'Anónimo'}`;
-                pAuthor.appendChild(smallAuthor);
-                div.appendChild(h3);
-                div.appendChild(pAuthor);
-                // Multimedia Segura
-                if (item.mediaType === 'image' && item.mediaUrl) {
-                    const mediaDiv = document.createElement('div');
-                    mediaDiv.className = 'post-media';
-                    const img = document.createElement('img');
-                    img.src = item.mediaUrl;
-                    mediaDiv.appendChild(img);
-                    div.appendChild(mediaDiv);
-                } else if (item.mediaType === 'video' && item.mediaUrl) {
-                    const mediaDiv = document.createElement('div');
-                    mediaDiv.className = 'post-media';
+            const pAuthor = document.createElement('p');
+            pAuthor.className = 'post-meta';
+            const smallAuthor = document.createElement('small');
+            smallAuthor.className = 'post-byline';
+            smallAuthor.textContent = `Por ${item.author || 'Anónimo'}`;
+            pAuthor.appendChild(smallAuthor);
 
-                    if (item.mediaUrl.includes('youtube.com/embed')) {
-                        const iframe = document.createElement('iframe');
-                        iframe.src = item.mediaUrl;
-                        iframe.allowFullscreen = true;
-                        mediaDiv.appendChild(iframe);
-                    } else {
-                        const video = document.createElement('video');
-                        video.src = item.mediaUrl;
-                        video.controls = true;
-                        mediaDiv.appendChild(video);
-                    }
-                    div.appendChild(mediaDiv);
+            div.appendChild(h3);
+            div.appendChild(pAuthor);
+
+            // Multimedia (imagen/video subidos a Storage, o iframe de YouTube de publicaciones antiguas)
+            if (item.mediaType === 'image' && item.mediaUrl) {
+                const mediaDiv = document.createElement('div');
+                mediaDiv.className = 'post-media';
+                const img = document.createElement('img');
+                img.src = item.mediaUrl;
+                mediaDiv.appendChild(img);
+                div.appendChild(mediaDiv);
+            } else if (item.mediaType === 'video' && item.mediaUrl) {
+                const mediaDiv = document.createElement('div');
+                mediaDiv.className = 'post-media';
+                if (item.mediaUrl.includes('youtube.com/embed')) {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = item.mediaUrl;
+                    iframe.allowFullscreen = true;
+                    mediaDiv.appendChild(iframe);
+                } else {
+                    const video = document.createElement('video');
+                    video.src = item.mediaUrl;
+                    video.controls = true;
+                    mediaDiv.appendChild(video);
                 }
-                // Contenido Texto
-                const pContent = document.createElement('p');
-                pContent.className = 'post-content';
-                pContent.style.whiteSpace = 'pre-line';
-                pContent.textContent = item.content; // textContent previene inyección HTML
+                div.appendChild(mediaDiv);
+            }
 
-                div.appendChild(pContent);
-                container.appendChild(div);
-            });
-        }
+            const pContent = document.createElement('p');
+            pContent.className = 'post-content';
+            pContent.style.whiteSpace = 'pre-line';
+            pContent.textContent = item.content;
+            div.appendChild(pContent);
+
+            // Pie del artículo: antigüedad + botón de eliminar (solo admin)
+            const footer = document.createElement('div');
+            footer.className = 'post-footer';
+            if (item.timestamp) {
+                const daysAgo = Math.floor((Date.now() - item.timestamp) / 86400000);
+                const ageSpan = document.createElement('span');
+                ageSpan.className = 'post-age' + (daysAgo > 30 ? ' post-age-old' : '');
+                ageSpan.textContent = daysAgo <= 0 ? 'Hoy' : `Hace ${daysAgo} día${daysAgo === 1 ? '' : 's'}`;
+                footer.appendChild(ageSpan);
+            }
+
+            if (isAdminLoggedIn) {
+                const delBtn = document.createElement('button');
+                delBtn.className = 'post-delete-btn';
+                delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i> Eliminar';
+                delBtn.addEventListener('click', () => deleteNewsItem(key, item.mediaPath));
+                footer.appendChild(delBtn);
+            }
+
+            if (footer.children.length > 0) div.appendChild(footer);
+            container.appendChild(div);
+        });
+    }
+
+    db.ref('news').on('value', (snapshot) => {
+        latestNewsData = snapshot.val();
+        renderNewsFeed();
     }, (err) => { console.log("Feed Error:", err) });
-    // ==========================================
-    // 8. COMUNIDAD (FORO Y CHAT)
-    // ==========================================
-    async function sendCommunityMessage(nodePath, inputId) {
-        if (!currentUserData) return alert('Debes iniciar sesión.');
-
-        const input = document.getElementById(inputId);
-        const text = input.value.trim();
-        if (!text) return;
-        try {
-            await db.ref(nodePath).push({
-                uid: auth.currentUser.uid, // OBLIGATORIO PARA AUTORÍA INMUTABLE EN LA DB
-                user: currentUserData.username, // Conservado por visual UI
-                message: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-            input.value = '';
-        } catch (error) {
-            alert('PERMISSION_DENIED: Es posible que hayas sido bloqueado o la sesión expiró.');
-        }
-    }
-    function sendForo() { sendCommunityMessage('foro', 'foro-input'); }
-    function sendChat() { sendCommunityMessage('chat', 'chat-input'); }
-    // Renderizador genérico seguro para evitar XSS
-    function renderCommunityBox(snapshot, containerId) {
-        const box = document.getElementById(containerId);
-        box.innerHTML = '';
-        const data = snapshot.val();
-
-        if (data) {
-            Object.keys(data).forEach(key => {
-                const msg = data[key];
-                const div = document.createElement('div');
-                div.className = 'chat-msg';
-
-                const strong = document.createElement('strong');
-                strong.textContent = msg.user || 'Desconocido';
-
-                const spanMsg = document.createElement('span');
-                spanMsg.className = 'msg-text';
-                spanMsg.textContent = msg.message;
-
-                div.appendChild(strong);
-                div.appendChild(spanMsg);
-
-                box.appendChild(div);
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-    }
-    db.ref('foro').limitToLast(50).on('value', snap => renderCommunityBox(snap, 'foro-box'));
-    db.ref('chat').limitToLast(50).on('value', snap => renderCommunityBox(snap, 'chat-box'));
 </script>
 </body>
 </html>
